@@ -1,0 +1,119 @@
+.mailUnseen .x-grid3-cell-inner{
+	font-weight:bold;
+}
+.x-tree-mail_mail_check_delete_all .x-tree-node-icon,.mail__check_delete_all{
+	background: url(images/mailbox/mail_check_all_delete.png) no-repeat !important;
+}
+.x-tree-mail_check_all .x-tree-node-icon,.mail_check_all{
+	background: url(images/mailbox/mail_check_all.png) no-repeat !important;
+}
+.x-tree-mail_closed_add .x-tree-node-icon,.mail_closed_add{
+	background: url(images/mailbox/mail_closed_add.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_add .x-tree-node-icon,.mail_closed_alt_add{
+	background: url(images/mailbox/mail_closed_alt_add.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_delete .x-tree-node-icon,.mail_closed_alt_delete{
+	background: url(images/mailbox/mail_closed_alt_delete.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_edit .x-tree-node-icon,.mail_closed_alt_edit{
+	background: url(images/mailbox/mail_closed_alt_edit.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_receive .x-tree-node-icon,.mail_closed_alt_receive{
+	background: url(images/mailbox/mail_closed_alt_receive.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_send .x-tree-node-icon,.mail_closed_alt_send{
+	background: url(images/mailbox/mail_closed_alt_send.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt .x-tree-node-icon,.mail_closed_alt{
+	background: url(images/mailbox/mail_closed_alt.png) no-repeat !important;
+}
+.x-tree-mail_closed_delete .x-tree-node-icon,.mail_closed_delete{
+	background: url(images/mailbox/mail_closed_delete.png) no-repeat !important;
+}
+.x-tree-mail_closed_edit .x-tree-node-icon,.mail_closed_edit{
+	background: url(images/mailbox/mail_closed_edit.png) no-repeat !important;
+}
+.x-tree-mail_closed_receive .x-tree-node-icon,.mail_closed_receive{
+	background: url(images/mailbox/mail_closed_receive.png) no-repeat !important;
+}
+.x-tree-mail_closed_send .x-tree-node-icon,.mail_closed_send{
+	background: url(images/mailbox/mail_closed_send.png) no-repeat !important;
+}
+.x-tree-mail_closed .x-tree-node-icon,.mail_closed{
+	background: url(images/mailbox/mail_closed.png) no-repeat !important;
+}
+.x-tree-mail_inbox_add .x-tree-node-icon,.mail_inbox_add{
+	background: url(images/mailbox/mail_inbox_add.png) no-repeat !important;
+}
+.x-tree-mail_inbox_delete .x-tree-node-icon,.mail_inbox_delete{
+	background: url(images/mailbox/mail_inbox_delete.png) no-repeat !important;
+}
+.x-tree-mail_inbox_edit .x-tree-node-icon,.mail_inbox_edit{
+	background: url(images/mailbox/mail_inbox_edit.png) no-repeat !important;
+}
+.x-tree-mail_inbox .x-tree-node-icon,.mail_inbox{
+	background: url(images/mailbox/mail_inbox.png) no-repeat !important;
+}
+.x-tree-mail_open_alt .x-tree-node-icon,.mail_open_alt{
+	background: url(images/mailbox/mail_open_alt.png) no-repeat !important;
+}
+.x-tree-mail_open_receive .x-tree-node-icon,.mail_open_receive{
+	background: url(images/mailbox/mail_open_receive.png) no-repeat !important;
+}
+.x-tree-mail_open_send .x-tree-node-icon,.mail_open_send{
+	background: url(images/mailbox/mail_open_send.png) no-repeat !important;
+}
+.x-tree-mail_open .x-tree-node-icon,.mail_open{
+	background: url(images/mailbox/mail_open.png) no-repeat !important;
+}
+.x-tree-mail_trash .x-tree-node-icon,.mail_trash{
+	background: url(images/mailbox/mail_trash.png) no-repeat !important;
+}
+.x-tree-mail_archive .x-tree-node-icon,.mail_archive{
+	background: url(images/mailbox/mail_archive.png) no-repeat !important;
+}
+.x-tree-mail_attach .x-tree-node-icon,.mail_attach{
+	background: url(images/mailbox/mail_attach.png) no-repeat !important;
+}
+.x-tree-mail_pin_yellow .x-tree-node-icon,.mail_pin_yellow{
+	background: url(images/mailbox/mail_pin_yellow.png) no-repeat !important;
+}
+ul.mailview-recipients{
+	display: inline;
+}
+ul.mailview-recipients>li{
+	display: inline;
+	margin: 0;
+	-moz-border-radius: 6px; -webkit-border-radius: 6px; border-radius: 6px;
+	padding: 0px 5px 0px 5px;
+
+	/*border: 1px solid #CAD8F3;
+	background: #DEE7F8;*/
+	border-color: #598BEC;
+	background: #598BEC;
+	color: #fff;
+}
+ul.mailview-recipients>li.bit-box-focus {
+	border-color: #598BEC;
+	background	: #598BEC;
+	color		: #fff;
+}
+.x-tree-drop-ok-move .x-dd-drop-icon{
+	background-image: url(images/mailbox/drop-between.gif);
+}
+.attachments-wrap>.attachments-filename,
+.attachments-wrap>.attachments-size
+{
+	font-size:11px;
+}
+
+
+
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }
