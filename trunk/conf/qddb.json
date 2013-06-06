@@ -1,0 +1,5 @@
+{
+	"connection"	: "mysql:dbname=rss;host=localhost",
+	"username"		: "root",
+	"password"		: "toor"
+}

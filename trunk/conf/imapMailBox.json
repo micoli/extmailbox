@@ -1,0 +1,11 @@
+{
+	"tmp"		: "/tmp/mbox",
+	"accounts"	: {
+		"micoli@ms" : {
+			"cnx"	: "{localhost:143/novalidate-cert}",
+			"user"	: "micoli",
+			"email"	: "micoli@mediaserver.local",
+			"pass"	: "micoli"
+		}
+	}
+}
