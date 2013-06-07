@@ -20,6 +20,9 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ical.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ijp.js"></script>
 
+		<script type="text/javascript"			src ="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.js"></script>
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.css" />
+
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/filetype.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/filetree.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/icons.css" />
@@ -52,7 +55,7 @@
 			Ext.BLANK_IMAGE_URL = '<?php print EXT_ROOT?>/ext-2.2.1/release/resources/images/default/s.gif';
 		</script>
 		<!-- script type="text/javascript" src="sandbox.js"></script -->
-		<script type="text/javascript">console.log(new Date);</script>
+		<script type="text/javascript">console.log('START', new Date);</script>
 	</head>
 	<body>
 		<div id="mainPanel" style="width:1024x;"></div>
