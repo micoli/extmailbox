@@ -190,16 +190,15 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					}
 				},
 				listeners			: {
-					rowclick	: function(grid,idx,event){
-						var record = grid.getStore().getAt(idx);
-						that.fireEvent('recordclick',record);
-					},
 
 					cellclick	: function(grid,rowIndex,columnIndex,event){
 						var record = grid.getStore().getAt(rowIndex);
 						switch (grid.getColumnModel().getDataIndex(columnIndex)){
 							case 'seen':
 								that.fireEvent('seenclick',record);
+							break;
+							default:
+								that.fireEvent('recordclick',record);
 							break;
 						}
 					},
