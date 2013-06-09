@@ -35,8 +35,11 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/tristate/Ext.ux.form.Radio.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/tristate/Ext.ux.form.TriCheckbox.js"></script>
 
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.menu.Item.override.js"></script>
+
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/column-tree.css" />
 		<link rel="stylesheet" type="text/css"	href="modules/mailbox/Ext.eu.sm.Mailbox.css" />
+		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.attachedWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.Mailbox.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailView.js"></script>

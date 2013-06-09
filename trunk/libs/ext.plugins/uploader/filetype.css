@@ -5,7 +5,11 @@
  * $Id: filetype.css 51 2008-03-10 01:52:18Z jozo $
  *
  */
-
+.file-icon{
+	background-position	: right center;
+	background-repeat	: no-repeat;
+	padding-right		: 20px;
+}
 .file-pdf
 ,.file-ai
 {

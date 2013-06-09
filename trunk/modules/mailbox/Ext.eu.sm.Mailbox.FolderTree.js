@@ -6,6 +6,7 @@
  * http://extjs.com/license
  */
 
+
 Ext.ns('Ext.eu.sm.MailBox');
 
 Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
@@ -18,6 +19,66 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 	initComponent	: function (){
 		var that = this;
 		this.addEvents('beforedrop', 'drop');
+/*
+		that.createFolderMenu = function(handler,disabledId){
+			var tree = Ext.getCmp(that.folderTreeId);
+
+			var createSubMenu = function (node){
+				var item={
+					text	: node.text,
+					id		: node.id
+				};
+				if(disabledId==node.id){
+					item.disabledSelect = true;
+				}
+				item.handler = handler;
+				if(node.children){
+					item.menu= {
+						items : []
+					}
+					Ext.each(node.children,function(v,k){
+						item.menu.items.push(createSubMenu(v));
+					});
+				}
+				return item;
+			}
+
+			return new Ext.menu.Menu({
+				items: [createSubMenu(that.rawItems[0])]
+			});
+		};
+*/
+		that.createFolderMenu = function(handler,disabledId){
+			var tree = Ext.getCmp(that.folderTreeId);
+
+			var createSubMenu = function (children){
+				var items=[];
+				Ext.each(children,function(v,k){
+					var item={
+						text	: v.text,
+						id		: v.id,
+						iconCls	: v.rawCls?(v.rawCls).replace('x-tree-node-collapsed x-tree-node-icon',''):'mail_folder_open'
+					};
+					if(disabledId==v.id){
+						item.disabledSelect = true;
+					}
+					item.handler = handler;
+					if(v.children){
+						item.menu= {
+							items : []
+						}
+						item.menu.items = createSubMenu(v.children);
+					}
+					items.push(item);
+				});
+				return items;
+			}
+
+			return new Ext.menu.Menu({
+				items	: (that.rawItems.length>1)?createSubMenu(that.rawItems):createSubMenu(that.rawItems[0].children)
+			});
+		};
+
 		Ext.apply(that,{
 			columns		: [{
 				header		: 'Folder',
@@ -188,6 +249,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 						}
 					},
 					load			: function(loader,node,response) {
+						that.rawItems = JSON.parse(response.responseText);
 						that.fireEvent('click',that.getNodeById(Ext.util.base64.encode('INBOX')));
 					},
 				},
