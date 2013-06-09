@@ -1,6 +1,6 @@
 <?php
 /*
- *
+ *imap_reopen  !!
  */
 class svcMailboxImap{
 	var $imapProxy;
@@ -338,6 +338,9 @@ class svcMailboxImap{
 		}
 		foreach($attachments as &$f){
 			$f['attachUrlLink']=$this->getAttachementURLLink($o,$f['partno']);
+			if($f['filename']){
+				$f['type']=strtolower(pathinfo($f['filename'],PATHINFO_EXTENSION));
+			}
 		}
 		$parseFunc = 'parsePlugin'.ucFirst($type);
 		if(in_array($parseFunc,get_class_methods(__CLASS__))){
@@ -609,6 +612,7 @@ class svcMailboxImap{
 		foreach($this->icons as $preg=>$icon){
 			if(preg_match('/'.$preg.'/i',$name)){
 				$folder['cls'] .=' x-tree-'.$icon;
+				$folder['rawCls'] =$icon;
 			}
 		}
 	}

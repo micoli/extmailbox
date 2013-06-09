@@ -5,6 +5,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 	record			: null,
 	fullRecord		: null,
 	loading			: true,
+	folderTreeId	: null,
 	initComponent	: function(){
 		var that = this;
 		that.contentId			= Ext.id();
@@ -87,8 +88,10 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				},{
 					text		: Ext.eu.sm.MailBox.i18n._('Move'),
 					iconCls		: 'mail_inbox',
-					handler		: function(){
-						alert('to do');
+					handler		: function(cmp,event){
+						Ext.getCmp(that.folderTreeId).createFolderMenu(function (item){
+							console.log(item);
+						},that.record.get('folder')).showAt(event.getXY());
 					}
 				},'-',{
 					xtype		: 'button',
@@ -192,7 +195,9 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 							'<span class="attachments-wrap">',
 								'<span class="attachments-filename">',
 									'<a target="attachifr-{account}-{folder}-{message_no}-{filename}" href="{attachUrlLink}">',
-									'{hfilename}',
+										'<span class="file-icon file-{type}">',
+											'{hfilename}',
+										'</span>',
 									'</a>',
 									'<iframe src="" style="display:none;" name="attachifr-{account}-{folder}-{message_no}-{filename}"></iframe>',
 								'</span>',

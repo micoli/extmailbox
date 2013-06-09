@@ -79,6 +79,12 @@
 .x-tree-mail_pin_yellow .x-tree-node-icon,.mail_pin_yellow{
 	background: url(images/mailbox/mail_pin_yellow.png) no-repeat !important;
 }
+.x-tree-mail_folder_open .x-tree-node-icon,.mail_folder_open{
+	background: url(images/mailbox/folder-open.gif) no-repeat !important;
+}
+.x-tree-mail_folder_close .x-tree-node-icon,.mail_folder_close{
+	background: url(images/mailbox/folder.gif) no-repeat !important;
+}
 ul.mailview-recipients{
 	display: inline;
 }

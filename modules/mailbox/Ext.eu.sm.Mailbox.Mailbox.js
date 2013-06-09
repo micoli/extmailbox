@@ -132,8 +132,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				closable		: true,
 				record			: record,
 				mailboxContainer: that,
-				account			: that.account,
-				folder			: Ext.getCmp(that.mailGridId).mailStore.baseParams.folder,
+				folderTreeId	: that.folderTreeId,
 				message_no		: record.get('uid')
 			});
 			tabPanel.insert(1,panel);
@@ -290,11 +289,9 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 							mailGrid.load.call(mailGrid,that.account,node.id);
 						},
 						beforedrop		: function(dropEvent){
-							//console.log('beforedrop',dropEvent);
 							return true;
 						},
 						drop			: function(dropEvent){
-							//console.log('drop',dropEvent);
 							that.mailMove(dropEvent);
 						}
 					}
