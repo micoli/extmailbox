@@ -19,36 +19,38 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 	initComponent	: function (){
 		var that = this;
 		this.addEvents('beforedrop', 'drop');
-/*
-		that.createFolderMenu = function(handler,disabledId){
+
+		that.getFlatStructure = function (store,disabledId){
 			var tree = Ext.getCmp(that.folderTreeId);
+			store.removeAll();
 
-			var createSubMenu = function (node){
-				var item={
-					text	: node.text,
-					id		: node.id
-				};
-				if(disabledId==node.id){
-					item.disabledSelect = true;
-				}
-				item.handler = handler;
-				if(node.children){
-					item.menu= {
-						items : []
+			var createSubItem = function (children,parent){
+				var items=[];
+				Ext.each(children,function(v,k){
+					var item = {
+							longText	: parent.longText + v.text + '/',
+							shortcut	: parent.shortcut + v.text.substr(0,1).toLowerCase(),
+							subText		: v.text,
+							id			: v.id,
+						}
+					if(disabledId!=v.id){
+						store.add(new store.recordType(item));
 					}
-					Ext.each(node.children,function(v,k){
-						item.menu.items.push(createSubMenu(v));
-					});
-				}
-				return item;
+					if(v.children){
+						createSubItem(v.children,item);
+					}
+				});
 			}
+			if(that.rawItems.length>1){
+				createSubItem(that.rawItems				,{longText:'',shortcut:''});
+			}else{
+				createSubItem(that.rawItems[0].children	,{longText:'',shortcut:''})
+			}
+		}
 
-			return new Ext.menu.Menu({
-				items: [createSubMenu(that.rawItems[0])]
-			});
-		};
-*/
-		that.createFolderMenu = function(handler,disabledId){
+		that.createFolderMenu = function(config){
+			var handler = (config && config.listeners && config.listeners.selected)?config.listeners.selected:Ext.emptyFn;
+			var disabledId = config.disabledId || null;
 			var tree = Ext.getCmp(that.folderTreeId);
 
 			var createSubMenu = function (children){

@@ -89,9 +89,41 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 					text		: Ext.eu.sm.MailBox.i18n._('Move'),
 					iconCls		: 'mail_inbox',
 					handler		: function(cmp,event){
-						Ext.getCmp(that.folderTreeId).createFolderMenu(function (item){
-							console.log(item);
-						},that.record.get('folder')).showAt(event.getXY());
+						Ext.getCmp(that.folderTreeId).createFolderMenu({
+							disabledId	: that.record.get('folder'),
+							listeners	: {
+								'selected' : function (item){
+									console.log('OK to move',item);
+								},
+							}
+						}).showAt(event.getXY());
+					}
+				},{
+					text		: Ext.eu.sm.MailBox.i18n._('Move'),
+					iconCls		: 'mail_inbox',
+					handler	: function(cmp){
+						cmp.attachedCmp = new Ext.eu.attachedWindow({
+							resizeTriggerCmp: that,
+							stickCmp		: cmp,
+							width			: 350,
+							height			: 150,
+							layout			: 'fit',
+							items			: [{
+								xtype			: 'mailbox.folderselect',
+								folderTreeId	: that.folderTreeId,
+								listeners:{
+									'selected'	: function(selected){
+										console.log('OK to move',selected);
+										cmp.attachedCmp.destroy();
+									},
+									'cancel'	: function(selected){
+										console.log('cancel');
+										cmp.attachedCmp.destroy();
+									}
+								}
+							}]
+						});
+						cmp.attachedCmp.show();
 					}
 				},'-',{
 					xtype		: 'button',
