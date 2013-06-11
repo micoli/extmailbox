@@ -24,9 +24,6 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		that.mailStore.load();
 	},
 
-	/*changeMailFlag	: function(flag,record){
-	},*/
-
 	initComponent	: function (){
 		var that = this;
 		that.inlineTitleId	= Ext.id();

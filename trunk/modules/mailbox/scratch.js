@@ -27,3 +27,34 @@ console.log('display');
 }else{
 console.log('displayed');
 }*/
+/*
+/*
+that.createFolderMenu = function(handler,disabledId){
+	var tree = Ext.getCmp(that.folderTreeId);
+
+	var createSubMenu = function (node){
+		var item={
+			text	: node.text,
+			id		: node.id
+		};
+		if(disabledId==node.id){
+			item.disabledSelect = true;
+		}
+		item.handler = handler;
+		if(node.children){
+			item.menu= {
+				items : []
+			}
+			Ext.each(node.children,function(v,k){
+				item.menu.items.push(createSubMenu(v));
+			});
+		}
+		return item;
+	}
+
+	return new Ext.menu.Menu({
+		items: [createSubMenu(that.rawItems[0])]
+	});
+};
+*/
+
