@@ -4,6 +4,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 	account			: null,
 	folder			: null,
 	searchOpened	: false,
+	pageSize		: 50,
 
 	setInlineTitle	: function (text){
 		var that = this;
@@ -21,7 +22,12 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		}
 		that.mailStore.baseParams.folder	= folder;
 		that.mailStore.baseParams.account	= account;
-		that.mailStore.load();
+		that.mailStore.load({
+			params	: {
+				start			: 0,
+				limit			: that.pageSize
+			}
+		});
 	},
 
 	initComponent	: function (){
@@ -68,7 +74,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 						if((''+val)!=''){
 							searchForm.runQueryOneParam("TEXT",val);
 						}else{
-							searchForm.resetQuerySearch();
+							that.resetQuerySearch();
 						}
 					}
 				}
@@ -150,11 +156,11 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				region				: 'center',
 				store				: that.mailStore,
 				bbar				: new Ext.PagingToolbar({
-					pageSize	: 25,
-					store		: that.mailStore,
-					displayInfo	: true,
-					displayMsg	: Ext.eu.sm.MailBox.i18n._('Displaying mails {0} - {1} of {2}'),
-					emptyMsg	: Ext.eu.sm.MailBox.i18n._("No mails to display")
+					pageSize			: that.pageSize,
+					store				: that.mailStore,
+					displayInfo			: true,
+					displayMsg			: Ext.eu.sm.MailBox.i18n._('Displaying mails {0} - {1} of {2}'),
+					emptyMsg			: Ext.eu.sm.MailBox.i18n._("No mails to display")
 				}),
 				loadMask			: true,
 				autoExpandColumn	: 'subject',

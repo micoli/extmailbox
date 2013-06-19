@@ -300,7 +300,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				layout	: 'border',
 				region	: 'center',
 				border	: false,
-				items	: [{
+				items	: [Ext.apply({
 					xtype			: 'mailbox.mailgrid',
 					region			: 'center',
 					id				: that.mailGridId,
@@ -314,7 +314,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 							that.mailChangeFlag(record,'seen');
 						}
 					}
-				},{
+				},that.gridConfig),{
 					xtype			: 'tabpanel',
 					region			: 'south',
 					id				: that.mailPreviewsId,
