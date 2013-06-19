@@ -164,22 +164,26 @@ class svcMailboxImap{
 		if (($nStart+$nCnt) > $num) {
 			$nCnt = $num-$nStart;
 		}
-		$aID	= array_slice($aID,$nStart,($nStart+$nCnt-1));
+		//$aID	= array_slice($aID,$nStart,($nStart+$nCnt-1));
+		$aID	= array_slice($aID,$nStart,$nCnt);
 		$aMsgs	= $this->imapProxy->fetch_overview(implode(',',$aID));
 		$aRet	= array();
 		if ($aMsgs) {
 			$aMID = array();
 			foreach ($aMsgs as $msg) {
 				if($msg->message_id){
-					$aMID[]					= $msg->message_id;
+					//$aMID[]					= $msg->message_id;
+					$msg->msgid				= $folder.'/'.$msg->msgno;
+					$aMID[]					= $msg->msgid;
 					$msg->date				= date('Y-m-d H:i:s',strtotime($msg->date));
 					$msg->account			= $o['account'];
 					$msg->folder			= $o['folder'];
-					$aRet[$msg->message_id]	= $msg;
+					//$aRet[$msg->message_id]	= $msg;
+					$aRet[]	= $msg;
 				}
 			}
 			$aMMGCache = $this->getMMGCache($aMID);
-			foreach($aRet as $mid=>&$msg){
+			foreach($aRet as &$msg){
 				$this->getMsgWithCacheSupport($aMMGCache,$msg);
 			}
 		}
@@ -187,7 +191,7 @@ class svcMailboxImap{
 			$aRet = array_reverse($aRet);
 		}
 		//print (microtime(true)-$t1);
-		return array('data'=>array_values($aRet),'totalCount'=>$num);
+		return array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
 	}
 
 
@@ -197,13 +201,13 @@ class svcMailboxImap{
 	 * @param unknown $msg
 	 */
 	function getMsgWithCacheSupport(&$aMMGCache,&$msg){
-		if(!array_key_exists($msg->message_id,$aMMGCache)){
+		if(!array_key_exists($msg->msgid,$aMMGCache)){
 			$head		= $this->getHeader($msg->msgno);
 			$this->parseRecipient($head, 'from');
 			$this->parseRecipient($head, 'to');
 			$this->parseRecipient($head, 'cc');
-			$aMMGCache[$msg->message_id] = array(
-				'MMG_MESSAGE_ID'	=>$msg->message_id,
+			$aMMGCache[$msg->msgid] = array(
+				'MMG_MESSAGE_ID'	=>$msg->msgid,
 				'MMG_SUBJECT'		=>$this->decodeMimeStr($head['subject'][0]),
 				'MMG_FROM'			=>json_encode(array_key_exists_assign_default('from',$head,'')),
 				'MMG_TO'			=>json_encode(array_key_exists_assign_default('to'	,$head,'')),
@@ -213,12 +217,12 @@ class svcMailboxImap{
 				'MMG_SIZE'			=>$msg->size,
 				'MMG_RAWHEADER'		=>json_encode($head),
 			);
-			$this->putMMGCache($aMMGCache[$msg->message_id]);
+			$this->putMMGCache($aMMGCache[$msg->msgid]);
 		}
-		$msg->subject	= $aMMGCache[$msg->message_id]['MMG_SUBJECT'];
-		$msg->from		= json_decode($aMMGCache[$msg->message_id]['MMG_FROM'	]);
-		$msg->to		= json_decode($aMMGCache[$msg->message_id]['MMG_TO'		]);
-		$msg->cc		= json_decode($aMMGCache[$msg->message_id]['MMG_CC'		]);
+		$msg->subject	= $aMMGCache[$msg->msgid]['MMG_SUBJECT'];
+		$msg->from		= json_decode($aMMGCache[$msg->msgid]['MMG_FROM'	]);
+		$msg->to		= json_decode($aMMGCache[$msg->msgid]['MMG_TO'		]);
+		$msg->cc		= json_decode($aMMGCache[$msg->msgid]['MMG_CC'		]);
 	}
 
 	/**

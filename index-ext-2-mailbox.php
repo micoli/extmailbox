@@ -46,6 +46,7 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailEditor.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderTree.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderTreeColumnNodeUI.js"></script>
+		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailGrid.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSearchForm.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>

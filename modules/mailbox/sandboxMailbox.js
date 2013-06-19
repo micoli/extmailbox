@@ -4,8 +4,11 @@ Ext.onReady(function(){
 	new Ext.Viewport({
 		layout:'border',
 		items:[{
-			region	:'center',
-			xtype	: 'mailbox.mailbox'
+			region			:'center',
+			xtype			: 'mailbox.mailbox',
+			gridConfig		: {
+				pageSize		: 5
+			}
 		}]
 	});
 
