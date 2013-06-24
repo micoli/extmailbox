@@ -7,7 +7,10 @@ Ext.onReady(function(){
 			region			:'center',
 			xtype			: 'mailbox.mailbox',
 			gridConfig		: {
-				pageSize		: 5
+				pageSize		: 25
+			},
+			viewMailConfig	: {
+				viewInlineImg	: false
 			}
 		}]
 	});

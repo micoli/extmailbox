@@ -125,7 +125,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			if(subject.length>30){
 				subject = subject.substr(0,28)+"...";
 			}
-			panel = new Ext.eu.sm.MailBox.MailView({
+			panel = new Ext.eu.sm.MailBox.MailView(Ext.apply({
 				id				: that.id+'-'+record.get('message_id'),
 				title			: subject,
 				iconCls			: 'mail_open_alt',
@@ -134,7 +134,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				mailboxContainer: that,
 				folderTreeId	: that.folderTreeId,
 				message_no		: record.get('uid')
-			});
+			},that.viewMailConfig));
 			tabPanel.insert(1,panel);
 		}
 		var tabPanel = Ext.getCmp(that.mailPreviewsId);
@@ -302,7 +302,8 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				border	: false,
 				items	: [Ext.apply({
 					xtype			: 'mailbox.mailgrid',
-					region			: 'center',
+					region			: 'north',
+					height			: 200,
 					id				: that.mailGridId,
 					mailboxContainer: that,
 					searchOpened	: false,
@@ -316,11 +317,10 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 					}
 				},that.gridConfig),{
 					xtype			: 'tabpanel',
-					region			: 'south',
+					region			: 'center',
 					id				: that.mailPreviewsId,
 					enableTabScroll	: true,
 					split			: true,
-					height			: 200,
 					activeTab		: 0,
 					defaults		: {
 						autoScroll		: true
