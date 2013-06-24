@@ -65,26 +65,29 @@ class imapProxy{
 	}
 
 	function search ($query){
-		return imap_search($this->imapStream,$query,SE_FREE,"UTF-8");
+		return imap_search($this->imapStream,$query,SE_UID,"UTF-8");
 	}
 	function sort ($sort,$dir){
-		return imap_sort($this->imapStream,$this->imap_order[$sort],$dir=='ASC'?0:1);
+		return imap_sort($this->imapStream,$this->imap_order[$sort],$dir=='ASC'?0:1,SE_UID);
 	}
 
 	function num_msg (){
 		return imap_num_msg($this->imapStream);
 	}
 
+	function uid ($message_no){
+		return imap_uid($this->imapStream,$message_no);
+	}
 	function msgno ($message_no){
 		return imap_msgno($this->imapStream,$message_no);
 	}
 
 	function fetch_overview ($p){
-		return imap_fetch_overview($this->imapStream, $p);
+		return imap_fetch_overview($this->imapStream, $p,FT_UID);
 	}
 
 	function fetchheader ($message_no){
-		return imap_fetchheader($this->imapStream,$message_no);
+		return imap_fetchheader($this->imapStream,$message_no,FT_UID);
 	}
 
 	function fetchbody ($message_no,$partno){
@@ -92,7 +95,7 @@ class imapProxy{
 		if($this->cacheEnabled && file_exists($file)){
 			return json_decode(file_get_contents($file));
 		}else{
-			$tmp = imap_fetchbody($this->imapStream,$message_no,$partno);
+			$tmp = imap_fetchbody($this->imapStream,$message_no,$partno,FT_UID);
 			if($tmp){
 				file_put_contents($file,json_encode($tmp));
 			}
@@ -105,7 +108,7 @@ class imapProxy{
 		if($this->cacheEnabled && file_exists($file)){
 			return json_decode(file_get_contents($file));
 		}else{
-			$tmp = imap_body($this->imapStream,$message_no);
+			$tmp = imap_body($this->imapStream,$message_no,FT_UID);
 			if($tmp){
 				file_put_contents($file,json_encode($tmp));
 			}
@@ -119,7 +122,7 @@ class imapProxy{
 		if($this->cacheEnabled && file_exists($file)){
 			return json_decode(file_get_contents($file));
 		}else{
-			$tmp = imap_fetchstructure($this->imapStream,$message_no);
+			$tmp = imap_fetchstructure($this->imapStream,$message_no,FT_UID);
 			if($tmp){
 				file_put_contents($file,json_encode($tmp));
 			}
@@ -129,11 +132,11 @@ class imapProxy{
 	}
 
 	function setflag_full($message_no,$flag){
-		return imap_setflag_full($this->imapStream,$message_no,$flag);
+		return imap_setflag_full($this->imapStream,$message_no,$flag,ST_UID);
 	}
 
 	function clearflag_full($message_no,$flag){
-		return imap_clearflag_full($this->imapStream,$message_no,$flag);
+		return imap_clearflag_full($this->imapStream,$message_no,$flag,ST_UID);
 	}
 
 	function expunge(){
@@ -141,10 +144,10 @@ class imapProxy{
 	}
 
 	function mail_copy($sequence,$dest){
-		return imap_mail_copy($this->imapStream,$sequence,$dest);
+		return imap_mail_copy($this->imapStream,$sequence,$dest,CP_UID);
 	}
 
 	function mail_move($sequence,$dest){
-		return imap_mail_move($this->imapStream,$sequence,$dest);
+		return imap_mail_move($this->imapStream,$sequence,$dest,CP_UID);
 	}
 }

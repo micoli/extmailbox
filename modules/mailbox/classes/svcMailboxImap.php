@@ -1,6 +1,7 @@
 <?php
 /*
  *imap_reopen  !!
+ *msgno ft_uid
  */
 class svcMailboxImap{
 	var $imapProxy;
@@ -173,7 +174,7 @@ class svcMailboxImap{
 			foreach ($aMsgs as $msg) {
 				if($msg->message_id){
 					//$aMID[]					= $msg->message_id;
-					$msg->msgid				= $folder.'/'.$msg->msgno;
+					$msg->msgid				= $folder.'/'.$msg->uid;
 					$aMID[]					= $msg->msgid;
 					$msg->date				= date('Y-m-d H:i:s',strtotime($msg->date));
 					$msg->account			= $o['account'];
@@ -202,7 +203,7 @@ class svcMailboxImap{
 	 */
 	function getMsgWithCacheSupport(&$aMMGCache,&$msg){
 		if(!array_key_exists($msg->msgid,$aMMGCache)){
-			$head		= $this->getHeader($msg->msgno);
+			$head		= $this->getHeader($msg->uid);
 			$this->parseRecipient($head, 'from');
 			$this->parseRecipient($head, 'to');
 			$this->parseRecipient($head, 'cc');
@@ -269,7 +270,7 @@ class svcMailboxImap{
 		if(!$this->imapProxy->isConnected()){
 			return $res;
 		}
-		$message_no	= $this->imapProxy->msgno($message_no);
+		//$message_no	= $this->imapProxy->msgno($message_no);
 		//$struct		= $this->getMimeMsg($mbox, $message_no,false);
 		$head		= $this->getHeader($message_no,true);
 		$this->parseRecipient($head, 'From');
@@ -302,15 +303,15 @@ class svcMailboxImap{
 					if($part['subtype']=='PLAIN' && !$bodyPartNo){
 						$type		= 'plain';
 						$bodyPartNo	= $partno;
-						$charset	= array_key_exists_assign_default('charset',$part,'utf-8');
+						$charset	= array_key_exists_assign_default('charset',$part,'unknown');
 					}elseif($part['subtype']=='HTML'){
 						$type		= 'html';
 						$bodyPartNo	= $partno;
-						$charset	= array_key_exists_assign_default('charset',$part,'utf-8');
+						$charset	= array_key_exists_assign_default('charset',$part,'unknown');
 					}elseif($part['subtype']=='CALENDAR'){
 						$type		= 'calendar';
 						$bodyPartNo	= $partno;
-						$charset	= array_key_exists_assign_default('charset',$part,'utf-8');
+						$charset	= array_key_exists_assign_default('charset',$part,'unknown');
 					}
 				}
 			}else{
@@ -410,21 +411,35 @@ class svcMailboxImap{
 		}
 	}
 
-	function parsePluginHtml($data,$charset,$o,&$attachments){
-		$body= iconv(strtoupper($charset),'UTF-8',$data);
-		foreach($attachments as &$f){
-			if(array_key_exists('id',$f)){
-				$body = str_replace('cid:'.$f['id'],$f['attachUrlLink'],$body);
+	function parsePluginHtml($body,$charset,&$o,&$attachments){
+		if($charset=='unknown'){
+			$body = utf8_encode($body);//$charset='ISO-8859-1';
+		}else{
+		//if ( (strtoupper($charset)!='UTF-8')){
+			$body= iconv(strtoupper($charset),'UTF-8',$data); // //TRANSLIT
+		}
+		$o['hasInlineComponents'] = false;
+		if(array_key_exists('viewInlineImg',$o) && $o['viewInlineImg']){
+			foreach($attachments as &$f){
+				if(array_key_exists('id',$f)){
+					$body = str_replace('cid:'.$f['id'],$f['attachUrlLink'],$body);
+					$o['hasInlineComponents'] = true;
+				}
 			}
 		}
+		if(preg_match('!src=(?:"|\')([^\'"]*)(?:"|\')!',$body)){
+			$body = preg_replace('!src=(?:"|\')([^\'"]*)(?:"|\')!', 'src="" data-imgsafesrc="\\1"',$body );
+			$o['hasInlineComponents'] = true;
+		}
+		//die($body);
 		return $body;
 	}
 
-	function parsePluginPlain($data,$charset,$o,&$attachments){
+	function parsePluginPlain($data,$charset,&$o,&$attachments){
 		return "<pre>".iconv(strtoupper($charset),'UTF-8',$data)."<pre>";
 	}
 
-	function parsePluginCalendar($data,$charset,$o,&$attachments){
+	function parsePluginCalendar($data,$charset,&$o,&$attachments){
 		//$body= iconv(strtoupper($charset),'UTF-8',$data);
 		//return $body;
 		$data = quoted_printable_decode($data);// utf8_decode(imap_utf8($data)));
@@ -498,7 +513,7 @@ class svcMailboxImap{
 	}
 
 	private function getAttachementURLLink($o,$partno){
-		return sprintf('proxy.php?exw_action=local.imapProxy.getMessageAttachment&account=%s&folder=%s&message_no=%s&partno=%s',
+		return sprintf('proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=%s&folder=%s&message_no=%s&partno=%s',
 			$o['account'],
 			$o['folder'],
 			$o['message_no'],
@@ -523,7 +538,7 @@ class svcMailboxImap{
 		}
 
 		$o['filename']	= base64_decode($o['filename']);
-		$message_no		= $this->imapProxy->msgno($message_no);
+		//$message_no		= $this->imapProxy->msgno($message_no);
 		$outStruct		= $this->getMimeFlatStruct($message_no);
 		$part			= $outStruct[$o['partno']];
 		$filename		= ($part['params']['filename'])? $part['params']['filename'] : $part['params']['name'];

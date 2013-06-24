@@ -6,14 +6,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 	fullRecord		: null,
 	loading			: true,
 	folderTreeId	: null,
+	viewInlineImg	: true,
 	initComponent	: function(){
 		var that = this;
 		that.contentId			= Ext.id();
 		that.formId				= Ext.id();
 		that.attachmentPanelId	= Ext.id();
 		that.headerPanelId		= Ext.id();
+		that.viewInlineImgId	= Ext.id();
 		that.flagButtonId		= {
-				seen				: Ext.id()
+			seen				: Ext.id()
 		}
 		that.partStore			= new Ext.data.JsonStore({
 			fields	: [
@@ -133,6 +135,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 					pressed		: that.record.get('seen'),
 					handler		: function (cmp){
 						that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
+					}
+				},'-',{
+					xtype		: 'button',
+					text		: Ext.eu.sm.MailBox.i18n._('view Inline Images'),
+					enableToggle: true,
+					id			: that.viewInlineImgId,
+					pressed		: that.viewInlineImg,
+					handler		: function (cmp){
+						that.loadMail();
+						//that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
 					}
 				},'->',{
 					text		: Ext.eu.sm.MailBox.i18n._('View header'),
@@ -304,52 +316,55 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
-				exw_action	: 'local.mailboxImap.getMessageContent',
-				account		: that.record.get('account'),
-				folder		: that.record.get('folder'),
-				message_no	: that.record.get('uid'),
+				exw_action		: 'local.mailboxImap.getMessageContent',
+				account			: that.record.get('account'),
+				folder			: that.record.get('folder'),
+				message_no		: that.record.get('uid'),
+				viewInlineImg	: Ext.getCmp(that.viewInlineImgId).pressed
 			},
 			success	: function(data){
 				that.loading = false;
 				that.fullRecord	= JSON.parse(data.responseText);
 				//if(contentPanel && contentPanel.getFrameBody){
-					contentPanel.getFrameBody().innerHTML=that.fullRecord.body;
-					if(that.fullRecord.type=='calendar'){
-						//var sourceResult = ICAL.parse(that.fullRecord.body);
-						//console.log(sourceResult);
-						//sourceResult.toSource()
-						Ext.getCmp(that.contentId).getFrameBody().innerHTML=that.JSONsyntaxHighlight(that.fullRecord.body);
-					}
+				var bodyHtml = that.fullRecord.body;
+				if(Ext.getCmp(that.viewInlineImgId).pressed){
+					bodyHtml=bodyHtml.replace(/src\=\"\" data\-imgsafesrc\=/g,' src=');
+				}
+				contentPanel.getFrameBody().innerHTML=bodyHtml;
+				if(that.fullRecord.type=='calendar'){
+					//var sourceResult = ICAL.parse(that.fullRecord.body);
+					//console.log(sourceResult);
+					//sourceResult.toSource()
+					Ext.getCmp(that.contentId).getFrameBody().innerHTML=that.JSONsyntaxHighlight(that.fullRecord.body);
+				}
 
-					that.partStore.removeAll();
-					var nb = 0;
-					if(that.fullRecord.attachments){
-						for(k in that.fullRecord.attachments){
-							if(parseInt(k)==k){
-								var att = new that.partStore.recordType(Ext.apply(that.fullRecord.attachments[k],{
-									account		: that.record.get('account'),
-									folder		: that.record.get('folder'),
-									message_no	: that.record.get('uid'),
-									hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(that.fullRecord.attachments[k].size),
-								}));
-								that.partStore.addSorted(att);
-								nb++;
-							}
+				that.partStore.removeAll();
+				var attachmentPanel = Ext.getCmp(that.attachmentPanelId);
+				var nb = 0;
+				if(that.fullRecord.attachments){
+					for(k in that.fullRecord.attachments){
+						if(parseInt(k)==k){
+							that.partStore.addSorted(new that.partStore.recordType(Ext.apply(that.fullRecord.attachments[k],{
+								account		: that.record.get('account'),
+								folder		: that.record.get('folder'),
+								message_no	: that.record.get('uid'),
+								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(that.fullRecord.attachments[k].size),
+							})));
+							nb++;
 						}
 					}
-					var attachmentPanel = Ext.getCmp(that.attachmentPanelId);
-					if(nb){
-						attachmentPanel.setHeight(attachmentPanel.minHeight);
-						attachmentPanel.show();
-					}else{
-						attachmentPanel.hide();
+					attachmentPanel.setHeight(attachmentPanel.minHeight);
+					attachmentPanel.show();
+				}else{
+					attachmentPanel.hide();
+				}
+
+				new Ext.util.DelayedTask(function(){
+					that.doLayout();
+					if(contentPanel && contentPanel.body){
+						contentPanel.body.unmask();
 					}
-					new Ext.util.DelayedTask(function(){
-						that.doLayout();
-						if(contentPanel && contentPanel.body){
-							contentPanel.body.unmask();
-						}
-					}, this).delay(100);
+				}, this).delay(100);
 				//}
 			},
 			failure	: function(){
