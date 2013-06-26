@@ -1,20 +1,20 @@
 Ext.ns('Ext.eu.sm.MailBox');
 
 Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
-	mailboxContainer: null,
-	record			: null,
-	fullRecord		: null,
-	loading			: true,
-	folderTreeId	: null,
-	viewInlineImg	: true,
-	initComponent	: function(){
+	mailboxContainer		: null,
+	record					: null,
+	fullRecord				: null,
+	loading					: true,
+	folderTreeId			: null,
+	displayInlineComponents	: true,
+	initComponent			: function(){
 		var that = this;
-		that.contentId			= Ext.id();
-		that.formId				= Ext.id();
-		that.attachmentPanelId	= Ext.id();
-		that.headerPanelId		= Ext.id();
-		that.viewInlineImgId	= Ext.id();
-		that.flagButtonId		= {
+		that.contentId					= Ext.id();
+		that.formId						= Ext.id();
+		that.attachmentPanelId			= Ext.id();
+		that.headerPanelId				= Ext.id();
+		that.displayInlineComponentsId	= Ext.id();
+		that.flagButtonId				= {
 			seen				: Ext.id()
 		}
 		that.partStore			= new Ext.data.JsonStore({
@@ -45,7 +45,8 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			items	: [{
 				region		: 'north',
 				baseCls		: 'x-plain',
-				height		: 95,
+				split		: true,
+				height		: 120,
 				labelWidth	: 70,
 				id			: that.formId,
 				frame		: true,
@@ -140,14 +141,17 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 					xtype		: 'button',
 					text		: Ext.eu.sm.MailBox.i18n._('view Inline Images'),
 					enableToggle: true,
-					id			: that.viewInlineImgId,
-					pressed		: that.viewInlineImg,
+					id			: that.displayInlineComponentsId,
+					pressed		: that.displayInlineComponents,
+					hidden		: true,
 					handler		: function (cmp){
-						that.loadMail();
-						//that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
+						if(cmp.pressed){
+							that.displayInlineComponentsFunc();
+							cmp.hide();
+						}
 					}
 				},'->',{
-					text		: Ext.eu.sm.MailBox.i18n._('View header'),
+					text		: Ext.eu.sm.MailBox.i18n._('Header'),
 					iconCls		: 'mail_open_alt',
 					handler		: function(){
 						if(!that.loading){
@@ -171,6 +175,43 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 						}else{
 							alert(Ext.eu.sm.MailBox.i18n._('Still loading email body'));
 						}
+					}
+				},{
+					text		: Ext.eu.sm.MailBox.i18n._('Source'),
+					iconCls		: 'mail_open_alt',
+					handler		: function(){
+						var areaId = Ext.id();
+						var w = new Ext.Window({
+							title		: Ext.eu.sm.MailBox.i18n._('Raw source'),
+							height		: 350,
+							width		: 830,
+							minimizable	: false,
+							maximizable	: true,
+							resizable	: true,
+							modal		: true,
+							shim		: true,
+							plain		: true,
+							closable	: true,
+							layout		: 'fit',
+							items		: {
+								xtype		: 'textarea',
+								id			: areaId,
+								value		: 'loading'
+							}
+						}).show();
+						Ext.Ajax.request({
+							url		: 'proxy.php',
+							params	: {
+								exw_action		: 'local.mailboxImap.getMessageSource',
+								account			: that.record.get('account'),
+								folder			: that.record.get('folder'),
+								message_no		: that.record.get('uid'),
+							},
+							success	: function(data){
+								var val = JSON.parse(data.responseText);
+								Ext.getCmp(areaId).setValue(val.source);
+							}
+						});
 					}
 				}],
 				xtype			: 'panel',
@@ -291,6 +332,11 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			return '<pre><span class="' + cls + '">' + match + '</span></pre>';
 		});
 	},
+	displayInlineComponentsFunc : function(){
+		var that = this;
+		var contentPanel = Ext.getCmp(that.contentId);
+		contentPanel.getFrameBody().innerHTML=contentPanel.getFrameBody().innerHTML.replace(/src\=\"\" data\-imgsafesrc\=/g,' src=');
+	},
 	loadMail		: function (){
 		var that = this;
 		var headerPanel		= Ext.getCmp(that.headerPanelId);
@@ -320,17 +366,20 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				account			: that.record.get('account'),
 				folder			: that.record.get('folder'),
 				message_no		: that.record.get('uid'),
-				viewInlineImg	: Ext.getCmp(that.viewInlineImgId).pressed
 			},
 			success	: function(data){
 				that.loading = false;
 				that.fullRecord	= JSON.parse(data.responseText);
-				//if(contentPanel && contentPanel.getFrameBody){
 				var bodyHtml = that.fullRecord.body;
-				if(Ext.getCmp(that.viewInlineImgId).pressed){
-					bodyHtml=bodyHtml.replace(/src\=\"\" data\-imgsafesrc\=/g,' src=');
-				}
 				contentPanel.getFrameBody().innerHTML=bodyHtml;
+				if(that.fullRecord.hasInlineComponents){
+					var but = Ext.getCmp(that.displayInlineComponentsId);
+					if(but.pressed){
+						that.displayInlineComponentsFunc();
+					}else{
+						but.show();
+					}
+				}
 				if(that.fullRecord.type=='calendar'){
 					//var sourceResult = ICAL.parse(that.fullRecord.body);
 					//console.log(sourceResult);

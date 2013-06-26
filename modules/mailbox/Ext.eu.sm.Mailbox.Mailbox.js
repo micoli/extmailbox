@@ -3,6 +3,7 @@ Ext.ns('Ext.eu.sm.MailBox');
 
 Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 	layout				: 'border',
+	mailLayout			: 'threePane',
 	account				: '',
 	mailFields			: [
 		'account',
@@ -235,140 +236,146 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			}
 		});
 
+		var configFolder = {
+			xtype		: 'mailbox.foldertree',
+			id			: that.folderTreeId,
+			split		: true,
+			rootVisible	: false,
+			autoScroll	: true,
+			enableDrop	: true,
+			border		: false,
+			tbar		: ['Account: ',{
+				xtype			: 'combo',
+				width			: 100,
+				store			: that.accountStore,
+				id				: that.accountComboId,
+				displayField	: 'email',
+				valueField		: 'account',
+				emptyText		: 'Select an account...',
+				mode			: 'local',
+				triggerAction	: 'all',
+				typeAhead		: true,
+				forceSelection	: true,
+				selectOnFocus	: true,
+				listeners		:{
+					select			: function(combo,record,index){
+						that.account = record.get('account');
+						var tree = Ext.getCmp(that.folderTreeId);
+						tree.account = that.account;
+						tree.loader.load(tree.getRootNode());
+					}
+				}
+			},'->',{
+				xtype	: 'button',
+				text	: 'New',
+				iconCls	: 'mail_closed_alt_add',
+				handler	: function(){
+					var record = new (Ext.getCmp(that.mailGridId)).mailStore.recordType({
+						subject	: ''
+					});
+					that.addMailEditor(record);
+				}
+			}],
+			listeners		: {
+				click			: function(node){
+					var mailGrid = Ext.getCmp(that.mailGridId);
+					mailGrid.load.call(mailGrid,that.account,node.id);
+				},
+				beforedrop		: function(dropEvent){
+					return true;
+				},
+				drop			: function(dropEvent){
+					that.mailMove(dropEvent);
+				}
+			}
+		};
+		var configGrid = Ext.apply({
+			xtype			: 'mailbox.mailgrid',
+			split			: true,
+			id				: that.mailGridId,
+			mailboxContainer: that,
+			searchOpened	: false,
+			listeners		: {
+				recordclick	: function(record){
+					that.viewMail(record);
+				},
+				seenclick	: function(record){
+					that.mailChangeFlag(record,'seen');
+				}
+			}
+		},that.gridConfig);
+
+		var configTabView = {
+			xtype			: 'tabpanel',
+			id				: that.mailPreviewsId,
+			enableTabScroll	: true,
+			split			: true,
+			activeTab		: 0,
+			defaults		: {
+				autoScroll		: true
+			},
+			items			: [{
+				staticTab		: true,
+				title			: 'Home',
+				border			: false,
+				frame			: true,
+				html			: '<H1></H1>'
+			}],
+			listeners		: {
+				contextmenu : function (tabPanel, panel, e){
+					e.stopEvent();
+					new Ext.menu.Menu({
+						items			: [{
+							text			: Ext.eu.sm.MailBox.i18n._('Close'),
+							iconCls			: 'edit',
+							handler			: function(){
+								tabPanel.remove(panel);
+							}
+						},{
+							text			: Ext.eu.sm.MailBox.i18n._('Close Others'),
+							iconCls			: 'edit',
+							handler			: function(){
+								for (var i = tabPanel.items.items.length - 1; i > 0; i--){
+									var tab = tabPanel.items.items[i];
+									if(tab.id!=panel.id && Ext.fly(tabPanel.getTabEl(tab)).hasClass('x-tab-strip-closable')){
+										tabPanel.remove(tab);
+									}
+								}
+							}
+						},{
+							text			: Ext.eu.sm.MailBox.i18n._('Close All'),
+							iconCls			: 'edit',
+							handler			: function(){
+								for (var i = tabPanel.items.items.length - 1; i > 0; i--){
+									var tab = tabPanel.items.items[i];
+									if(!Ext.fly(tabPanel.getTabEl(tab)).hasClass('x-tab-strip-closable')){
+										tabPanel.remove(tab);
+									}
+								}
+							}
+						}]
+					}).showAt(e.getXY());
+				}
+			}
+		};
+
 		Ext.apply(that,{
 			layout	: 'border',
-			items	: [{
+			items	: [Ext.apply(configFolder,{
 				width		: 190,
 				region		: 'west',
-				layout		: 'border',
 				split		: true,
-				border		: false,
-				items		: [{
-					xtype		: 'mailbox.foldertree',
-					region		: 'center',
-					id			: that.folderTreeId,
-					split		: true,
-					rootVisible	: false,
-					autoScroll	: true,
-					enableDrop	: true,
-					tbar		: ['Account: ',{
-						xtype			: 'combo',
-						width			: 100,
-						store			: that.accountStore,
-						id				: that.accountComboId,
-						displayField	: 'email',
-						valueField		: 'account',
-						emptyText		: 'Select an account...',
-						mode			: 'local',
-						triggerAction	: 'all',
-						typeAhead		: true,
-						forceSelection	: true,
-						selectOnFocus	: true,
-						listeners		:{
-							select			: function(combo,record,index){
-								that.account = record.get('account');
-								var tree = Ext.getCmp(that.folderTreeId);
-								tree.account = that.account;
-								tree.loader.load(tree.getRootNode());
-							}
-						}
-					},'->',{
-						xtype	: 'button',
-						text	: 'New',
-						iconCls	: 'mail_closed_alt_add',
-						handler	: function(){
-							var record = new (Ext.getCmp(that.mailGridId)).mailStore.recordType({
-								subject	: ''
-							});
-							that.addMailEditor(record);
-						}
-					}],
-					listeners		: {
-						click			: function(node){
-							var mailGrid = Ext.getCmp(that.mailGridId);
-							mailGrid.load.call(mailGrid,that.account,node.id);
-						},
-						beforedrop		: function(dropEvent){
-							return true;
-						},
-						drop			: function(dropEvent){
-							that.mailMove(dropEvent);
-						}
-					}
-				}]
-			},{
+			}),{
 				layout	: 'border',
 				region	: 'center',
 				border	: false,
-				items	: [Ext.apply({
-					xtype			: 'mailbox.mailgrid',
-					region			: 'north',
+				items	: [Ext.apply(configGrid,{
+					region			: that.mailLayout=='threePane'?'west':'north',
 					height			: 200,
-					id				: that.mailGridId,
-					mailboxContainer: that,
-					searchOpened	: false,
-					listeners		: {
-						recordclick	: function(record){
-							that.viewMail(record);
-						},
-						seenclick	: function(record){
-							that.mailChangeFlag(record,'seen');
-						}
-					}
-				},that.gridConfig),{
-					xtype			: 'tabpanel',
-					region			: 'center',
-					id				: that.mailPreviewsId,
-					enableTabScroll	: true,
-					split			: true,
-					activeTab		: 0,
-					defaults		: {
-						autoScroll		: true
-					},
-					items			: [{
-						staticTab		: true,
-						title			: 'Home',
-						border			: false,
-						frame			: true,
-						html			: '<H1></H1>'
-					}],
-					listeners		: {
-						contextmenu : function (tabPanel, panel, e){
-							e.stopEvent();
-							new Ext.menu.Menu({
-								items			: [{
-									text			: Ext.eu.sm.MailBox.i18n._('Close'),
-									iconCls			: 'edit',
-									handler			: function(){
-										tabPanel.remove(panel);
-									}
-								},{
-									text			: Ext.eu.sm.MailBox.i18n._('Close Others'),
-									iconCls			: 'edit',
-									handler			: function(){
-										for (var i = tabPanel.items.items.length - 1; i > 0; i--){
-											var tab = tabPanel.items.items[i];
-											if(tab.id!=panel.id && Ext.fly(tabPanel.getTabEl(tab)).hasClass('x-tab-strip-closable')){
-												tabPanel.remove(tab);
-											}
-										}
-									}
-								},{
-									text			: Ext.eu.sm.MailBox.i18n._('Close All'),
-									iconCls			: 'edit',
-									handler			: function(){
-										for (var i = tabPanel.items.items.length - 1; i > 0; i--){
-											var tab = tabPanel.items.items[i];
-											if(!Ext.fly(tabPanel.getTabEl(tab)).hasClass('x-tab-strip-closable')){
-												tabPanel.remove(tab);
-											}
-										}
-									}
-								}]
-							}).showAt(e.getXY());
-						}
-					}
-				}]
+					width			: 700,
+				}),Ext.apply(configTabView,{
+					region: 'center'
+				})]
 			}]
 		});
 		Ext.eu.sm.MailBox.Mailbox.superclass.initComponent.call(this);
