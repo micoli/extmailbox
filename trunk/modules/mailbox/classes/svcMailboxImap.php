@@ -257,6 +257,22 @@ class svcMailboxImap{
 	 * @param array $o
 	 * @return array
 	 */
+	public function pub_getMessageSource($o){
+		header('content-type: text/html; charset=utf-8');
+
+		$folder		= base64_decode($o['folder']);;
+		$message_no	= $o['message_no'];
+
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open($folder);
+
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+		$data = $this->imapProxy->body($message_no);
+		return array('source'=>$data);
+	}
+
 	public function pub_getMessageContent($o){
 		header('content-type: text/html; charset=utf-8');
 
@@ -347,9 +363,21 @@ class svcMailboxImap{
 				$f['type']=strtolower(pathinfo($f['filename'],PATHINFO_EXTENSION));
 			}
 		}
+		if(count($attachments)>=2){
+			$attachments[]=array(
+				'filename'		=> 'all',
+				'hfilename'		=> 'all',
+				'type'			=> 'zip',
+				'size'			=> 1,
+				'partno'		=> -1,
+				'attachUrlLink'	=> $this->getAttachementURLLink($o,-1 )
+			);
+
+		}
 		$parseFunc = 'parsePlugin'.ucFirst($type);
+		$rtn = array();
 		if(in_array($parseFunc,get_class_methods(__CLASS__))){
-			$body = $this->$parseFunc($data,$charset,$o,$attachments);
+			$body = $this->$parseFunc($data,$charset,$rtn,$attachments);
 		}else{
 			$body =	"<pre>".
 					print_r($type,true).
@@ -359,13 +387,11 @@ class svcMailboxImap{
 		}
 
 		//print $body;
-		$rtn =  array(
-			'header'		=> $head,
-			'rawheader'		=> $head['--rawheader'],
-			'type'			=> $type,
-			'body'			=> $body,
-			'attachments'	=> $attachments
-		);
+		$rtn ['header'		]= $head;
+		$rtn ['rawheader'	]= $head['--rawheader'];
+		$rtn ['type'		]= $type;
+		$rtn ['body'		]= $body;
+		$rtn ['attachments'	]= $attachments;
 		//print_r($rtn);
 		return $rtn;
 	}
@@ -414,24 +440,23 @@ class svcMailboxImap{
 	function parsePluginHtml($body,$charset,&$o,&$attachments){
 		if($charset=='unknown'){
 			$body = utf8_encode($body);//$charset='ISO-8859-1';
-		}else{
-		//if ( (strtoupper($charset)!='UTF-8')){
+		}else{ //if ( (strtoupper($charset)!='UTF-8')){
 			$body= iconv(strtoupper($charset),'UTF-8',$data); // //TRANSLIT
 		}
 		$o['hasInlineComponents'] = false;
-		if(array_key_exists('viewInlineImg',$o) && $o['viewInlineImg']){
-			foreach($attachments as &$f){
-				if(array_key_exists('id',$f)){
-					$body = str_replace('cid:'.$f['id'],$f['attachUrlLink'],$body);
-					$o['hasInlineComponents'] = true;
-				}
+
+		foreach($attachments as &$f){
+			if(array_key_exists('id',$f) && $f['id']!='-'){
+				$body = preg_replace('!src=(?:"|\')cid:'.preg_quote($f['id'],'!').'(?:"|\')!','src="'.$f['attachUrlLink'].'"',$body);
+				$o['hasInlineComponents'] = true;
 			}
 		}
+
 		if(preg_match('!src=(?:"|\')([^\'"]*)(?:"|\')!',$body)){
 			$body = preg_replace('!src=(?:"|\')([^\'"]*)(?:"|\')!', 'src="" data-imgsafesrc="\\1"',$body );
 			$o['hasInlineComponents'] = true;
 		}
-		//die($body);
+
 		return $body;
 	}
 
@@ -528,48 +553,91 @@ class svcMailboxImap{
 	 */
 	public function pub_getMessageAttachment($o){
 		$folder		= base64_decode($o['folder']);;
-		$message_id	= $o['message_id'];
 		$message_no	= $o['message_no'];
 
 		$this->imapProxy->setAccount($o['account']);
 		$this->imapProxy->open($folder);
 		if(!$this->imapProxy->isConnected()){
-			return $res;
+			return array('error'=>true);
 		}
 
 		$o['filename']	= base64_decode($o['filename']);
 		//$message_no		= $this->imapProxy->msgno($message_no);
 		$outStruct		= $this->getMimeFlatStruct($message_no);
-		$part			= $outStruct[$o['partno']];
-		$filename		= ($part['params']['filename'])? $part['params']['filename'] : $part['params']['name'];
+		if($o['partno']==-1){
+			$tmpName = tempnam(sys_get_temp_dir(),'zip')."_folder.zip";
+			$archive = new PclZip($tmpName);
+			$archDatas = array();
+			foreach($outStruct as $partno=>$part){
+				if($filename=$this->getPartFilename($part)){
+					$data = $this->imapProxy->fetchbody($message_no,$partno);
+					if ($part['encoding']==4){
+						$data = quoted_printable_decode($data);
+					}elseif ($part['encoding']==3){
+						$data = base64_decode($data);
+					}
+					$archDatas[]=array(
+						PCLZIP_ATT_FILE_NAME	=> $filename,
+						PCLZIP_ATT_FILE_CONTENT	=> $data
+					);
+				}
+			}
+			$list = $archive->create($archDatas);
+			if ($list == 0) {
+				die("ERROR : '".$archive->errorInfo(true)."'");
+			}
+			header('Content-type: application/zip');
+			$this->headerForDownload("folder.zip",filesize($tmpName));
+			print file_get_contents($tmpName);
+			unlink($tmpName);
+			die();
+		} else {
+			$part			= $outStruct[$o['partno']];
+			$filename		= $this->getPartFilename($part);
 
-		$data = $this->imapProxy->fetchbody($message_no,$o['partno']);
-		if ($part['encoding']==4){
-			$data = quoted_printable_decode($data);
-		}elseif ($part['encoding']==3){
-			$data = base64_decode($data);
-		}
+			$data = $this->imapProxy->fetchbody($message_no,$o['partno']);
+			if ($part['encoding']==4){
+				$data = quoted_printable_decode($data);
+			}elseif ($part['encoding']==3){
+				$data = base64_decode($data);
+			}
 
-		if(false){
-			header('content-type: text/html; charset=utf-8');
-			db($filename);
-			db($part);
-			db($outStruct);
-			db(urlencode($this->decodeMimeStr($filename)));
-			db($data);
+			if(false){
+				header('content-type: text/html; charset=utf-8');
+				db($filename);
+				db($part);
+				db($outStruct);
+				db(urlencode($this->decodeMimeStr($filename)));
+				db($data);
+				die();
+			}
+
+			$this->headerForDownload($filename,$part['bytes']);
+			print $data;
 			die();
 		}
+	}
 
+	function getPartFilename($part){
+		if(	is_array($part) &&
+			array_key_exists('params',$part) &&
+			is_array($part['params']) &&
+			(array_key_exists('name',$part['params']) || array_key_exists('filename',$part['params']) )
+		){
+			return ($part['params']['filename'])? $part['params']['filename'] : $part['params']['name'];
+		}else{
+			return false;
+		}
+	}
 
+	private function headerForDownload($filename,$size){
 		header("Content-Disposition: attachment; filename=" . urlencode($this->decodeMimeStr($filename)));
 		header("Cache-Control: no-cache, must-revalidate");
 		header("Content-Type: application/force-download");
 		header("Content-Type: application/octet-stream");
 		header("Content-Type: application/download");
 		header("Content-Description: File Transfer");
-		header("Content-Length: " . $part['bytes']);
-		print $data;
-		die();
+		header("Content-Length: " . $size);
 	}
 
 	/**
