@@ -4,13 +4,15 @@ Ext.onReady(function(){
 	new Ext.Viewport({
 		layout:'border',
 		items:[{
-			region			:'center',
+			region			: 'center',
 			xtype			: 'mailbox.mailbox',
+			mailLayout		: 'threePane',
+			//mailLayout		: 'gridOnNorth',
 			gridConfig		: {
 				pageSize		: 25
 			},
 			viewMailConfig	: {
-				viewInlineImg	: false
+				displayInlineComponents	: false
 			}
 		}]
 	});
