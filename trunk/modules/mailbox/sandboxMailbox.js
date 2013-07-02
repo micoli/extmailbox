@@ -7,6 +7,7 @@ Ext.onReady(function(){
 			region			: 'center',
 			xtype			: 'mailbox.mailbox',
 			mailLayout		: 'threePane',
+			svcClass		: 'MailboxExt',
 			//mailLayout		: 'gridOnNorth',
 			gridConfig		: {
 				pageSize		: 25
