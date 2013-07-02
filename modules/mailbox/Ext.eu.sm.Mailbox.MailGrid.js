@@ -170,8 +170,11 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				cm					: new Ext.grid.ColumnModel([
 					that.gridSelectionModel,
 					{header: Ext.eu.sm.MailBox.i18n._("Subject")	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
-					{header: Ext.eu.sm.MailBox.i18n._("From")		, width: 400, sortable: true, fixed: true,dataIndex: 'from'		,renderer: function(v){
+					{header: Ext.eu.sm.MailBox.i18n._("From")		, width: 200, sortable: true, fixed:false,dataIndex: 'from'		,renderer: function(v){
 						return Ext.eu.sm.MailBox.utils.formatRecipient(v);
+					}},
+					{header: Ext.eu.sm.MailBox.i18n._("Flags")		, width:  40, sortable: true, fixed: true,dataIndex: 'flags'	,renderer: function(v,meta){
+						return v.join(',');
 					}},
 					{header: Ext.eu.sm.MailBox.i18n._("Seen")		, width:  40, sortable: true, fixed: true,dataIndex: 'seen'		,renderer: function(v,meta){
 						meta.css=v?'mail_open':'mail_closed';
@@ -193,7 +196,6 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					}
 				},
 				listeners			: {
-
 					cellclick	: function(grid,rowIndex,columnIndex,event){
 						var record = grid.getStore().getAt(rowIndex);
 						switch (grid.getColumnModel().getDataIndex(columnIndex)){
