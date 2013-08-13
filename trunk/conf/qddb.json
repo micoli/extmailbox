@@ -1,5 +1,5 @@
 {
-	"connection"	: "mysql:dbname=rss;host=localhost",
+	"connection"	: "mysql:dbname=imail;host=127.0.0.1",
 	"username"		: "root",
 	"password"		: "toor"
 }

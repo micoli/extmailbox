@@ -7,6 +7,8 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 	loading					: true,
 	folderTreeId			: null,
 	displayInlineComponents	: true,
+	postInit				: function(container){},
+	postLoadMessageContent	: function(container){},
 	initComponent			: function(){
 		var that = this;
 		that.contentId					= Ext.id();
@@ -40,6 +42,172 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			proxy	: new Ext.data.MemoryProxy([])
 		});
 
+		that.viewTBar = [{
+			xtype			: 'button',
+			iconCls			: 'mail_pin_yellow',
+			enableToggle	: true,
+			pressed			: false,
+			handler			: function (cmp){
+				var tabPanel = Ext.getCmp(that.mailboxContainer.mailPreviewsId);
+				if(cmp.pressed){
+					Ext.fly(tabPanel.getTabEl(that)).removeClass('x-tab-strip-closable');
+				}else{
+					Ext.fly(tabPanel.getTabEl(that)).addClass('x-tab-strip-closable');
+				}
+			}
+		},'-',{
+			text		: Ext.eu.sm.MailBox.i18n._('Reply'),
+			iconCls		: 'mail_closed_alt',
+			handler		: function(){
+				that.mailboxContainer.mailReply.call(that.mailboxContainer,that.record);
+			}
+		},{
+			text		: Ext.eu.sm.MailBox.i18n._('Reply to all'),
+			iconCls		: 'mail_closed_alt_add',
+			handler		: function(){
+				that.mailboxContainer.mailReplyToAll.call(that.mailboxContainer,that.record);
+			}
+		},{
+			text		: Ext.eu.sm.MailBox.i18n._('Forward'),
+			iconCls		: 'mail_closed_send',
+			handler		: function(){
+				that.mailboxContainer.mailForward.call(that.mailboxContainer,that.record);
+			}
+		},'-',{
+			text		: Ext.eu.sm.MailBox.i18n._('Delete'),
+			iconCls		: 'mail_closed_delete',
+			handler		: function(){
+				alert('to do');
+			}
+		},{
+			text		: Ext.eu.sm.MailBox.i18n._('Move'),
+			iconCls		: 'mail_inbox',
+			handler		: function(cmp,event){
+				Ext.getCmp(that.folderTreeId).createFolderMenu({
+					disabledId	: that.record.get('folder'),
+					listeners	: {
+						'selected' : function (item){
+							console.log('OK to move',item);
+						},
+					}
+				}).showAt(event.getXY());
+			}
+		},{
+			text		: Ext.eu.sm.MailBox.i18n._('Move'),
+			iconCls		: 'mail_inbox',
+			handler	: function(cmp){
+				cmp.attachedCmp = new Ext.eu.attachedWindow({
+					resizeTriggerCmp: that,
+					stickCmp		: cmp,
+					width			: 350,
+					height			: 150,
+					layout			: 'fit',
+					items			: [{
+						xtype			: 'mailbox.folderselect',
+						folderTreeId	: that.folderTreeId,
+						listeners:{
+							'selected'	: function(selected){
+								console.log('OK to move',selected);
+								cmp.attachedCmp.destroy();
+							},
+							'cancel'	: function(selected){
+								console.log('cancel');
+								cmp.attachedCmp.destroy();
+							}
+						}
+					}]
+				});
+				cmp.attachedCmp.show();
+			}
+		},'-',{
+			xtype		: 'button',
+			text		: Ext.eu.sm.MailBox.i18n._('View'),
+			id			: that.flagButtonId['seen'],
+			enableToggle: true,
+			pressed		: that.record.get('seen'),
+			handler		: function (cmp){
+				that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
+			}
+		},'-',{
+			xtype		: 'button',
+			text		: Ext.eu.sm.MailBox.i18n._('view Inline Images'),
+			enableToggle: true,
+			id			: that.displayInlineComponentsId,
+			pressed		: that.displayInlineComponents,
+			hidden		: true,
+			handler		: function (cmp){
+				if(cmp.pressed){
+					that.displayInlineComponentsFunc();
+					cmp.hide();
+				}
+			}
+		},'->',{
+			text		: Ext.eu.sm.MailBox.i18n._('Header'),
+			iconCls		: 'mail_open_alt',
+			handler		: function(){
+				if(!that.loading){
+					new Ext.Window({
+						title		: Ext.eu.sm.MailBox.i18n._('Raw headers'),
+						height		: 350,
+						width		: 830,
+						minimizable	: false,
+						maximizable	: true,
+						resizable	: true,
+						modal		: true,
+						shim		: true,
+						plain		: true,
+						closable	: true,
+						layout		: 'fit',
+						items		:{
+							xtype		: 'textarea',
+							value		: that.fullRecord.rawheader
+						}
+					}).show();
+				}else{
+					alert(Ext.eu.sm.MailBox.i18n._('Still loading email body'));
+				}
+			}
+		},{
+			text		: Ext.eu.sm.MailBox.i18n._('Source'),
+			iconCls		: 'mail_open_alt',
+			handler		: function(){
+				var areaId = Ext.id();
+				var w = new Ext.Window({
+					title		: Ext.eu.sm.MailBox.i18n._('Raw source'),
+					height		: 350,
+					width		: 830,
+					minimizable	: false,
+					maximizable	: true,
+					resizable	: true,
+					modal		: true,
+					shim		: true,
+					plain		: true,
+					closable	: true,
+					layout		: 'fit',
+					items		: {
+						xtype		: 'textarea',
+						id			: areaId,
+						value		: 'loading'
+					}
+				}).show();
+				Ext.Ajax.request({
+					url		: 'proxy.php',
+					params	: {
+						exw_action		: that.mailboxContainer.svcPrefixClass+'getMessageSource',
+						account			: that.record.get('account'),
+						folder			: that.record.get('folder'),
+						message_no		: that.record.get('uid'),
+					},
+					success	: function(data){
+						var val = JSON.parse(data.responseText);
+						Ext.getCmp(areaId).setValue(val.source);
+					}
+				});
+			}
+		}];
+
+		that.postInit(that);
+
 		Ext.apply(that,{
 			layout	: 'border',
 			items	: [{
@@ -51,169 +219,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				id			: that.formId,
 				frame		: true,
 				bodyStyle	: 'padding:2px 2px 2px 2px;',
-				tbar		: [{
-					xtype			: 'button',
-					iconCls			: 'mail_pin_yellow',
-					enableToggle	: true,
-					pressed			: false,
-					handler			: function (cmp){
-						var tabPanel = Ext.getCmp(that.mailboxContainer.mailPreviewsId);
-						if(cmp.pressed){
-							Ext.fly(tabPanel.getTabEl(that)).removeClass('x-tab-strip-closable');
-						}else{
-							Ext.fly(tabPanel.getTabEl(that)).addClass('x-tab-strip-closable');
-						}
-					}
-				},'-',{
-					text		: Ext.eu.sm.MailBox.i18n._('Reply'),
-					iconCls		: 'mail_closed_alt',
-					handler		: function(){
-						that.mailboxContainer.mailReply.call(that.mailboxContainer,that.record);
-					}
-				},{
-					text		: Ext.eu.sm.MailBox.i18n._('Reply to all'),
-					iconCls		: 'mail_closed_alt_add',
-					handler		: function(){
-						that.mailboxContainer.mailReplyToAll.call(that.mailboxContainer,that.record);
-					}
-				},{
-					text		: Ext.eu.sm.MailBox.i18n._('Forward'),
-					iconCls		: 'mail_closed_send',
-					handler		: function(){
-						that.mailboxContainer.mailForward.call(that.mailboxContainer,that.record);
-					}
-				},'-',{
-					text		: Ext.eu.sm.MailBox.i18n._('Delete'),
-					iconCls		: 'mail_closed_delete',
-					handler		: function(){
-						alert('to do');
-					}
-				},{
-					text		: Ext.eu.sm.MailBox.i18n._('Move'),
-					iconCls		: 'mail_inbox',
-					handler		: function(cmp,event){
-						Ext.getCmp(that.folderTreeId).createFolderMenu({
-							disabledId	: that.record.get('folder'),
-							listeners	: {
-								'selected' : function (item){
-									console.log('OK to move',item);
-								},
-							}
-						}).showAt(event.getXY());
-					}
-				},{
-					text		: Ext.eu.sm.MailBox.i18n._('Move'),
-					iconCls		: 'mail_inbox',
-					handler	: function(cmp){
-						cmp.attachedCmp = new Ext.eu.attachedWindow({
-							resizeTriggerCmp: that,
-							stickCmp		: cmp,
-							width			: 350,
-							height			: 150,
-							layout			: 'fit',
-							items			: [{
-								xtype			: 'mailbox.folderselect',
-								folderTreeId	: that.folderTreeId,
-								listeners:{
-									'selected'	: function(selected){
-										console.log('OK to move',selected);
-										cmp.attachedCmp.destroy();
-									},
-									'cancel'	: function(selected){
-										console.log('cancel');
-										cmp.attachedCmp.destroy();
-									}
-								}
-							}]
-						});
-						cmp.attachedCmp.show();
-					}
-				},'-',{
-					xtype		: 'button',
-					text		: Ext.eu.sm.MailBox.i18n._('View'),
-					id			: that.flagButtonId['seen'],
-					enableToggle: true,
-					pressed		: that.record.get('seen'),
-					handler		: function (cmp){
-						that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
-					}
-				},'-',{
-					xtype		: 'button',
-					text		: Ext.eu.sm.MailBox.i18n._('view Inline Images'),
-					enableToggle: true,
-					id			: that.displayInlineComponentsId,
-					pressed		: that.displayInlineComponents,
-					hidden		: true,
-					handler		: function (cmp){
-						if(cmp.pressed){
-							that.displayInlineComponentsFunc();
-							cmp.hide();
-						}
-					}
-				},'->',{
-					text		: Ext.eu.sm.MailBox.i18n._('Header'),
-					iconCls		: 'mail_open_alt',
-					handler		: function(){
-						if(!that.loading){
-							new Ext.Window({
-								title		: Ext.eu.sm.MailBox.i18n._('Raw headers'),
-								height		: 350,
-								width		: 830,
-								minimizable	: false,
-								maximizable	: true,
-								resizable	: true,
-								modal		: true,
-								shim		: true,
-								plain		: true,
-								closable	: true,
-								layout		: 'fit',
-								items		:{
-									xtype		: 'textarea',
-									value		: that.fullRecord.rawheader
-								}
-							}).show();
-						}else{
-							alert(Ext.eu.sm.MailBox.i18n._('Still loading email body'));
-						}
-					}
-				},{
-					text		: Ext.eu.sm.MailBox.i18n._('Source'),
-					iconCls		: 'mail_open_alt',
-					handler		: function(){
-						var areaId = Ext.id();
-						var w = new Ext.Window({
-							title		: Ext.eu.sm.MailBox.i18n._('Raw source'),
-							height		: 350,
-							width		: 830,
-							minimizable	: false,
-							maximizable	: true,
-							resizable	: true,
-							modal		: true,
-							shim		: true,
-							plain		: true,
-							closable	: true,
-							layout		: 'fit',
-							items		: {
-								xtype		: 'textarea',
-								id			: areaId,
-								value		: 'loading'
-							}
-						}).show();
-						Ext.Ajax.request({
-							url		: 'proxy.php',
-							params	: {
-								exw_action		: 'local.mailboxImap.getMessageSource',
-								account			: that.record.get('account'),
-								folder			: that.record.get('folder'),
-								message_no		: that.record.get('uid'),
-							},
-							success	: function(data){
-								var val = JSON.parse(data.responseText);
-								Ext.getCmp(areaId).setValue(val.source);
-							}
-						});
-					}
-				}],
+				tbar		: that.viewTBar,
 				xtype			: 'panel',
 				id				: that.headerPanelId,
 				autoScroll		: true,
@@ -362,7 +368,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
-				exw_action		: 'local.mailboxImap.getMessageContent',
+				exw_action		: that.mailboxContainer.svcPrefixClass+'getMessageContent',
 				account			: that.record.get('account'),
 				folder			: that.record.get('folder'),
 				message_no		: that.record.get('uid'),
@@ -407,6 +413,8 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				}else{
 					attachmentPanel.hide();
 				}
+
+				that.postLoadMessageContent(that);
 
 				new Ext.util.DelayedTask(function(){
 					that.doLayout();

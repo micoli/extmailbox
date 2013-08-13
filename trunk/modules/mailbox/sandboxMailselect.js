@@ -22,7 +22,7 @@ Ext.onReady(function(){
 		remoteSort		: true,
 		autoLoad		: true,
 		baseParams		: {
-			'exw_action'	:'local.mailboxImap.getAccounts'
+			'exw_action'	: that.mailboxContainer.svcPrefixClass+'getAccounts'
 		},
 		proxy			: new Ext.data.HttpProxy({
 			url				: 'proxy.php',
@@ -39,7 +39,7 @@ Ext.onReady(function(){
 		],
 		url			:'proxy.php',
 		baseParams	: {
-			exw_action		: 'local.mailboxImap.searchContact'
+			exw_action		: that.mailboxContainer.svcPrefixClass+'searchContact'
 		}
 	});
 	new Ext.Viewport({

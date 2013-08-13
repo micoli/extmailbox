@@ -4,7 +4,9 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 	account			: null,
 	folder			: null,
 	searchOpened	: false,
+	mailboxContainer: null,
 	pageSize		: 50,
+	gridPlugins		: [],
 
 	setInlineTitle	: function (text){
 		var that = this;
@@ -29,13 +31,15 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			}
 		});
 	},
+	postInit		: function(container){},
 
 	initComponent	: function (){
 		var that = this;
-		that.inlineTitleId	= Ext.id();
-		that.txtSearchId	= Ext.id();
-		that.searchFormId	= Ext.id();
-		that.mainGridId		= Ext.id();
+		that.inlineTitleId		= Ext.id();
+		that.txtSearchId		= Ext.id();
+		that.searchFormId		= Ext.id();
+		that.mainGridId			= Ext.id();
+
 
 		that.mailStore = new Ext.data.JsonStore({
 			fields			: that.mailboxContainer.mailFields,
@@ -45,7 +49,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			remoteSort		: true,
 			autoLoad		: false,
 			baseParams		: {
-				'exw_action'	: 'local.mailboxImap.getMailListInFolders',
+				'exw_action'	: that.mailboxContainer.svcPrefixClass+'getMailListInFolders',
 				'folder'		: 'INBOX'
 			},
 			sortInfo		: {
@@ -97,7 +101,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					Ext.Ajax.request({
 						url		: 'proxy.php',
 						params	: {
-							exw_action	: 'local.mailboxImap.expunge',
+							exw_action	: that.mailboxContainer.svcPrefixClass+'expunge',
 							account		: that.account,
 							folder		: that.folder
 						},
@@ -146,6 +150,26 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			singleSelect	: false,
 			hidden			: true
 		});
+		that.gridColumnModel = [
+			that.gridSelectionModel,
+			{header: Ext.eu.sm.MailBox.i18n._("Subject")	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
+			{header: Ext.eu.sm.MailBox.i18n._("From")		, width: 200, sortable: true, fixed:false,dataIndex: 'from'		,renderer: function(v){
+				return Ext.eu.sm.MailBox.utils.formatRecipient(v);
+			}},
+			{header: Ext.eu.sm.MailBox.i18n._("Flags")		, width:  40, sortable: true, fixed: true,dataIndex: 'flags'	,renderer: function(v,meta){
+				return v?v.join(','):'';
+			}},
+			{header: Ext.eu.sm.MailBox.i18n._("Seen")		, width:  40, sortable: true, fixed: true,dataIndex: 'seen'		,renderer: function(v,meta,record){
+				meta.css=(v?'mail_open':'mail_closed')+(record.get('answered')?'_replied':'');
+				return '';
+				return (v==1)?".":"<b>*</b>"
+			}},
+			{header: Ext.eu.sm.MailBox.i18n._("Date")		, width: 130, sortable: true, fixed: true,dataIndex: 'date'		,renderer: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))},
+			{header: Ext.eu.sm.MailBox.i18n._("Size")		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize},
+			{header: Ext.eu.sm.MailBox.i18n._("Priority")	, width:  80, sortable: true, fixed: true,dataIndex: 'priority'	}
+		];
+
+		that.postInit(that);
 
 		Ext.apply(that,{
 			layout	: 'border',
@@ -162,30 +186,15 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					displayMsg			: Ext.eu.sm.MailBox.i18n._('Displaying mails {0} - {1} of {2}'),
 					emptyMsg			: Ext.eu.sm.MailBox.i18n._("No mails to display")
 				}),
+				plugins				: that.gridPlugins,
 				loadMask			: true,
 				autoExpandColumn	: 'subject',
 				ddGroup				: 'mailboxDDGroup',
 				enableDragDrop		: true,
 				selectionModel		: that.gridSelectionModel,
-				cm					: new Ext.grid.ColumnModel([
-					that.gridSelectionModel,
-					{header: Ext.eu.sm.MailBox.i18n._("Subject")	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
-					{header: Ext.eu.sm.MailBox.i18n._("From")		, width: 200, sortable: true, fixed:false,dataIndex: 'from'		,renderer: function(v){
-						return Ext.eu.sm.MailBox.utils.formatRecipient(v);
-					}},
-					{header: Ext.eu.sm.MailBox.i18n._("Flags")		, width:  40, sortable: true, fixed: true,dataIndex: 'flags'	,renderer: function(v,meta){
-						return v.join(',');
-					}},
-					{header: Ext.eu.sm.MailBox.i18n._("Seen")		, width:  40, sortable: true, fixed: true,dataIndex: 'seen'		,renderer: function(v,meta){
-						meta.css=v?'mail_open':'mail_closed';
-						return '';
-						return (v==1)?".":"<b>*</b>"
-					}},
-					{header: Ext.eu.sm.MailBox.i18n._("Date")		, width: 130, sortable: true, fixed: true,dataIndex: 'date'		,renderer: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))},
-					{header: Ext.eu.sm.MailBox.i18n._("Size")		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize}
-				]),
+				cm					: new Ext.grid.ColumnModel(that.gridColumnModel),
 				viewConfig			: {
-					forceFit		: true,
+					//forceFit		: true,
 					enableRowBody	: true,
 					showPreview		: true,
 					getRowClass 	: function(record, rowIndex, p, store){
