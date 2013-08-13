@@ -1,6 +1,6 @@
 Ext.onReady(function(){
 	Ext.QuickTips.init();
-	mailGridCellActions=new Ext.ux.grid.CellActions({
+	var mailGridCellActions=new Ext.ux.grid.CellActions({
 		callbacks	: {
 			'x-tbar-loading':function(grid, record, action, value) {
 				alert("open client "+record.get('user_data_01'));
