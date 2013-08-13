@@ -43,6 +43,9 @@
 .x-tree-mail_closed .x-tree-node-icon,.mail_closed{
 	background: url(images/mailbox/mail_closed.png) no-repeat !important;
 }
+.x-tree-mail_closed_replied .x-tree-node-icon,.mail_closed_replied{
+	background: url(images/mailbox/mail_closed_replied.png) no-repeat !important;
+}
 .x-tree-mail_inbox_add .x-tree-node-icon,.mail_inbox_add{
 	background: url(images/mailbox/mail_inbox_add.png) no-repeat !important;
 }
@@ -66,6 +69,9 @@
 }
 .x-tree-mail_open .x-tree-node-icon,.mail_open{
 	background: url(images/mailbox/mail_open.png) no-repeat !important;
+}
+.x-tree-mail_open_replied .x-tree-node-icon,.mail_open_replied{
+	background: url(images/mailbox/mail_open_replied.png) no-repeat !important;
 }
 .x-tree-mail_trash .x-tree-node-icon,.mail_trash{
 	background: url(images/mailbox/mail_trash.png) no-repeat !important;
@@ -97,7 +103,7 @@ ul.mailview-recipients>li{
 	/*border: 1px solid #CAD8F3;
 	background: #DEE7F8;*/
 	border-color: #598BEC;
-	background: #598BEC;
+	background: #A3BAE9;
 	color: #fff;
 }
 ul.mailview-recipients>li.bit-box-focus {

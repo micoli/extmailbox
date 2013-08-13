@@ -192,7 +192,8 @@ class svcMailboxImap{
 			$aRet = array_reverse($aRet);
 		}
 		//print (microtime(true)-$t1);
-		return array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
+		$a= array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
+		return $a;
 	}
 
 
@@ -219,6 +220,17 @@ class svcMailboxImap{
 				'MMG_RAWHEADER'		=>json_encode($head),
 			);
 			$this->putMMGCache($aMMGCache[$msg->msgid]);
+		}
+		$rawHeader = json_decode($aMMGCache[$msg->msgid]['MMG_RAWHEADER']);
+		$msg->priority=3;
+		if(isset($rawHeader->{'x-priority'})){
+			$msg->priority=intval(array_pop($rawHeader->{'x-priority'}));
+		}elseif (isset($rawHeader->{'importance'})){
+			switch (strtolower($rawHeader->{'importance'})) {
+				case 'high'		: $msg->priority = 1; break;
+				case 'normal'	: $msg->priority = 3; break;
+				case 'low'		: $msg->priority = 5; break;
+			}
 		}
 		$msg->subject	= $aMMGCache[$msg->msgid]['MMG_SUBJECT'];
 		$msg->from		= json_decode($aMMGCache[$msg->msgid]['MMG_FROM'	]);
@@ -310,6 +322,10 @@ class svcMailboxImap{
 					$data = quoted_printable_decode($data);
 				}elseif ($part['encoding']==3){
 					$data = base64_decode($data);
+				}elseif ($part['encoding']==2){
+					$data = imap_binary($data);
+				}elseif ($part['encoding']==1){
+					$data = imap_8bit($data);
 				}
 //db('--');
 //db($part);
@@ -476,22 +492,24 @@ class svcMailboxImap{
 				'ATTENDEE'=>array(),
 				'ORGANIZER'=>array()
 		);
-		foreach($arr[0] as $k=>$v){
-			$sk = explode(';',$k);
-			$p = array();
-			for($i=1;$i<count($sk);$i++){
-				$t = explode('=',$sk[$i],2);
-				$p[$t[0]]=$t[1];
-			}
-			$p['VALUE']=stripslashes( $v );
-			switch($sk[0]){
-				case 'ORGANIZER':
-				case 'ATTENDEE':
-					$body[$sk[0]][]=$p;
-					break;
-				default:
-					$body[$sk[0]]=$p;
-					break;
+		if(is_array($arr) && array_key_exists(0,$arr) && is_array($arr[0])){
+			foreach($arr[0] as $k=>$v){
+				$sk = explode(';',$k);
+				$p = array();
+				for($i=1;$i<count($sk);$i++){
+					$t = explode('=',$sk[$i],2);
+					$p[$t[0]]=$t[1];
+				}
+				$p['VALUE']=stripslashes( $v );
+				switch($sk[0]){
+					case 'ORGANIZER':
+					case 'ATTENDEE':
+						$body[$sk[0]][]=$p;
+						break;
+					default:
+						$body[$sk[0]]=$p;
+						break;
+				}
 			}
 		}
 		//db($arr);
@@ -575,7 +593,12 @@ class svcMailboxImap{
 						$data = quoted_printable_decode($data);
 					}elseif ($part['encoding']==3){
 						$data = base64_decode($data);
+					}elseif ($part['encoding']==2){
+						$data = imap_binary($data);
+					}elseif ($part['encoding']==1){
+						$data = imap_8bit($data);
 					}
+
 					$archDatas[]=array(
 						PCLZIP_ATT_FILE_NAME	=> $filename,
 						PCLZIP_ATT_FILE_CONTENT	=> $data
@@ -600,7 +623,12 @@ class svcMailboxImap{
 				$data = quoted_printable_decode($data);
 			}elseif ($part['encoding']==3){
 				$data = base64_decode($data);
+			}elseif ($part['encoding']==2){
+				$data = imap_binary($data);
+			}elseif ($part['encoding']==1){
+				$data = imap_8bit($data);
 			}
+
 
 			if(false){
 				header('content-type: text/html; charset=utf-8');

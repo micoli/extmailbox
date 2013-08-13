@@ -3,8 +3,8 @@
 	"accounts"	: {
 		"micoli@ms" : {
 			"cnx"	: "{localhost:143/novalidate-cert}",
-			"user"	: "micoli",
-			"email"	: "micoli@mediaserver.local",
+			"user"	: "micoli@mail.local",
+			"email"	: "micoli@mail.local",
 			"pass"	: "micoli"
 		}
 	}

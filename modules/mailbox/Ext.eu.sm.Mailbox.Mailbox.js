@@ -29,6 +29,17 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		'seen',
 		'draft',
 		'udate',
+		'priority',
+		'user_data_01',
+		'user_data_02',
+		'user_data_03',
+		'user_data_04',
+		'user_data_05',
+		'user_data_06',
+		'user_data_07',
+		'user_data_08',
+		'user_data_09',
+		'user_data_10'
 	],
 
 	recipientContextMenu:function (mail){
@@ -240,14 +251,15 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		});
 
 		var configFolder = {
-			xtype		: 'mailbox.foldertree',
-			id			: that.folderTreeId,
-			split		: true,
-			rootVisible	: false,
-			autoScroll	: true,
-			enableDrop	: true,
-			border		: false,
-			tbar		: ['Account: ',{
+			xtype			: 'mailbox.foldertree',
+			id				: that.folderTreeId,
+			split			: true,
+			rootVisible		: false,
+			autoScroll		: true,
+			enableDrop		: true,
+			border			: false,
+			mailboxContainer: that,
+			tbar			: ['Account: ',{
 				xtype			: 'combo',
 				width			: 100,
 				store			: that.accountStore,

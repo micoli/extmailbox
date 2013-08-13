@@ -239,7 +239,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 			ddAppendOnly	: false,
 			allowContainerDrop:true,
 			loader			: new Ext.tree.TreeLoader({
-				dataUrl			: 'proxy.php?exw_action=local.mailboxImap.getAccountFolders',
+				dataUrl			: 'proxy.php?exw_action='+that.mailboxContainer.svcPrefixClass+'getAccountFolders',
 				uiProviders		: {
 					'col'			: Ext.eu.sm.MailBox.FolderTreeColumnNodeUI
 				},

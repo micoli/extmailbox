@@ -37,7 +37,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			],
 			url			:'proxy.php',
 			baseParams	: {
-				exw_action		: 'local.mailboxImap.searchContact'
+				exw_action		: that.mailboxContainer.svcPrefixClass+'searchContact'
 			}
 		});
 
