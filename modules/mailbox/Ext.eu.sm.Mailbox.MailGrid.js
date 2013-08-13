@@ -169,7 +169,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			{header: Ext.eu.sm.MailBox.i18n._("Priority")	, width:  80, sortable: true, fixed: true,dataIndex: 'priority'	}
 		];
 
-		that.postInit(that);
+		that.fireEvent('postInit',that);
 
 		Ext.apply(that,{
 			layout	: 'border',

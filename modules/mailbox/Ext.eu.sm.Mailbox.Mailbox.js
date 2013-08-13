@@ -147,7 +147,8 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				record			: record,
 				mailboxContainer: that,
 				folderTreeId	: that.folderTreeId,
-				message_no		: record.get('uid')
+				message_no		: record.get('uid'),
+				listeners		: that.viewMailConfig.customListeners ||{}
 			},that.viewMailConfig));
 			tabPanel.insert(1,panel);
 		}
@@ -310,14 +311,14 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			id				: that.mailGridId,
 			mailboxContainer: that,
 			searchOpened	: false,
-			listeners		: {
+			listeners		: Ext.apply({
 				recordclick	: function(record){
 					that.viewMail(record);
 				},
 				seenclick	: function(record){
 					that.mailChangeFlag(record,'seen');
 				}
-			}
+			},that.gridConfig.customListeners||{})
 		},that.gridConfig);
 
 		var configTabView = {
