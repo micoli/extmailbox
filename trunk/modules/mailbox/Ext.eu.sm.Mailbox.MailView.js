@@ -7,8 +7,6 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 	loading					: true,
 	folderTreeId			: null,
 	displayInlineComponents	: true,
-	postInit				: function(container){},
-	postLoadMessageContent	: function(container){},
 	initComponent			: function(){
 		var that = this;
 		that.contentId					= Ext.id();
@@ -206,7 +204,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			}
 		}];
 
-		that.postInit(that);
+		that.fireEvent('postInit',that);
 
 		Ext.apply(that,{
 			layout	: 'border',
@@ -414,7 +412,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 					attachmentPanel.hide();
 				}
 
-				that.postLoadMessageContent(that);
+				that.fireEvent('postLoadMessageContent',that);
 
 				new Ext.util.DelayedTask(function(){
 					that.doLayout();
