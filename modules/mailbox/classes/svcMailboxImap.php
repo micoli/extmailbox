@@ -477,7 +477,7 @@ class svcMailboxImap{
 	}
 
 	function parsePluginPlain($data,$charset,&$o,&$attachments){
-		return "<pre>".iconv(strtoupper($charset),'UTF-8',$data)."<pre>";
+		return "<pre>".iconv(strtoupper($charset),'UTF-8',$data)."</pre>";
 	}
 
 	function parsePluginCalendar($data,$charset,&$o,&$attachments){
