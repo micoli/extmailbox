@@ -12,9 +12,15 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 	pageSize		: 10,
 	resizable		: true,
 	minListWidth	: 170,
+	addEmailTrigger	: false,
 	validCharRegex	: /[a-z]|[A-Z]|[0-9]|[\@\ \,\;!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\~\.]/,
 	contextMenu		: null,
 
+	initComponent:function() {
+		Ext.eu.sm.MailBox.MailSelect.superclass.initComponent.call(this);
+		//this.triggerConfig ={tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger x-form-arrow-trigger x-form-mailselect-trigger"};
+		//this.hideTrigger = false;
+	},
 	getEmailsValues:function(emails){
 		return new Ext.data.JsonStore({
 			fields:['personal','email']
@@ -161,6 +167,20 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 			c = _to_ascii[c];
 		}
 		return String.fromCharCode(c);
+	},
+
+	onRender:function(ct, position) {
+		Ext.eu.sm.MailBox.MailSelect.superclass.onRender.call(this, ct, position);
+		if(this.addEmailTrigger){
+			this.customAddTrigger = this.wrap.createChild(this.triggerConfig ||
+								{tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger x-form-arrow-trigger x-form-mailselect-trigger" });
+				this.wrap.setWidth(this.el.getWidth()+this.customAddTrigger.getWidth());
+
+				this.customAddTrigger.on("click", this.addEmailTrigger, this, {preventDefault:true});
+				this.customAddTrigger.addClassOnOver('x-form-trigger-over');
+				this.customAddTrigger.addClassOnClick('x-form-trigger-click');
+				this.holder.addClass('withTrigger');
+		}
 	},
 
 	addItem: function(id, caption){

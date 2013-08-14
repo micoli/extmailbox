@@ -22,7 +22,7 @@ Ext.onReady(function(){
 		remoteSort		: true,
 		autoLoad		: true,
 		baseParams		: {
-			'exw_action'	: that.mailboxContainer.svcPrefixClass+'getAccounts'
+			'exw_action'	: 'local.MailboxImap.getAccounts'
 		},
 		proxy			: new Ext.data.HttpProxy({
 			url				: 'proxy.php',
@@ -39,7 +39,7 @@ Ext.onReady(function(){
 		],
 		url			:'proxy.php',
 		baseParams	: {
-			exw_action		: that.mailboxContainer.svcPrefixClass+'searchContact'
+			exw_action		: 'local.MailboxImap.searchContact'
 		}
 	});
 	new Ext.Viewport({
@@ -74,15 +74,18 @@ Ext.onReady(function(){
 				fieldLabel		: 'To',
 				xtype			: 'mailselect',
 				name			: 'to',
-				anchor			: '-10',
+				anchor			: '-30',
 				value			: emails,
 				store			: that.recipientSearchStore,
+				addEmailTrigger	: function(){
+					console.log(this,'ee');
+				},
 				tpl				:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{personal}</i></div></tpl>',
 			},{
 				xtype			: 'mailselect',
 				fieldLabel		: 'Cc',
 				name			: 'cc',
-				anchor			: '-10',
+				anchor			: '-30',
 				value			: emails,
 				store			: that.recipientSearchStore,
 				tpl				:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{personal}</i></div></tpl>',

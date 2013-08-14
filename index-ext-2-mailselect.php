@@ -5,10 +5,9 @@
 		<link rel="stylesheet" type="text/css" href="/ext-2.2.1/release/resources/css/ext-all.css" />
 		<script type="text/javascript" src="/ext-2.2.1/release/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript" src="/ext-2.2.1/release/ext-all-debug.js"></script>
-		<link rel="stylesheet" type="text/css" href="libs/ext.plugins/boxselect.css" />
+		<link rel="stylesheet" type="text/css" href="libs/ext.plugins/boxselect/boxselect.css" />
 		<link rel="stylesheet" type="text/css" href="libs/ext.plugins/mailselect.css" />
-		<script type="text/javascript" src="libs/ext.plugins/Ext.ux.BoxSelect.js"></script>
-		<script type="text/javascript" src="libs/ext.plugins/Ext.ux.BoxSelect.js"></script>
+		<script type="text/javascript" src="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
 		<!--  script type="text/javascript" src="modules/mailbox/Ext.eu.MailSelect.js"></script-->
 		<script type="text/javascript" src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript" src="modules/mailbox/sandboxMailselect.js"></script>

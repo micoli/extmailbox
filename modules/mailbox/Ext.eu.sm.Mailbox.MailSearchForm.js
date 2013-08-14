@@ -123,6 +123,12 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 			proxy			: new Ext.data.MemoryProxy([])
 		});
 
+		that.resetForms = function(){
+			for(var i=0;i<4;i++){
+				Ext.getCmp(that.formId[i]).getForm().reset();
+			}
+		}
+
 		Ext.apply(that,{
 			layout		: 'accordion',
 			//frame		: true,
@@ -145,8 +151,8 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				width			: 100,
 				listWidth		: 250,
 				store			: that.searchStores,
-				displayField	: 'text',
-				valueField		: 'params',
+				displayField	: 'date',
+				valueField		: 'date',
 				emptyText		: 'Previous search...',
 				mode			: 'local',
 				triggerAction	: 'all',
@@ -184,6 +190,15 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 					}
 				}
 			},'->',{
+				xtype		: 'button',
+				text		: 'reset',
+				handler		: function(){
+					that.storeQueryOn=false;
+					that.resetForms();
+					that.generateImapQueryAndSearch();
+					that.storeQueryOn=true;
+				}
+			},{
 				xtype		: 'button',
 				text		: 'search',
 				id			: that.buttonSearchdId,
