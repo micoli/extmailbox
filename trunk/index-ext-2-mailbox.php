@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<title>Ext 2 sandbox mailbox</title>
-		<link rel="stylesheet" type="text/css"	href="<?php print EXT_ROOT?><?php print EXT_ROOT?>/ext-2.2.1/release/resources/css/ext-all.css" />
+		<link rel="stylesheet" type="text/css"	href="<?php print EXT_ROOT?>/ext-2.2.1/release/resources/css/ext-all.css" />
 		<script type="text/javascript"			src ="<?php print EXT_ROOT?>/ext-2.2.1/release/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript"			src ="<?php print EXT_ROOT?>/ext-2.2.1/release/ext-all-debug.js"></script>
 
