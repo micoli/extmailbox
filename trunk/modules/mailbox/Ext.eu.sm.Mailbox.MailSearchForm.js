@@ -3,10 +3,15 @@ Ext.ns('Ext.eu.sm.MailBox');
 Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 	withSyncText	: true,
 	query			: '',
+	queryObj		: {},
 	initComponent	: function(){
 		var that = this;
 		that.imapTextFieldId	= Ext.id();
 		that.buttonSearchdId	= Ext.id();
+		that.formId				= [Ext.id(),Ext.id(),Ext.id(),Ext.id()];
+
+		that.generateImapQueryOn = true;
+		that.storeQueryOn = true;
 
 		that.syncText = function(val){
 			Ext.getCmp(that.imapTextFieldId).setValue(val);
@@ -18,16 +23,74 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 			'search'
 		);
 
+		that.storeQuery = function(){
+			if(that.storeQueryOn){
+				that.searchStores.insert(0,[new that.searchStores.recordType({
+					date		: Ext.util.Format.date(new Date(),'H:i:s d/m'),
+					query		: that.query,
+					queryObj	: Ext.apply({},that.queryObj)
+				})]);
+				that.searchStores.commitChanges();
+			}
+		}
+
 		that.resetQuery = function(){
 			that.query = '';
+			that.queryObj = {};
 			that.fireEvent('queryReset');
 		};
 
-		that.addQueryParam = function(tag,value){
-			if (value){
-				that.query = that.query + tag +' "'+ (''+value).replace(/\"/g,"\\\"") +'" ';
+		that.addQueryParam = function(field,tag,value){
+			that.queryObj[field.imapTag]=value;
+			if ((value || value=="") && field.getXType()!='checkbox' && field.getXType()!='tri-checkbox'){
+				that.query		= that.query		+ tag +' "'+ (''+value).replace(/\"/g,"\\\"") +'" ';
 			}else{
-				that.query = that.query + tag +' ';
+				that.query		= that.query		+ tag +' ';
+			}
+		};
+
+		that.generateImapQuery = function(){
+			that.resetQuery();
+			that.items.each(function(form){
+				form.items.each(function(field){
+					switch(field.getXType()){
+						case 'textfield':
+							var value = field.getValue();
+							if(value){
+								that.addQueryParam(field,field.imapTag,value);
+							}
+						break
+						case 'datefield':
+							var value = field.getValue();
+							if(value){
+								that.addQueryParam(field,field.imapTag,Ext.util.Format.date(value,'d M Y'));
+							}
+						break
+						case 'checkbox':
+							var value = field.getValue();
+							if(value){
+								that.addQueryParam(field,field.imapTag,value);
+							}
+						break
+						case 'tri-checkbox':
+							var value = field.getValue();
+							if(value=="true"){
+								that.addQueryParam(field,field.imapTag,value);
+							}
+							if(value=="false"){
+								that.addQueryParam(field,'UN' +field.imapTag,value);
+							}
+						break
+					}
+				});
+			})
+			console.log('queryChanged',that.query);
+			that.fireEvent('queryChanged',that.query);
+		};
+
+		that.onImapFieldChange = function(cmp,e) {
+			if(that.generateImapQueryOn){
+				that.generateImapQuery();
 			}
 		};
 
@@ -39,52 +102,9 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 			that.fireEvent('search',that.query);
 		}
 
-		that.generateImapQuery = function(){
-			that.resetQuery
-			that.query = '';
-			that.items.each(function(form){
-				form.items.each(function(field){
-					switch(field.getXType()){
-						case 'textfield':
-							var value = field.getValue();
-							if(value){
-								that.addQueryParam(field.imapTag,value);
-							}
-						break
-						case 'datefield':
-							var value = field.getValue();
-							if(value){
-								that.addQueryParam(field.imapTag,Ext.util.Format.date(value,'d M Y'));
-							}
-						break
-						case 'checkbox':
-							var value = field.getValue();
-							if(value){
-								that.addQueryParam(field.imapTag);
-							}
-						break
-						case 'tri-checkbox':
-							var value = field.getValue();
-							if(value=="true"){
-								that.addQueryParam(field.imapTag);
-							}
-							if(value=="false"){
-								that.addQueryParam('UN' +field.imapTag);
-							}
-						break
-					}
-				});
-			})
-			console.log('queryChanged',that.query);
-			that.fireEvent('queryChanged',that.query);
-		};
-
-		that.onImapFieldChange = function(cmp,e) {
-			that.generateImapQuery();
-		};
-
 		that.generateImapQueryAndSearch = function (){
 			that.generateImapQuery();
+			that.storeQuery();
 			that.fireEvent('search',that.query);
 		};
 
@@ -93,6 +113,15 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				that.generateImapQueryAndSearch();
 			}
 		};
+
+		that.searchStores = new Ext.data.JsonStore({
+			fields			: [
+				'params',
+				'text',
+				'date'
+			],
+			proxy			: new Ext.data.MemoryProxy([])
+		});
 
 		Ext.apply(that,{
 			layout		: 'accordion',
@@ -105,9 +134,64 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				titleCollapse	: false,
 				animate			: false
 			},
+			bbar		: [{
+				tpl				: 	'<tpl for=".">'+
+										'<div class="x-combo-list-item search-combo-display">'+
+											'<div class="search-combo-display-text">{query}</div>'+
+											'<div class="search-combo-display-date">{date}</div>'+
+										'</div>'+
+									'</tpl>',
+				xtype			: 'combo',
+				width			: 100,
+				listWidth		: 250,
+				store			: that.searchStores,
+				displayField	: 'text',
+				valueField		: 'params',
+				emptyText		: 'Previous search...',
+				mode			: 'local',
+				triggerAction	: 'all',
+				typeAhead		: false,
+				forceSelection	: true,
+				selectOnFocus	: true,
+				listeners		:{
+					select			: function(combo,record,index){
+						that.generateImapQueryOn=false;
+						var queryObj=record.get('queryObj');
+						for(var i=0;i<4;i++){
+							Ext.getCmp(that.formId[i]).getForm().reset();
+							for (var imapTag in queryObj) {
+								if (queryObj.hasOwnProperty(imapTag)){
+									Ext.getCmp(that.formId[i]).items.each(function(field,k){
+										if(field.hasOwnProperty('imapTag') && field.imapTag==imapTag){
+											var val = queryObj[imapTag];
+											if(field.getXType()=='tri-checkbox'){
+												if(val=="true" ) val=true;
+												if(val=="false") val=false;
+												field.setValue(val);
+
+											}else{
+												field.setValue(val);
+											}
+										}
+									});
+								}
+							}
+						}
+						that.generateImapQueryOn=true;
+						that.storeQueryOn=false;
+						that.generateImapQueryAndSearch();
+						that.storeQueryOn=true;
+					}
+				}
+			},'->',{
+				xtype		: 'button',
+				text		: 'search',
+				id			: that.buttonSearchdId,
+				handler		: that.generateImapQueryAndSearch
+			}],
 			defaults	:{
 				xtype			: 'form',
-				labelWidth		: 75, // label settings here cascade unless overridden
+				labelWidth		: 75,
 				frame			: true,
 				border			: false,
 				collapsible		: true,
@@ -118,14 +202,9 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 					anchor			: '-15'
 				},
 			},
-			bbar		: ['->',{
-				xtype		: 'button',
-				text		: 'search',
-				id			: that.buttonSearchdId,
-				handler		: that.generateImapQueryAndSearch
-			}],
 			items		: [{
 				title			: 'Subject/Body',
+				id				: that.formId[0],
 				collapsed		: false,
 				items			: [{
 					fieldLabel		: 'Text',
@@ -184,6 +263,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				}]
 			},{
 				title			: 'User Information',
+				id				: that.formId[1],
 				items			: [{
 					fieldLabel		: 'To',
 					name			: 'to',
@@ -227,8 +307,10 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				}]
 			},{
 				title			: 'Dates',
+				id				: that.formId[2],
 				items			: [{
 					xtype			: 'datefield',
+					format			: 'd M Y',
 					fieldLabel		: 'On',
 					name			: 'on',
 					imapTag			: 'ON',
@@ -240,6 +322,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 					}
 				},{
 					xtype			: 'datefield',
+					format			: 'd M Y',
 					fieldLabel		: 'Before',
 					name			: 'before',
 					imapTag			: 'BEFORE',
@@ -251,6 +334,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 					}
 				},{
 					xtype			: 'datefield',
+					format			: 'd M Y',
 					fieldLabel		: 'After',
 					name			: 'since',
 					imapTag			: 'SINCE',
@@ -296,6 +380,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				}]
 			},{
 				title			: 'Flags',
+				id				: that.formId[3],
 				items			: [{
 					xtype			: 'tri-checkbox',
 					fieldLabel		: 'Seen',
