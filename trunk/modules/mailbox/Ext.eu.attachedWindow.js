@@ -12,11 +12,16 @@ Ext.eu.attachedWindow = Ext.extend(Ext.Window, {
 
 	initComponent	: function (){
 		var that = this;
-		that.stickCmpSize = that.stickCmp.getEl().getSize();
+		if(typeof that.stickCmp == 'object' && that.stickCmp.hasOwnProperty('dom')){
+			that.attachedEl = that.stickCmp;
+		}else{
+			that.attachedEl = that.stickCmp.getEl();
+		}
+		that.stickCmpSize = that.attachedEl.getSize();
 
 		Ext.apply(that,{
-			x	: that.stickCmp.getEl().getX(),
-			y	: that.stickCmp.getEl().getY()+that.stickCmpSize.height,
+			x	: that.attachedEl.getX(),
+			y	: that.attachedEl.getY()+that.stickCmpSize.height,
 		});
 
 		Ext.eu.attachedWindow.superclass.initComponent.call(this);
@@ -33,7 +38,7 @@ Ext.eu.attachedWindow = Ext.extend(Ext.Window, {
 			}
 			that.mon(that.resizeTriggerCmp,'resize',function(){
 				window.setTimeout(function(){
-					that.setPosition(that.stickCmp.getEl().getX(),that.stickCmp.getEl().getY()+that.stickCmpSize.height);
+					that.setPosition(that.attachedEl.getX(),that.attachedEl.getY()+that.stickCmpSize.height);
 				},70);
 			});
 		});

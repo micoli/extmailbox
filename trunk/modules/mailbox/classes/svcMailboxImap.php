@@ -41,6 +41,21 @@ class svcMailboxImap{
 	 *
 	 * @param unknown $o
 	 */
+	function pub_getTemplates($o){
+		$res=array('data'=>array());
+		foreach(glob(dirname(__FILE__).'/mailTemplates/*.html') as $template){
+			$res['data'][]=array(
+					'name'	=> str_replace('.html','',basename($template)),
+					'body'	=> file_get_contents($template)
+			);
+		}
+		return $res;
+	}
+
+	/**
+	 *
+	 * @param unknown $o
+	 */
 	function pub_setMessageFlag($o){
 		$o['folder'] = base64_decode($o['folder']);
 		$this->imapProxy->setAccount($o['account']);
@@ -62,7 +77,18 @@ class svcMailboxImap{
 	 */
 	function pub_searchContact($o){
 		$QDDb = new QDDB();
-		$arr = $QDDb->query2Array(sprintf('select * from imail.PRS_PERSONAL where email like "%%%s%%" or personal like "%%%s%%"  ',$o['query'],$o['query']));
+		if(array_key_exists('query',$o)){
+			$arr = $QDDb->query2Array(sprintf('select * from imail.PRS_PERSONAL where email like "%%%s%%" or personal like "%%%s%%"  ',$o['query'],$o['query']));
+		}else{
+			$sql = 'select * from imail.PRS_PERSONAL where true ';
+			if(array_key_exists('personal',$o)){
+				$sql.=sprintf(' and personal like "%%%s%%"',$o['personal']);
+			}
+			if(array_key_exists('email',$o)){
+				$sql.=sprintf(' and email like "%%%s%%"',$o['email']);
+			}
+			$arr = $QDDb->query2Array($sql);
+		}
 		return array(
 				'data'			=> $arr,
 				'totalCount'	=> count($arr)

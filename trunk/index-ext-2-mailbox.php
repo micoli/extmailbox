@@ -13,12 +13,17 @@
 
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.util.md5.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.util.base64.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.data.ArrayStore.js"></script>
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/boxselect/boxselect.css" />
 		<script type="text/javascript" 			src ="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
 
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ical.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ijp.js"></script>
+
+		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
+
 
 		<script type="text/javascript"			src ="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.js"></script>
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.css" />
@@ -39,6 +44,8 @@
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/column-tree.css" />
 		<link rel="stylesheet" type="text/css"	href="modules/mailbox/Ext.eu.sm.Mailbox.css" />
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/mailselect.css" />
+		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.dataTemplateSelector.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.attachedWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.Mailbox.js"></script>
@@ -49,6 +56,7 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailGrid.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSearchForm.js"></script>
+		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
