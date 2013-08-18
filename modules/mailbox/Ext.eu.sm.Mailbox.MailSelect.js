@@ -21,6 +21,7 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 		//this.triggerConfig ={tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger x-form-arrow-trigger x-form-mailselect-trigger"};
 		//this.hideTrigger = false;
 	},
+
 	getEmailsValues:function(emails){
 		return new Ext.data.JsonStore({
 			fields:['personal','email']
@@ -106,7 +107,11 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 							email		: val
 						})]);
 					}*/
-					this.onSelect({data:{email:val}},'email');
+					this.onSelect({
+						data:{
+							email:val
+						}
+					},'email');
 					this.el.dom.value='';
 				}
 			}
@@ -170,17 +175,65 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 	},
 
 	onRender:function(ct, position) {
+		var that = this;
 		Ext.eu.sm.MailBox.MailSelect.superclass.onRender.call(this, ct, position);
 		if(this.addEmailTrigger){
-			this.customAddTrigger = this.wrap.createChild(this.triggerConfig ||
-								{tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger x-form-arrow-trigger x-form-mailselect-trigger" });
-				this.wrap.setWidth(this.el.getWidth()+this.customAddTrigger.getWidth());
+			this.customAddTrigger = this.wrap.createChild(this.triggerConfig ||{
+				tag	: "img",
+				src	: Ext.BLANK_IMAGE_URL,
+				cls	: "x-form-trigger x-form-arrow-trigger x-form-mailselect-trigger"
+			});
+			this.wrap.setWidth(this.el.getWidth()+this.customAddTrigger.getWidth());
 
-				this.customAddTrigger.on("click", this.addEmailTrigger, this, {preventDefault:true});
-				this.customAddTrigger.addClassOnOver('x-form-trigger-over');
-				this.customAddTrigger.addClassOnClick('x-form-trigger-click');
-				this.holder.addClass('withTrigger');
+			this.customAddTrigger.on("click", function(e){
+				this.addEmailTriggerCallback(this.customAddTrigger,e);
+			}, this, {
+				preventDefault:true
+			});
+			this.holder.addClass('withTrigger');
+
+			this.customAddTrigger.addClassOnOver('x-form-trigger-over'	);
+			this.customAddTrigger.addClassOnClick('x-form-trigger-click');
 		}
+	},
+
+	addEmailTriggerCallback : function(triggerButton){
+		var that = this;
+		that.attachedCmp = new Ext.eu.attachedWindow({
+			resizeTriggerCmp: that,
+			stickCmp		: triggerButton,
+			width			: 390,
+			height			: 200,
+			layout			: 'fit',
+			items			: [{
+				xtype			: 'mailbox.contactWindow',
+				store			: new Ext.data.Store( {
+					proxy			: that.store.proxy,
+					reader			: that.store.reader,
+					baseParams		: that.store.baseParams,
+					sortInfo		: that.store.sortInfo
+				}),
+				listeners		: {
+					'selected'	: function(selected){
+						if(selected){
+							console.log('OK to move',selected);
+							that.onSelect({
+								data:{
+									email	: selected.get('email'),
+									personal: selected.get('personal')
+								}
+							},'email');
+						}
+						that.attachedCmp.destroy();
+					},
+					'cancel'	: function(selected){
+						console.log('cancel');
+						that.attachedCmp.destroy();
+					}
+				}
+			}]
+		});
+		that.attachedCmp.show();
 	},
 
 	addItem: function(id, caption){

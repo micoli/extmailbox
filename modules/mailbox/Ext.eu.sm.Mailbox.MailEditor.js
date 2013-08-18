@@ -73,7 +73,57 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					iconCls		: 'mail_closed_alt_add',
 					handler		: function(){
 					}
-				},'-','->',{
+				},'-',{
+					xtype		: 'button',
+					text		: Ext.eu.sm.MailBox.i18n._('Template'),
+					handler		: function(){
+						var cmp = this;
+						cmp.attachedCmp = new Ext.eu.attachedWindow({
+							resizeTriggerCmp: this,
+							stickCmp		: this,
+							width			: 450,
+							height			: 200,
+							layout			: 'fit',
+							items			: [{
+								xtype			: 'dataTemplateSelector',
+								store			: that.mailboxContainer.templateStore,
+								itemSelector	: 'div.template-combo-display-wrap',
+								cls				: 'template-combo-display',
+								emptyText		: 'No templates to display',
+								thumbTpl		: new Ext.XTemplate(
+													'<tpl for=".">'+
+														'<div class="template-combo-display-wrap">'+
+															'<div class="name">{name}</div>'+
+															'<div class="body">{body}</div>'+
+														'</div>'+
+													'</tpl>'+
+													'<div class="x-clear"></div>'),
+								detailTpl		: new Ext.XTemplate(
+													'<tpl for=".">'+
+														'<div class="template-combo-display-detail">'+
+															'<div class="name">{name}</div>'+
+															'<div class="body">{body}</div>'+
+														'</div>'+
+													'</tpl>'+
+													'<div class="x-clear"></div>'),
+								listeners		: {
+									selected	: function(record,index){
+										if(record){
+											Ext.getCmp(that.contentId).setValue(record.get('body'));
+											Ext.getCmp(that.contentId).syncValue();
+										}
+										cmp.attachedCmp.destroy();
+									},
+									cancel	: function(selected){
+										console.log('cancel');
+										cmp.attachedCmp.destroy();
+									}
+								}
+							}]
+						});
+						cmp.attachedCmp.show();
+					}
+				},'->',{
 					text		: Ext.eu.sm.MailBox.i18n._('Attach'),
 					iconCls		: 'mail_attach',
 					handler		: function(){
@@ -119,7 +169,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						xtype			: 'mailselect',
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('To'),
 						name			: 'to',
-						anchor			: '-10',
+						anchor			: '-30',
+						addEmailTrigger	: true,
 						value			: that.record.get('to')?that.record.get('to'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
@@ -128,7 +179,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						xtype			: 'mailselect',
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Cc'),
 						name			: 'cc',
-						anchor			: '-10',
+						anchor			: '-30',
+						addEmailTrigger	: true,
 						value			: that.record.get('cc')?that.record.get('cc'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
@@ -137,7 +189,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						xtype			: 'mailselect',
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Bcc'),
 						name			: 'bcc',
-						anchor			: '-10',
+						anchor			: '-30',
+						addEmailTrigger	: true,
 						value			: that.record.get('bcc')?that.record.get('bcc'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
@@ -163,6 +216,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					region				: 'center',
 					xtype				: 'htmleditor',
 					id					: that.contentId,
+					plugins				:[new Ext.ux.form.HtmlEditor.Table()],
 					enableAlignments	: true,
 					enableColors		: true,
 					enableFont			: true,
@@ -170,7 +224,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					enableFormat		: true,
 					enableLinks			: true,
 					enableLists			: true,
-					enableSourceEdit	: false,
+					enableSourceEdit	: true,
 					border				: false
 				}]
 			}]

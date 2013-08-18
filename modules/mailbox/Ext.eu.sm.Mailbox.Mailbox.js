@@ -206,7 +206,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		mailRecord.set('message_id',Ext.id());
 		panel = new Ext.eu.sm.MailBox.MailEditor({
 			id				: that.id+'-new-'+mailRecord.get('message_id'),
-			title			: mailRecord.get('subject'),
+			title			: mailRecord.get('subject')||'*',
 			iconCls			: 'mail_inbox_edit',
 			closable		: true,
 			record			: mailRecord,
@@ -249,6 +249,22 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 					combo.fireEvent('select',combo,records[0],0);
 				}
 			}
+		});
+
+		that.templateStore = new Ext.data.JsonStore({
+			fields			: [
+				'name',
+				'body'
+			],
+			root			: 'data',
+			idProperty		: 'name',
+			autoLoad		: true,
+			baseParams		: {
+				'exw_action'	: that.svcPrefixClass+'getTemplates'
+			},
+			proxy			: new Ext.data.HttpProxy({
+				url				: 'proxy.php',
+			}),
 		});
 
 		var configFolder = {
@@ -305,6 +321,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				}
 			}
 		};
+
 		var configGrid = Ext.apply({
 			xtype			: 'mailbox.mailgrid',
 			split			: true,

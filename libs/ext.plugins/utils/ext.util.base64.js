@@ -4,7 +4,7 @@ Ext.util.base64 = {
 
 	encode: function(decStr){
 		if (typeof btoa === 'function') {
-			 return btoa(decStr);
+			return btoa(decStr);
 		}
 		var base64s = this.base64s;
 		var bits;
@@ -45,5 +45,4 @@ Ext.util.base64 = {
 			return(decOut);
 		}
 	}
-
 };
