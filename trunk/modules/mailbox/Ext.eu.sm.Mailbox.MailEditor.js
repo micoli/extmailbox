@@ -4,6 +4,110 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 	fullRecord		: null,
 	loading			: true,
 	mailboxContainer: null,
+
+	stripAndTrim	: function(str){
+		var tmp = document.createElement("DIV");
+		tmp.innerHTML = str;
+		str = tmp.textContent==''?'':(tmp.textContent || tmp.innerText);
+		str = ''+str;
+		str = str.replace(/^\s+/g,'').replace(/\s+$/g,'');
+		return str;
+	},
+
+	sendEmailFinal	: function(objToSend){
+		var that = this;
+		that.el.mask('sending','x-mask-loading');
+		console.log('ok to send',objToSend);
+		that.el.unmask();
+	},
+
+	sendEmail		: function(){
+		var that = this;
+		//console.log('send',arguments,Ext.getCmp(that.uppanelid).store.data.items,Ext.getCmp(that.uppanelid))
+		var form		= Ext.getCmp(that.formId).getForm();
+		var uploaderCmp	= Ext.getCmp(that.uppanelid);
+		var uploadsOk	= true;
+		var warnings	= [];
+		var errors		= [];
+
+		var objToSend={
+			ref			: '',
+			subject		: form.findField('subject'	).getValue(),
+			from		: form.findField('from'		).getValue(),
+			to			: form.findField('to'		).getValue(),
+			cc			: form.findField('cc'		).getValue(),
+			bcc			: form.findField('bcc'		).getValue(),
+			body		: Ext.getCmp(that.contentId	).getRawValue(),
+			attachments	: []
+		}
+
+		uploaderCmp.store.data.each(function(v,k){
+			objToSend.attachments.push(v.get('fileName'));
+			if(v.get('state')!='done'){
+				uploadsOk=false;
+			}
+		});
+
+		if(that.stripAndTrim(objToSend.to		)==''){
+			errors.push(Ext.eu.sm.MailBox.i18n._('No recipient(s)'	));
+		}
+
+		if(that.stripAndTrim(objToSend.subject	)==''){
+			warnings.push(Ext.eu.sm.MailBox.i18n._('Subject empty'	));
+		}
+
+		if(that.stripAndTrim(objToSend.body		)==''){
+			warnings.push(Ext.eu.sm.MailBox.i18n._('Body empty'		));
+		}
+
+		if (errors.length){
+			Ext.Msg.show({
+				title	: Ext.eu.sm.MailBox.i18n._('Error'),
+				msg		: '<div style="float:left;">'+
+							'<ul><li>-&nbsp;<b>'+
+							errors.join('</b></li><li>')+
+							(warnings.length?'</b></li><li>-&nbsp;'+warnings.join('</li><li>-&nbsp;'):'')+
+							'</li></ul>'+
+							'</div>',
+				buttons	: Ext.Msg.OK,
+				width	: 300,
+				animEl	: that.el,
+				icon	: Ext.MessageBox.ERROR
+			});
+			return false;
+		}
+
+		var sendNow = function(result){
+			if(result=='yes'){
+				if(uploadsOk){
+					that.sendEmailFinal();
+				}else{
+					that.el.mask('sending','x-mask-loading');
+					uploaderCmp.removeListener	('allfinished',that.sendEmailFinal);
+					uploaderCmp.addListener		('allfinished',that.sendEmailFinal);
+					uploaderCmp.uploader.upload();
+				}
+			}
+		}
+
+		if (warnings.length){
+			Ext.Msg.show({
+				title	: Ext.eu.sm.MailBox.i18n._('Warning'),
+				msg		: '<div style="float:left;">'+
+							'<ul><li>-&nbsp;'+warnings.join('</li><li>-&nbsp;')+'</li></ul>'+
+							Ext.eu.sm.MailBox.i18n._('Send anyway ?')+
+							'</div>',
+				buttons	: Ext.Msg.YESNO,
+				width	: 300,
+				fn		: sendNow,
+				animEl	: that.el,
+				icon	: Ext.MessageBox.WARNING
+			});
+		}else{
+			sendNow('yes');
+		}
+	},
+
 	initComponent	: function(){
 		var that = this;
 
@@ -12,7 +116,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		that.attachmentPanelId	= Ext.id();
 		that.headerPanelId		= Ext.id();
 		that.accountComboId		= Ext.id();
-		that.recipientGridId	= Ext.id();
+		that.uppanelid			= Ext.id();
 
 		that.partStore			= new Ext.data.JsonStore({
 			fields	: [
@@ -37,7 +141,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			],
 			url			:'proxy.php',
 			baseParams	: {
-				exw_action		: that.mailboxContainer.svcPrefixClass+'searchContact'
+				exw_action		: that.mailboxContainer.svcImapPrefixClass+'searchContact'
 			}
 		});
 
@@ -54,9 +158,6 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			});
 		}
 
-		var currentAccount		= Ext.getCmp(that.mailboxContainer.accountComboId).getValue();
-		var currentAccountIdx	= that.mailboxContainer.accountStore.find('account',currentAccount);
-
 		Ext.apply(that,{
 			layout	: 'border',
 			items	: [{
@@ -66,7 +167,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				tbar		: [{
 					text		: Ext.eu.sm.MailBox.i18n._('Send'),
 					iconCls		: 'mail_closed_alt',
+					scope		: that,
 					handler		: function(){
+						that.sendEmail();
 					}
 				},{
 					text		: Ext.eu.sm.MailBox.i18n._('Save as Draft'),
@@ -115,7 +218,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 										cmp.attachedCmp.destroy();
 									},
 									cancel	: function(selected){
-										console.log('cancel');
+										//console.log('cancel');
 										cmp.attachedCmp.destroy();
 									}
 								}
@@ -138,11 +241,10 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					frame		: true,
 					autoScroll	: true,
 					bodyStyle	: 'padding:5px 5px 5px;',
-
 					items		: [{
 						xtype			: 'combo',
-						fieldLabel		: Ext.eu.sm.MailBox.i18n._('From'),
 						name			: 'from',
+						fieldLabel		: Ext.eu.sm.MailBox.i18n._('From'),
 						store			: that.mailboxContainer.accountStore,
 						id				: that.accountComboId,
 						anchor			: '-14',
@@ -153,7 +255,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						triggerAction	: 'all',
 						typeAhead		: true,
 						forceSelection	: true,
-						value			: that.mailboxContainer.accountStore.getAt(currentAccountIdx).get('email'),
+						value			: that.fromEmail,
 						selectOnFocus	: true,
 						listeners		:{
 							select			: function(combo,record,index){
@@ -162,13 +264,21 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						}
 					},{
 						xtype			: 'textfield',
+						name			: 'subject',
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Subject'),
 						value			: that.record.get('subject'),
 						anchor			: '-14',
+						enableKeyEvents	: true,
+						listeners		: {
+							'keyup'		: function(cmp,e) {
+								var subject = cmp.getValue();
+								that.setTitle(subject.length>30?subject.substr(0,28)+"...":subject);
+							}
+						}
 					},{
 						xtype			: 'mailselect',
-						fieldLabel		: Ext.eu.sm.MailBox.i18n._('To'),
 						name			: 'to',
+						fieldLabel		: Ext.eu.sm.MailBox.i18n._('To'),
 						anchor			: '-30',
 						addEmailTrigger	: true,
 						value			: that.record.get('to')?that.record.get('to'):undefined,
@@ -177,8 +287,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						contextMenu		: that.recipientContextMenu
 					},{
 						xtype			: 'mailselect',
-						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Cc'),
 						name			: 'cc',
+						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Cc'),
 						anchor			: '-30',
 						addEmailTrigger	: true,
 						value			: that.record.get('cc')?that.record.get('cc'):undefined,
@@ -187,8 +297,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						contextMenu		: that.recipientContextMenu
 					},{
 						xtype			: 'mailselect',
-						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Bcc'),
 						name			: 'bcc',
+						fieldLabel		: Ext.eu.sm.MailBox.i18n._('Bcc'),
 						anchor			: '-30',
 						addEmailTrigger	: true,
 						value			: that.record.get('bcc')?that.record.get('bcc'):undefined,
@@ -202,9 +312,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					split			: true,
 					width			: 250,
 					buttonsAt		: 'tbar',
-					id				: 'uppanel',
-					url				: 'filetree.php',
-					path			: 'root',
+					id				: that.uppanelid,
+					url				: 'proxy.php?exw_action='+that.mailboxContainer.svcSmtpPrefixClass+'uploadAttachment',
+					path			: that.record.get('message_id'),
 					maxFileSize		: 1048576,
 					enableProgress	: true,
 					//singleUpload	: true,
@@ -224,7 +334,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					enableFormat		: true,
 					enableLinks			: true,
 					enableLists			: true,
-					enableSourceEdit	: true,
+					enableSourceEdit	: false,
 					border				: false
 				}]
 			}]

@@ -126,7 +126,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			handler		: function (cmp){
 				that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,that.record,'seen');
 			}
-		},'-',{
+		},{
 			xtype		: 'button',
 			text		: Ext.eu.sm.MailBox.i18n._('view Inline Images'),
 			enableToggle: true,
@@ -191,7 +191,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				Ext.Ajax.request({
 					url		: 'proxy.php',
 					params	: {
-						exw_action		: that.mailboxContainer.svcPrefixClass+'getMessageSource',
+						exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageSource',
 						account			: that.record.get('account'),
 						folder			: that.record.get('folder'),
 						message_no		: that.record.get('uid'),
@@ -212,6 +212,8 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				region		: 'north',
 				baseCls		: 'x-plain',
 				split		: true,
+				minHeight	: 70,
+				maxHeight	: 300,
 				height		: 120,
 				labelWidth	: 70,
 				id			: that.formId,
@@ -366,7 +368,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
-				exw_action		: that.mailboxContainer.svcPrefixClass+'getMessageContent',
+				exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageContent',
 				account			: that.record.get('account'),
 				folder			: that.record.get('folder'),
 				message_no		: that.record.get('uid'),
