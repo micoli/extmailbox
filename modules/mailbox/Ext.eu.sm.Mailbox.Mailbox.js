@@ -5,7 +5,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 	layout				: 'border',
 	mailLayout			: 'threePane',
 	account				: '',
-	svcClass			: 'MailboxImap',
+	svcImapClass		: 'MailboxImap',
 	mailFields			: [
 		'account',
 		'folder',
@@ -65,7 +65,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
-				exw_action	: that.svcPrefixClass+'mailCopyMove',
+				exw_action	: that.svcImapPrefixClass+'mailCopyMove',
 				mode		: params.mode,
 				account		: params.account,
 				toFolder	: params.folderId,
@@ -94,7 +94,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
-				exw_action	: that.svcPrefixClass+'setMessageFlag',
+				exw_action	: that.svcImapPrefixClass+'setMessageFlag',
 				account		: record.get('account'),
 				folder		: record.get('folder'),
 				flag		: flag,
@@ -200,19 +200,23 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 	},
 
 	addMailEditor			: function(mailRecord){
-		var that		= this;
-		var tabPanel	= Ext.getCmp(that.mailPreviewsId);
+		var that				= this;
+		var tabPanel			= Ext.getCmp(that.mailPreviewsId);
+		var currentAccount		= Ext.getCmp(that.accountComboId).getValue();
+		var currentAccountIdx	= that.accountStore.find('account',currentAccount);
 
-		mailRecord.set('message_id',Ext.id());
+		mailRecord.set('message_id',uuid.v4());
+
 		panel = new Ext.eu.sm.MailBox.MailEditor({
-			id				: that.id+'-new-'+mailRecord.get('message_id'),
-			title			: mailRecord.get('subject')||'*',
-			iconCls			: 'mail_inbox_edit',
-			closable		: true,
-			record			: mailRecord,
-			mailboxContainer: that,
-			account			: that.account,
-			imapFolder		: Ext.getCmp(that.mailGridId).mailStore.baseParams.folder
+			id					: that.id+'-new-'+mailRecord.get('message_id'),
+			title				: mailRecord.get('subject')||'*',
+			iconCls				: 'mail_inbox_edit',
+			closable			: true,
+			record				: mailRecord,
+			mailboxContainer	: that,
+			account				: that.account,
+			imapFolder			: Ext.getCmp(that.mailGridId).mailStore.baseParams.folder,
+			fromEmail			: that.accountStore.getAt(currentAccountIdx).get('email')
 		});
 		tabPanel.insert(1,panel);
 		tabPanel.setActiveTab(panel);
@@ -220,7 +224,8 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 
 	initComponent		: function(){
 		var that = this;
-		that.svcPrefixClass = 'local.'+that.svcClass+'.';
+		that.svcImapPrefixClass = 'local.'+that.svcImapClass+'.';
+		that.svcSmtpPrefixClass = 'local.'+that.svcSmtpClass+'.';
 		that.mailGridId		= Ext.id();
 		that.mailPreviewsId	= Ext.id();
 		that.accountComboId	= Ext.id();
@@ -236,7 +241,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			remoteSort		: true,
 			autoLoad		: true,
 			baseParams		: {
-				'exw_action'	: that.svcPrefixClass+'getAccounts'
+				'exw_action'	: that.svcImapPrefixClass+'getAccounts'
 			},
 			proxy			: new Ext.data.HttpProxy({
 				url				: 'proxy.php'
@@ -260,7 +265,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			idProperty		: 'name',
 			autoLoad		: true,
 			baseParams		: {
-				'exw_action'	: that.svcPrefixClass+'getTemplates'
+				'exw_action'	: that.svcImapPrefixClass+'getTemplates'
 			},
 			proxy			: new Ext.data.HttpProxy({
 				url				: 'proxy.php',

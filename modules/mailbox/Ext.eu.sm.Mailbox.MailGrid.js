@@ -49,7 +49,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			remoteSort		: true,
 			autoLoad		: false,
 			baseParams		: {
-				'exw_action'	: that.mailboxContainer.svcPrefixClass+'getMailListInFolders',
+				'exw_action'	: that.mailboxContainer.svcImapPrefixClass+'getMailListInFolders',
 				'folder'		: 'INBOX'
 			},
 			sortInfo		: {
@@ -101,7 +101,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					Ext.Ajax.request({
 						url		: 'proxy.php',
 						params	: {
-							exw_action	: that.mailboxContainer.svcPrefixClass+'expunge',
+							exw_action	: that.mailboxContainer.svcImapPrefixClass+'expunge',
 							account		: that.account,
 							folder		: that.folder
 						},

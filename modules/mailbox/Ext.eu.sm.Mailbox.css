@@ -163,12 +163,12 @@ pre {
 .template-combo-display .x-view-over{
 	background: scroll right bottom  #EFEFEF;
 	border: 1px solid #DDDDDD;
-	padding: 4px;
+	padding: 5px;
 }
 .template-combo-display .x-view-selected{
 	background:  scroll right bottom #EFF5FB;
 	border: 1px solid #99BBE8;
-	padding: 4px;
+	padding: 5px;
 }
 .template-combo-display-wrap{
 	float: left;

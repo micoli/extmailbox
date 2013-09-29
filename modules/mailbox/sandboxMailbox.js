@@ -14,7 +14,8 @@ Ext.onReady(function(){
 			region			: 'center',
 			xtype			: 'mailbox.mailbox',
 			mailLayout		: 'threePane',
-			svcClass		: 'MailboxExt',
+			svcImapClass	: 'MailboxImapExt',
+			svcSmtpClass	: 'MailboxSmtpExt',
 			mailLayout		: 'gridOnNorth',
 			gridConfig		: {
 				pageSize		: 25,
@@ -46,11 +47,11 @@ Ext.onReady(function(){
 					},
 					postInit				: function(container){
 						container.customToolbarClientButtonId=Ext.id();
-						container.viewTBar.splice(13,0,'-');
-						container.viewTBar.splice(14,0,{
+						container.viewTBar.splice(12,0,'-');
+						container.viewTBar.splice(13,0,{
 							xtype		: 'button',
 							id			: container.customToolbarClientButtonId,
-							text		: Ext.eu.sm.MailBox.i18n._('totototo'),
+							text		: Ext.eu.sm.MailBox.i18n._('____'),
 							handler		: function (cmp){
 								alert('client '+ container.record.get('user_data_01'));
 							}

@@ -21,9 +21,13 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ical.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ijp.js"></script>
 
+		<script type="text/javascript"			src ="libs/ext.plugins/utils/broofa-node-uuid/uuid.js"></script>
+
+		<!--
+		-->
 		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
-
+		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.FindAndReplace.js"></script>
 
 		<script type="text/javascript"			src ="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.js"></script>
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.css" />
