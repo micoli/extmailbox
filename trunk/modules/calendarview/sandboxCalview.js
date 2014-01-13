@@ -3,11 +3,21 @@ Ext.onReady(function(){
 	var that = this;
 
 	that.eventStore = new Ext.data.JsonStore({
-		fields			: ['idx','title','date_begin','date_end','text'],
+		fields			: [
+			'idx',
+			'title',{
+				name:'date_begin',
+				type:'date',
+				dateFormat:'Y-m-d H:i:s'
+			},{
+				name:'date_end',
+				type:'date',
+				dateFormat:'Y-m-d H:i:s'
+			},'text'],
 		root			: 'data',
 		idProperty		: 'idx',
 		remoteSort		: true,
-		autoLoad		: true,
+		autoLoad		: false,
 		baseParams		: {
 			'exw_action'	: 'local.calendar.getEvents'
 		},
@@ -34,7 +44,7 @@ Ext.onReady(function(){
 			items		: [{
 				xtype		: 'calendarView',
 				region		: 'center',
-				store		: that.eventStore
+				eventStore	: that.eventStore
 			},{
 				region		: 'south',
 				html		: 'south',
