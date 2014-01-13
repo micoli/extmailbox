@@ -34,19 +34,19 @@ Ext.onReady(function(){
 			}],
 			items		: [{
 				xtype		: 'calendarView',
-				region		:'center',
+				region		: 'center',
 			},{
-				region:'south',
-				html:'south',
-				height:50,
+				region		: 'south',
+				html		: 'south',
+				height		: 50,
 				frame		: true,
-				split:true
+				split		: true
 			},{
-				region:'east',
+				region		: 'east',
 				frame		: true,
-				html:'east',
-				width:50,
-				split:true
+				html		: 'east',
+				width		: 50,
+				split		: true
 			}]
 
 	});
