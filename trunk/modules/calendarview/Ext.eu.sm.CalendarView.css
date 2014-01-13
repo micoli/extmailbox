@@ -1,27 +1,62 @@
 .calendarView-monthView{
-
+	font				:  11px tahoma,arial,helvetica,sans-serif;
 }
 .calendarView-monthView-weekView{
 	height:50px;
 }
 .calendarView-monthView-weekView-dayView{
-	width	: 50px;
-	border	: 1px solid #EEE;
-	text-align: left;
-	vertical-align: top;
+	width				: 50px;
+	border				: 1px solid #EEE;
+	text-align			: left;
+	vertical-align		: top;
 }
+.calendarView-monthView-weekView-dayView .event{
+	/*border				: 1px solid red;*/
+	/*background				: none repeat scroll 0 0 #DFE8F6;*/
+	height					: 16px;
+	line-height				: 16px;
+	margin-top				: 2px;
+	padding					: 1px 1px 1px 4px;
+}
+
+/*.calendarView-monthView-weekView-dayView .event.eventOver{
+	background			: #99BBE8;
+}*/
 .calendarView-monthView-weekView-dayView-header{
-	height:12px;
+	height				: 12px;
+	line-height			: 12px;
 }
 .calendarView-monthView-weekView-dayView-content{
-	overflow:auto;
+	overflow			: auto;
 }
 
 .calendarView-monthView-weekView-dayView.weekend{
-	background:#EEE;
+	background			: #EEE;
 }
 
 .calendarView-monthView-weekView-dayView.outMonth{
-	background:#888;
-	border	: 1px solid #888;
+	background			: #888;
+	border				: 1px solid #888;
 }
+
+.event-color-{
+}
+
+.event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}
+.event-color-1 { background-color:#fcaf3e; }	.event-color-1.eventOver {background-color:#f57900;}
+.event-color-2 { background-color:#e9b96e; }	.event-color-2.eventOver {background-color:#c17d11;}
+.event-color-3 { background-color:#8ae234; }	.event-color-3.eventOver {background-color:#73d216;}
+.event-color-4 { background-color:#729fcf; }	.event-color-4.eventOver {background-color:#3465a4;}
+.event-color-5 { background-color:#ad7fa8; }	.event-color-5.eventOver {background-color:#75507b;}
+.event-color-6 { background-color:#ef2929; }	.event-color-6.eventOver {background-color:#cc0000;}
+.event-color-7 { background-color:#eeeeec; }	.event-color-7.eventOver {background-color:#d3d7cf;}
+.event-color-8 { background-color:#888a85; }	.event-color-8.eventOver {background-color:#555753;}
+.event-color-9 { background-color:#edd400; }	.event-color-9.eventOver {background-color:#c4a000;}
+.event-color-10{ background-color:#f57900; }	.event-color-10.eventOver{background-color:#ce5c00;}
+.event-color-11{ background-color:#c17d11; }	.event-color-11.eventOver{background-color:#8f5902;}
+.event-color-12{ background-color:#73d216; }	.event-color-12.eventOver{background-color:#4e9a06;}
+.event-color-13{ background-color:#3465a4; }	.event-color-13.eventOver{background-color:#204a87;}
+.event-color-14{ background-color:#75507b; }	.event-color-14.eventOver{background-color:#5c3566;}
+.event-color-15{ background-color:#cc0000; }	.event-color-15.eventOver{background-color:#a40000;}
+.event-color-16{ background-color:#d3d7cf; }	.event-color-16.eventOver{background-color:#babdb6;}
+.event-color-17{ background-color:#555753; }	.event-color-17.eventOver{background-color:#2e3436;}

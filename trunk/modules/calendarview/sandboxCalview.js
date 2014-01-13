@@ -17,7 +17,7 @@ Ext.onReady(function(){
 		root			: 'data',
 		idProperty		: 'idx',
 		remoteSort		: true,
-		autoLoad		: false,
+		autoLoad		: true,
 		baseParams		: {
 			'exw_action'	: 'local.calendar.getEvents'
 		},
@@ -58,6 +58,6 @@ Ext.onReady(function(){
 				width		: 50,
 				split		: true
 			}]
-
 	});
+	Ext.QuickTips.init();
 });
