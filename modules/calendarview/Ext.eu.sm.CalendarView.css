@@ -1,0 +1,27 @@
+.calendarView-monthView{
+
+}
+.calendarView-monthView-weekView{
+	height:50px;
+}
+.calendarView-monthView-weekView-dayView{
+	width	: 50px;
+	border	: 1px solid #EEE;
+	text-align: left;
+	vertical-align: top;
+}
+.calendarView-monthView-weekView-dayView-header{
+	height:12px;
+}
+.calendarView-monthView-weekView-dayView-content{
+	overflow:auto;
+}
+
+.calendarView-monthView-weekView-dayView.weekend{
+	background:#EEE;
+}
+
+.calendarView-monthView-weekView-dayView.outMonth{
+	background:#888;
+	border	: 1px solid #888;
+}
