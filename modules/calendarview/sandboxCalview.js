@@ -2,11 +2,10 @@ Ext.onReady(function(){
 
 	var that = this;
 
-	that.accountStore = new Ext.data.JsonStore({
-		fields			: [
-		],
+	that.eventStore = new Ext.data.JsonStore({
+		fields			: ['idx','title','date_begin','date_end','text'],
 		root			: 'data',
-		idProperty		: 'eventId',
+		idProperty		: 'idx',
 		remoteSort		: true,
 		autoLoad		: true,
 		baseParams		: {
@@ -35,6 +34,7 @@ Ext.onReady(function(){
 			items		: [{
 				xtype		: 'calendarView',
 				region		: 'center',
+				store		: that.eventStore
 			},{
 				region		: 'south',
 				html		: 'south',
