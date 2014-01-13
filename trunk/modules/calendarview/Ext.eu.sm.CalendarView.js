@@ -134,22 +134,23 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
 		console.log(containerSize);
 		var dayHeight=parseInt(containerSize.height/that.numWeeks)-3;
 		var dayWidth=parseInt(containerSize.width/(that.showWeekend?7:5));
-		console.log(this.el)
-		console.log(this.el.getSize())
-		console.log(this.ownerCt.getSize())
 		var n =0;
 		var date = that.dateBegin.clone();
 		for(var i=0;i<6;i++){
 			for(var j=0;j<7;j++){
 				that.days[n].setWidth(dayWidth);
 				that.days[n].show();
-				if(!that.showWeekend && j>=5){
+				if((!that.showWeekend && j>=5) ||i>=that.numWeeks){
 					that.days[n].setWidth(0);
 					that.days[n].hide();
 				}
 				if(i<=that.numWeeks){
 					that.days[n].child(".calendarView-monthView-weekView-dayView-header").dom.innerHTML=date.format('d/m');
-					that.days[n].child(".calendarView-monthView-weekView-dayView-content").setHeight(dayHeight-14);
+					if(i>=that.numWeeks){
+						that.days[n].child(".calendarView-monthView-weekView-dayView-content").setHeight(0);
+					}else{
+						that.days[n].child(".calendarView-monthView-weekView-dayView-content").setHeight(dayHeight-14);
+					}
 				}
 				if(date.format('m')==that.date.format('m')){
 					that.days[n].removeClass('outMonth');
