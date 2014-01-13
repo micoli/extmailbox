@@ -31,6 +31,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	},
 	initComponent		: function(){
 		var that = this;
+		that.addEvents('eventclick','eventdblclick');
 		that.viewId = Ext.id();
 		Ext.apply(that,{
 			layout		: 'fit',
@@ -67,7 +68,8 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				region		: 'center',
 				xtype		: 'calendarView.month',
 				id			: that.viewId,
-				eventStore	: that.eventStore
+				eventStore	: that.eventStore,
+				view		: that
 			}]
 		});
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
@@ -82,36 +84,13 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
 	dateEnd				: null,
 	showWeekend			: true,
 	domDates			: {},
-	refresh				: function(auto){
-		var that = this;
-		that.dateBegin = that.date.getFirstDateOfMonth().clone();
-
-		while (that.dateBegin.getDay()!=1){
-			that.dateBegin.setDate(that.dateBegin.getDate()-1);
-		}
-		that.dateEnd = that.date.getLastDateOfMonth().clone();
-		while (that.dateEnd.getDay()!=0){
-			that.dateEnd.setDate(that.dateEnd.getDate()+1);
-		}
-		that.numWeeks = Ext.eu.sm.CalendarView.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
-		console.log(that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
-		if(auto==undefined){
-			this.lastSize=-1;
-			that.setSize(that.getSize());
-			that.displayView();
-		}
-	},
+	withTooltip			: true,
+	tooltipTpl			: {},
 
 	initComponent		: function(){
 		var that = this;
-		that.refresh(false);
 
 		Ext.apply(that,{
-			listeners:{
-				afterrender:function(){
-					that.displayEvents();
-				}
-			}
 		});
 
 		Ext.eu.sm.CalendarView.Month.superclass.initComponent.call(this);
@@ -123,7 +102,6 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
 		var that = this;
 		that.refresh();
 		Ext.each(that.days,function(v,k){
-			//console.log(k,v.child(".calendarView-monthView-weekView-dayView-content"));
 			var t = v.child(".calendarView-monthView-weekView-dayView-content").query('li');
 			Ext.each(t,function(vv,kk){
 				vv.remove();
@@ -171,17 +149,19 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
 						},
 						listeners: {
 							render: function(component) {
-								new Ext.ToolTip({
-									target	: component.el.id,
-									html	: record.get('title')
-								});
+								if(that.withTooltip){
+									new Ext.ToolTip({
+										target	: component.el.id,
+										html	: record.get('title')
+									});
+								}
 
 								component.el.on('click',function(evt,dom){
-									console.log('click',component.dataIdx);
+									that.view.fireEvent('eventClick',that.view,record.data);
 								});
 
 								component.el.on('dblclick',function(evt,dom){
-									console.log('dblclick',component.dataIdx);
+									that.view.fireEvent('eventDblClick',that.view,record.data);
 								});
 
 								li.on('mouseover',function(evt,dom){
@@ -205,6 +185,27 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
 			}
 		})
 	},
+
+	refresh				: function(auto){
+		var that = this;
+		that.dateBegin = that.date.getFirstDateOfMonth().clone();
+
+		while (that.dateBegin.getDay()!=1){
+			that.dateBegin.setDate(that.dateBegin.getDate()-1);
+		}
+		that.dateEnd = that.date.getLastDateOfMonth().clone();
+		while (that.dateEnd.getDay()!=0){
+			that.dateEnd.setDate(that.dateEnd.getDate()+1);
+		}
+		that.numWeeks = Ext.eu.sm.CalendarView.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
+		console.log(that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
+		if(auto==undefined){
+			this.lastSize=-1;
+			that.setSize(that.getSize());
+			that.displayView();
+		}
+	},
+
 	displayView			:  function(){
 		var that = this;
 		var n = 0;

@@ -44,7 +44,16 @@ Ext.onReady(function(){
 			items		: [{
 				xtype		: 'calendarView',
 				region		: 'center',
-				eventStore	: that.eventStore
+				eventStore	: that.eventStore,
+				listeners	: {
+					eventclick : function(calendarView,event){
+						console.log('click',calendarView,event);
+					},
+					eventdblclick : function(calendarView,event){
+						console.log('dblclick',calendarView,event);
+					},
+
+				}
 			},{
 				region		: 'south',
 				html		: 'south',
