@@ -60,6 +60,10 @@ class imapProxy{
 		return imap_getmailboxes($this->imapStream, $this->accounts[$this->account]['cnx'], $filter);
 	}
 
+	function getacl ($mailbox){
+		return imap_getacl($this->imapStream, $mailbox);
+	}
+
 	function isConnected(){
 		return ($this->imapStream)?true:false;;
 	}
@@ -67,8 +71,29 @@ class imapProxy{
 	function search ($query){
 		return imap_search($this->imapStream,$query,SE_UID,"UTF-8");
 	}
+
+	function renamemailbox($old,$new){
+		return imap_renamemailbox($this->imapStream, $this->getAccountVar('cnx').$old, $this->getAccountVar('cnx').$new);
+	}
+
+	function createmailbox($folder){
+		return imap_createmailbox($this->imapStream, $this->getAccountVar('cnx').$folder);
+	}
+
+	function deletemailbox($folder){
+		return imap_deletemailbox($this->imapStream, $this->getAccountVar('cnx').$folder);
+	}
+
+	function status ($mailbox,$options=SA_ALL){
+		return imap_status($this->imapStream,$mailbox,$options);
+	}
+
 	function sort ($sort,$dir){
 		return imap_sort($this->imapStream,$this->imap_order[$sort],$dir=='ASC'?0:1,SE_UID);
+	}
+
+	function thread (){
+		return imap_thread($this->imapStream,SE_UID);
 	}
 
 	function num_msg (){

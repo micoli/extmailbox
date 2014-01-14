@@ -84,12 +84,26 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 		Ext.apply(that,{
 			columns		: [{
 				header		: 'Folder',
-				width		: 150,
+				width		: 140,
 				dataIndex	: 'text'
 			},{
-				header		: 'nb',
-				width		: 30,
-				dataIndex	: 'nb'
+				header		: 'n',
+				width		: 22,
+				dataIndex	: 'nb',
+				renderer	: function(v,meta,node){
+					if(node.folderType=='folder'){
+						return ''+(node.stat.messages||0);
+					}
+				}
+			},{
+				header		: 'u',
+				width		: 22,
+				dataIndex	: 'nb',
+				renderer	: function(v,meta,node){
+					if(node.folderType=='folder'){
+						return ''+(node.stat.unseen||0);
+					}
+				}
 			}],
 			root			: new Ext.tree.AsyncTreeNode({
 				text			: 'Folders',
@@ -260,9 +274,124 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 
 		Ext.eu.sm.MailBox.FolderTree.superclass.initComponent.call(this);
 
+		that.on('contextmenu', function(node,e){
+			var value = node.attributes.text;
+			node.select();
+			if(node.attributes.folderType!='folder'){
+				return null;
+			}
+			var contextMenu= new Ext.menu.Menu({
+				items			: [{
+					text			: Ext.eu.sm.MailBox.i18n._('Rename folder ')+value,
+					iconCls			: 'rename',
+					handler			: function(){
+						Ext.Msg.prompt('Rename', 'New name:', function(btn, text){
+							if (btn == 'ok' && text!=value && (''+text).replace(/ /g,'')!=''){
+								console.log(value,node.attributes,node);
+								Ext.Ajax.request({
+									url		: 'proxy.php',
+									params	: {
+										exw_action	: that.mailboxContainer.svcImapPrefixClass+'folderRename',
+										account		: that.loader.baseParams.account,
+										parentFolder: node.parentNode.attributes.id,
+										oldName		: Ext.util.base64.encode(node.attributes.text),
+										newName		: Ext.util.base64.encode(text)
+									},
+									success	: function(data){
+										var result = JSON.parse(data.responseText);
+										console.log(result);
+										if(result.ok){
+											that.loader.load(that.getRootNode());
+										}else{
+											alert(result.errors)
+										}
+									},
+									failure	: function(data){
+										console.log(data);
+										alert(Ext.eu.sm.MailBox.i18n._('failure on moving mail'));
+									}
+								});
+							}
+						},that,false,value);
+					}
+				},{
+					text			: Ext.eu.sm.MailBox.i18n._('Create subfolder to ')+value,
+					iconCls			: 'add',
+					handler			: function(){
+						Ext.Msg.prompt('Create subfolder', 'Folder name:', function(btn, text){
+							if (btn == 'ok' && text!=value && (''+text).replace(/ /g,'')!=''){
+								console.log(value,node.attributes,node);
+								Ext.Ajax.request({
+									url		: 'proxy.php',
+									params	: {
+										exw_action	: that.mailboxContainer.svcImapPrefixClass+'createSubFolder',
+										account		: that.loader.baseParams.account,
+										parentFolder: node.attributes.id,
+										subFolder	: Ext.util.base64.encode(text)
+									},
+									success	: function(data){
+										var result = JSON.parse(data.responseText);
+										console.log(result);
+										if(result.ok){
+											that.loader.load(that.getRootNode());
+										}else{
+											alert(result.errors)
+										}
+									},
+									failure	: function(data){
+										console.log(data);
+										alert(Ext.eu.sm.MailBox.i18n._('failure on moving mail'));
+									}
+								});
+							}
+						},that);
+					}
+				},{
+					text			: Ext.eu.sm.MailBox.i18n._('Delete folder : ')+value,
+					iconCls			: 'edit',
+					handler			: function(){
+						Ext.Msg.show({
+							title	: 'Delete subfolder?',
+							msg		: 'You are sure to delete that folder <b>'+value+'</b> ?',
+							buttons	: Ext.Msg.YESNOCANCEL,
+							icon	: Ext.MessageBox.QUESTION,
+							fn		: function(btn){
+								if (btn == 'yes'){
+									console.log(value,node.attributes,node);
+									Ext.Ajax.request({
+										url		: 'proxy.php',
+										params	: {
+											exw_action	: that.mailboxContainer.svcImapPrefixClass+'deleteFolder',
+											account		: that.loader.baseParams.account,
+											folder		: node.attributes.id,
+										},
+										success	: function(data){
+											var result = JSON.parse(data.responseText);
+											console.log(result);
+											if(result.ok){
+												that.loader.load(that.getRootNode());
+											}else{
+												alert(result.errors)
+											}
+										},
+										failure	: function(data){
+											console.log(data);
+											alert(Ext.eu.sm.MailBox.i18n._('failure on moving mail'));
+										}
+									});
+									// process text value and close...
+								}
+							}
+						});
+					}
+				}]
+			});
+			contextMenu.show(node.ui.getAnchor());
+		});
+
 		that.on('nodedragover', function(e){
 			return (that.selectionOkForTarget(e.data.selections,e.target.attributes.id))
-		})
+		});
 
 		that.on('beforenodedrop', function(e){
 			var dropEvent = that.formatDropEvent(e);

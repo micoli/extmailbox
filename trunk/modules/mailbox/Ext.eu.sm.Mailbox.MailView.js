@@ -10,10 +10,13 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 	initComponent			: function(){
 		var that = this;
 		that.contentId					= Ext.id();
+		that.contentCardId				= Ext.id();
+		that.contentAttachmentId		= Ext.id();
 		that.formId						= Ext.id();
 		that.attachmentPanelId			= Ext.id();
 		that.headerPanelId				= Ext.id();
 		that.displayInlineComponentsId	= Ext.id();
+		that.attachmentViewerButtonId	= Ext.id();
 		that.flagButtonId				= {
 			seen				: Ext.id()
 		}
@@ -140,6 +143,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				}
 			}
 		},'->',{
+			xtype		: 'button',
+			text		: Ext.eu.sm.MailBox.i18n._('attachment Viewer'),
+			id			: that.attachmentViewerButtonId,
+			enableToggle: true,
+			pressed		: false,
+			hidden		: false,
+			handler		: function (cmp){
+				Ext.getCmp(that.contentCardId).getLayout().setActiveItem(cmp.pressed?that.contentAttachmentId:that.contentId)
+			}
+		},{
 			text		: Ext.eu.sm.MailBox.i18n._('Header'),
 			iconCls		: 'mail_open_alt',
 			handler		: function(){
@@ -250,61 +263,77 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			},{
 				region		: 'center',
 				layout		: 'border',
+				border		: false,
 				items		: [{
-					region		: 'center',
-					xtype		: 'iframepanel',
-					id			: that.contentId,
-					autoCreate	: true,
-					autoScroll	: true,
-					//loadMask	: true,
-					border		: false,
-					html		: '<div style="text-align: center;padding-top:20px;">Loading <h2>'+that.record.get('subject')+'</h2></div>',
-					listeners	: {
-						'documentloaded'		: function(){
-							if(!that.loading){
-								//console.log('ici');
-								//Ext.getCmp(that.contentId).body.unmask();
+					layout			: 'card',
+					region			: 'center',
+					border			: false,
+					id				: that.contentCardId,
+					activeItem		: 0,
+					items			: [{
+						layout			: 'border',
+						border			: false,
+						items			: [{
+							region			: 'center',
+							xtype			: 'iframepanel',
+							id				: that.contentId,
+							autoCreate		: true,
+							autoScroll		: true,
+							//loadMask		: true,
+							border			: false,
+							html			: '<div style="text-align: center;padding-top:20px;">Loading <h2>'+that.record.get('subject')+'</h2></div>',
+							listeners		: {
+								'documentloaded'		: function(){
+									if(!that.loading){
+										Ext.getCmp(that.contentId).body.unmask();
+									}
+								}
 							}
-						}
-					}
-				},{
-					region			: 'south',
-					xtype			: 'dataview',
-					height			: 0,
-					minHeight		: 20,
-					id				: that.attachmentPanelId,
-					autoScroll		: true,
-					split			: true,
-					singleSelect	: true,
-					overClass		: 'x-view-over',
-					itemSelector	: 'div.attachments-wrap',
-					emptyText		: '<div style="padding:10px;">No attachments</div>',
-					store			: that.partStore,
-					html			: '',
-					tpl				: new Ext.XTemplate(
-						'<tpl for=".">',
-							'<span class="attachments-wrap">',
-								'<span class="attachments-filename">',
-									'<a target="attachifr-{account}-{folder}-{message_no}-{filename}" href="{attachUrlLink}">',
-										'<span class="file-icon file-{type}">',
-											'{hfilename}',
+						},{
+							region			: 'south',
+							xtype			: 'dataview',
+							height			: 0,
+							minHeight		: 20,
+							id				: that.attachmentPanelId,
+							autoScroll		: true,
+							split			: true,
+							singleSelect	: true,
+							overClass		: 'x-view-over',
+							itemSelector	: 'div.attachments-wrap',
+							emptyText		: '<div style="padding:10px;">No attachments</div>',
+							store			: that.partStore,
+							html			: '',
+							tpl				: new Ext.XTemplate(
+								'<tpl for=".">',
+									'<span class="attachments-wrap">',
+										'<span class="attachments-filename">',
+											'<a target="attachifr-{account}-{folder}-{message_no}-{filename}" href="{attachUrlLink}">',
+												'<span class="file-icon file-{type}">',
+													'{hfilename}',
+												'</span>',
+											'</a>',
+											'<iframe src="" style="display:none;" name="attachifr-{account}-{folder}-{message_no}-{filename}"></iframe>',
 										'</span>',
-									'</a>',
-									'<iframe src="" style="display:none;" name="attachifr-{account}-{folder}-{message_no}-{filename}"></iframe>',
-								'</span>',
-								'<span class="attachments-size">',
-									'&nbsp;({hsize})',
-								'</span>',
-								'&nbsp;',
-							'</span>',
-						'</tpl>'
-					),
-					listeners		: {
-						'beforeselect'   : {fn:function(view){
-							return view.store.getRange().length > 0;
-						}}
-					}
-
+										'<span class="attachments-size">',
+											'&nbsp;({hsize})',
+										'</span>',
+										'&nbsp;',
+									'</span>',
+								'</tpl>'
+							),
+							listeners		: {
+								'beforeselect'   : {fn:function(view){
+									return view.store.getRange().length > 0;
+								}}
+							}
+						}]
+					},{
+						id				: that.contentAttachmentId,
+						xtype			: 'inlineviewer',
+						selectorWidth	: 200,
+						thumbWidth		: 60,
+						thumbHeight		: 90,
+					}]
 				}]
 			}]
 		});
@@ -396,21 +425,33 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				that.partStore.removeAll();
 				var attachmentPanel = Ext.getCmp(that.attachmentPanelId);
 				var nb = 0;
-				if(that.fullRecord.attachments){
+				var contentAttachment = Ext.getCmp(that.contentAttachmentId);
+				contentAttachment.inlineStore.removeAll();
+				if(that.fullRecord.attachments && that.fullRecord.attachments.length>0){
 					for(k in that.fullRecord.attachments){
 						if(parseInt(k)==k){
-							that.partStore.addSorted(new that.partStore.recordType(Ext.apply(that.fullRecord.attachments[k],{
+							var attach = that.fullRecord.attachments[k]
+							that.partStore.addSorted(new that.partStore.recordType(Ext.apply(attach,{
 								account		: that.record.get('account'),
 								folder		: that.record.get('folder'),
 								message_no	: that.record.get('uid'),
-								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(that.fullRecord.attachments[k].size),
+								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(attach.size),
 							})));
 							nb++;
+							if(attach.hfilename!='all'){
+								contentAttachment.addRecord({
+									'idx'	: nb,
+									'url'	: attach.attachUrlLink,
+									'suburl': undefined,
+									'name'	: attach.hfilename
+								});
+							}
 						}
 					}
 					attachmentPanel.setHeight(attachmentPanel.minHeight);
 					attachmentPanel.show();
 				}else{
+					Ext.getCmp(that.attachmentViewerButtonId).setDisabled(true);
 					attachmentPanel.hide();
 				}
 

@@ -1,6 +1,27 @@
 <?php
 class svcMailboxSmtp {
 
+	function pub_sendMail($o){
+		$tmpAttachmentsPath = $GLOBALS['conf']['imapMailBox']['tmp'].'/attachments';
+		foreach(array('to','cc','bcc','attachments') as $key){
+			if(array_key_exists($key,$o)){
+				$o[$key]=json_decode(stripslashes($o[$key]));
+			}
+		}
+		if(is_array($o['attachments'])){
+			foreach($o['attachments'] as $k=>$v){
+				$fullfilename = $tmpAttachmentsPath.'/'.$o['message_id'].'-'.$v;
+				$o['attachments'][$k]=array(
+					'name'			=> $v,
+					'fullfilename'	=> $fullfilename,
+					'filesize'		=> @filesize($fullfilename)
+				);
+			}
+		}
+
+		return array_merge(array('ok'=>true),$o);
+	}
+
 	function pub_uploadAttachment($o){
 		header('Content-Type: text/html, charset=utf-8');
 		//db($_FILES);//die();
