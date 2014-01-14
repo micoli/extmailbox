@@ -9,6 +9,7 @@
 		<link rel="stylesheet" type="text/css"	href="modules/mailbox/Ext.eu.sm.Mailbox.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/mailselect.css" />
 		<script type="text/javascript"			src="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/pdfobject.js"></script>
 		<!--  script type="text/javascript"		src="modules/mailbox/Ext.eu.MailSelect.js"></script-->
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.ModalWindow.js"></script>

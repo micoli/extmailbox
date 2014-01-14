@@ -95,6 +95,42 @@ class svcMailboxImap{
 		);
 	}
 
+	public function pub_folderRename($o){
+		header('content-type: text/html; charset=utf-8');
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+		$this->imapProxy->renamemailbox(
+			base64_decode($o['parentFolder']).'.'.base64_decode($o['oldName']),
+			base64_decode($o['parentFolder']).'.'.base64_decode($o['newName'])
+		);
+		return array('ok'=>true);
+	}
+
+	public function pub_createSubFolder($o){
+		header('content-type: text/html; charset=utf-8');
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+		$this->imapProxy->createmailbox(base64_decode($o['parentFolder']).'.'.base64_decode($o['subFolder']));
+		return array('ok'=>true);
+	}
+
+	public function pub_deleteFolder($o){
+		header('content-type: text/html; charset=utf-8');
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+		$this->imapProxy->deletemailbox(base64_decode($o['folder']));
+		return array('ok'=>true);
+		//name
+	}
 	/**
 	 *
 	 * @param array $o
@@ -107,7 +143,8 @@ class svcMailboxImap{
 			'uiProvider'	=> 'col',
 			'expanded'		=> true,
 			'allowDrop'		=> true,
-			'allowChildren'	=> true
+			'allowChildren'	=> true,
+			'folderType'	=> 'account'
 		);
 		$this->imapProxy->setAccount($o['account']);
 		$this->imapProxy->open();
@@ -128,13 +165,19 @@ class svcMailboxImap{
 						}
 						$subId=$id;
 						if(!(array_key_exists($subId,$tmp['children']))){
+							//db($subId);
+							//db($this->imapProxy->getacl($subId));
 							$tmp['children'][$subId]=array(
 								'text'			=> $v,
 								'id'			=> base64_encode($id),
+								'fid'			=> $id,
 								'uiProvider'	=> 'col',
 								'cls'			=> ' x-tree-node-collapsed x-tree-node-icon ',
 								'nb'			=> 0,//imap_num_msg ($currMbox)
 								'allowDrop'		=> true,
+								'stat'			=> $this->imapProxy->status($this->imapProxy->getAccountVar('cnx').$subId),
+								'folderType'	=> 'folder'
+								//'acl'			=> $this->imapProxy->getacl($subId)
 								//'allowChildren'	=> true
 							);
 							if($v=='Trash----'){
@@ -219,6 +262,103 @@ class svcMailboxImap{
 		}
 		//print (microtime(true)-$t1);
 		$a= array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
+		return $a;
+	}
+
+	/**
+	 *
+	 * @param array $o
+	 * @return array
+	 */
+	public function pub_todo_getMailThreadsInFolders($o){
+		$t1 = microtime(true);
+		$res = array();
+		$folder=base64_decode($o['folder']);
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open($folder);
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+
+		//db(imap_thread($this->imapProxy->imapStream));
+		header('content-type: text/html; charset=utf-8');
+		//$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
+		//$num	= $this->imapProxy->num_msg();
+
+
+		$threads = $rootValues = array();
+		$thread = $this->imapProxy->thread();
+		$root = 0;
+		//first we find the root (or parent) value for each email in the thread
+		//we ignore emails that have no root value except those that are infact
+		//the root of a thread
+
+		//we want to gather the message IDs in a way where we can get the details of
+		//all emails on one call rather than individual calls ( for performance )
+
+		//foreach thread
+		foreach ($thread as $i => $messageId) {
+			//get sequence and type
+			list($sequence, $type) = explode('.', $i);
+
+			//if type is not num or messageId is 0 or (start of a new thread and no next) or is already set
+			if($type != 'num' || $messageId == 0
+					|| ($root == 0 && $thread[$sequence.'.next'] == 0)
+					|| isset($rootValues[$messageId])) {
+				//ignore it
+				continue;
+			}
+
+			//if this is the start of a new thread
+			if($root == 0) {
+				//set root
+				$root = $messageId;
+			}
+
+			//at this point this will be part of a thread
+			//let's remember the root for this email
+			$rootValues[$messageId] = $root;
+
+			//if there is no next
+			if($thread[$sequence.'.next'] == 0) {
+			//reset root
+				$root = 0;
+			}
+		}
+
+		//now get all the emails details in rootValues in one call
+		//because one call for 1000 rows to a server is better
+		//than calling the server 1000 times
+		$emails = imap_fetch_overview($imap, implode(',', array_keys($rootValues)));
+
+
+
+		if($num==0 || !$aID){
+			return array('data'=>array(),'totalCount'=>0);
+		}
+
+
+		//there is no need to sort, the threads will automagically in chronological order
+		echo '<pre>'.print_r($threads, true).'</pre>';
+
+		foreach ($emails as $msg) {
+			if($msg->message_id){
+				$aMID = array();
+				$msg->msgid				= $folder.'/'.$msg->uid;
+				$aMID[]					= $msg->msgid;
+				$msg->date				= date('Y-m-d H:i:s',strtotime($msg->date));
+				$msg->account			= $o['account'];
+				$msg->folder			= $o['folder'];
+				$aMMGCache = $this->getMMGCache($aMID);
+				$this->getMsgWithCacheSupport($aMMGCache,$msg);
+			}
+			$root = $rootValues[$msg->msgno];
+			$threads[$root][] = $msg;
+		}
+		db($threads);
+		//$aMsgs	= $this->imapProxy->fetch_overview(implode(',',array_keys($rootValues)));
+		//print (microtime(true)-$t1);
+		$a= array('data'=>array_values($threads),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
 		return $a;
 	}
 
@@ -353,11 +493,11 @@ class svcMailboxImap{
 				}elseif ($part['encoding']==1){
 					$data = imap_8bit($data);
 				}
-//db('--');
-//db($part);
+				//db('--');
+				//db($part);
+				//db($part['subtype']);
+				//db($data);
 				if($data){
-//db($part['subtype']);
-//db($data);
 					if($part['subtype']=='PLAIN' && !$bodyPartNo){
 						$type		= 'plain';
 						$bodyPartNo	= $partno;
@@ -416,17 +556,8 @@ class svcMailboxImap{
 			);
 
 		}
-		$parseFunc = 'parsePlugin'.ucFirst($type);
 		$rtn = array();
-		if(in_array($parseFunc,get_class_methods(__CLASS__))){
-			$body = $this->$parseFunc($data,$charset,$rtn,$attachments);
-		}else{
-			$body =	"<pre>".
-					print_r($type,true).
-					print_r($head,true).
-					print_r($outStruct,true).
-					"</pre>";
-		}
+		$body = mimeDecoder::decode($type,$data,$charset,$rtn,$attachments,$head,$outStruct);
 
 		//print $body;
 		$rtn ['header'		]= $head;
@@ -477,70 +608,6 @@ class svcMailboxImap{
 			$this->imapProxy->expunge();
 			return array('ok'=>count($ids));
 		}
-	}
-
-	function parsePluginHtml($body,$charset,&$o,&$attachments){
-		if($charset=='unknown'){
-			$body = utf8_encode($body);//$charset='ISO-8859-1';
-		}else{ //if ( (strtoupper($charset)!='UTF-8')){
-			$body= iconv(strtoupper($charset),'UTF-8',$data); // //TRANSLIT
-		}
-		$o['hasInlineComponents'] = false;
-
-		foreach($attachments as &$f){
-			if(array_key_exists('id',$f) && $f['id']!='-'){
-				$body = preg_replace('!src=(?:"|\')cid:'.preg_quote($f['id'],'!').'(?:"|\')!','src="'.$f['attachUrlLink'].'"',$body);
-				$o['hasInlineComponents'] = true;
-			}
-		}
-
-		if(preg_match('!src=(?:"|\')([^\'"]*)(?:"|\')!',$body)){
-			$body = preg_replace('!src=(?:"|\')([^\'"]*)(?:"|\')!', 'src="" data-imgsafesrc="\\1"',$body );
-			$o['hasInlineComponents'] = true;
-		}
-
-		return $body;
-	}
-
-	function parsePluginPlain($data,$charset,&$o,&$attachments){
-		return "<pre>".iconv(strtoupper($charset),'UTF-8',$data)."</pre>";
-	}
-
-	function parsePluginCalendar($data,$charset,&$o,&$attachments){
-		//$body= iconv(strtoupper($charset),'UTF-8',$data);
-		//return $body;
-		$data = quoted_printable_decode($data);// utf8_decode(imap_utf8($data)));
-		//print ($data);
-		//$data = iconv(strtoupper($charset),'CP1250//IGNORE',$data);
-		$ical = new iCalReader($data,'string');
-		$arr = $ical->events();
-		$body = array(
-				'ATTENDEE'=>array(),
-				'ORGANIZER'=>array()
-		);
-		if(is_array($arr) && array_key_exists(0,$arr) && is_array($arr[0])){
-			foreach($arr[0] as $k=>$v){
-				$sk = explode(';',$k);
-				$p = array();
-				for($i=1;$i<count($sk);$i++){
-					$t = explode('=',$sk[$i],2);
-					$p[$t[0]]=$t[1];
-				}
-				$p['VALUE']=stripslashes( $v );
-				switch($sk[0]){
-					case 'ORGANIZER':
-					case 'ATTENDEE':
-						$body[$sk[0]][]=$p;
-						break;
-					default:
-						$body[$sk[0]]=$p;
-						break;
-				}
-			}
-		}
-		//db($arr);
-		//db($body);
-		return $body;
 	}
 
 	/**
@@ -665,8 +732,11 @@ class svcMailboxImap{
 				db($data);
 				die();
 			}
-
-			$this->headerForDownload($filename,$part['bytes']);
+			if(array_key_exists_assign_default('onlyView',$o,false)){
+				$this->headerForView($filename,$part['bytes']);
+			}else{
+				$this->headerForDownload($filename,$part['bytes']);
+			}
 			print $data;
 			die();
 		}
@@ -691,6 +761,12 @@ class svcMailboxImap{
 		header("Content-Type: application/octet-stream");
 		header("Content-Type: application/download");
 		header("Content-Description: File Transfer");
+		header("Content-Length: " . $size);
+	}
+
+	private function headerForView($filename,$size){
+		//header("Content-Disposition: attachment; filename=" . urlencode($this->decodeMimeStr($filename)));
+		header("Content-Type: application/pdf");
 		header("Content-Length: " . $size);
 	}
 

@@ -4,6 +4,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 	fullRecord		: null,
 	loading			: true,
 	mailboxContainer: null,
+	priority		: 'medium',
 
 	stripAndTrim	: function(str){
 		var tmp = document.createElement("DIV");
@@ -16,9 +17,37 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 
 	sendEmailFinal	: function(objToSend){
 		var that = this;
-		that.el.mask('sending','x-mask-loading');
-		console.log('ok to send',objToSend);
-		that.el.unmask();
+		that.el.mask('Sending','x-mask-loading');
+		objToSend.exw_action	= that.mailboxContainer.svcSmtpPrefixClass+'sendMail';
+		objToSend.attachments	= JSON.stringify(objToSend.attachments);
+		objToSend.to			= JSON.stringify(objToSend.to);
+		objToSend.cc			= JSON.stringify(objToSend.cc);
+		objToSend.bcc			= JSON.stringify(objToSend.bcc);
+		Ext.Ajax.request({
+			url		: 'proxy.php',
+			params	: objToSend,
+			success	: function(data){
+				that.el.unmask();
+				try{
+					var result = JSON.parse(data.responseText);
+					if(result.ok){
+						if(that.ownerCt && that.ownerCt.xtype=='tabpanel'){
+							that.ownerCt.fireEvent('messagessent',that);
+						}
+					}else{
+						alert(result.errors)
+					}
+				}catch(e){
+					alert(e.message+' '+data.responseText)
+				}
+			},
+			failure	: function(data){
+				that.el.unmask();
+				console.log(data);
+				alert(data);
+			}
+		});
+
 	},
 
 	sendEmail		: function(){
@@ -32,18 +61,20 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 
 		var objToSend={
 			ref			: '',
-			subject		: form.findField('subject'	).getValue(),
-			from		: form.findField('from'		).getValue(),
-			to			: form.findField('to'		).getValue(),
-			cc			: form.findField('cc'		).getValue(),
-			bcc			: form.findField('bcc'		).getValue(),
-			body		: Ext.getCmp(that.contentId	).getRawValue(),
+			message_id	: that.record.get('message_id'	),
+			subject		: form.findField('subject'		).getValue(),
+			from		: form.findField('from'			).getValue(),
+			to			: form.findField('to'			).getValues(),
+			cc			: form.findField('cc'			).getValues(),
+			bcc			: form.findField('bcc'			).getValues(),
+			body		: Ext.getCmp(that.contentId		).getRawValue(),
+			priority	: that.priority,
 			attachments	: []
-		}
+		};
 
 		uploaderCmp.store.data.each(function(v,k){
 			objToSend.attachments.push(v.get('fileName'));
-			if(v.get('state')!='done'){
+			if(v.get('state')=='queued' || v.get('state')=='uploading'){
 				uploadsOk=false;
 			}
 		});
@@ -80,11 +111,11 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		var sendNow = function(result){
 			if(result=='yes'){
 				if(uploadsOk){
-					that.sendEmailFinal();
+					that.sendEmailFinal(objToSend);
 				}else{
-					that.el.mask('sending','x-mask-loading');
-					uploaderCmp.removeListener	('allfinished',that.sendEmailFinal);
-					uploaderCmp.addListener		('allfinished',that.sendEmailFinal);
+					that.el.mask('Uploading attachments and Sending','x-mask-loading');
+					uploaderCmp.removeListener	('allfinished',function(){that.sendEmailFinal(objToSend)});
+					uploaderCmp.addListener		('allfinished',function(){that.sendEmailFinal(objToSend)});
 					uploaderCmp.uploader.upload();
 				}
 			}
@@ -226,12 +257,34 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						});
 						cmp.attachedCmp.show();
 					}
-				},'->',{
-					text		: Ext.eu.sm.MailBox.i18n._('Attach'),
-					iconCls		: 'mail_attach',
+				},'-',{
+					//text		: 'low',
+					xtype		: 'button',
+					toggleGroup	: 'priority',
+					iconCls		: 'mail_priority_low',
+					pressed		: false,
 					handler		: function(){
+						that.priority='low';
 					}
-				}],
+				},{
+					//text		: 'medium',
+					xtype		: 'button',
+					toggleGroup	: 'priority',
+					iconCls		: 'mail_priority_medium',
+					pressed		: true,
+					handler		: function(){
+						that.priority='medium';
+					}
+				},{
+					//text		: 'high',
+					xtype		: 'button',
+					toggleGroup	: 'priority',
+					iconCls		: 'mail_priority_high',
+					pressed		: false,
+					handler		: function(){
+						that.priority='high';
+					}
+				},'-'],
 				items		:[{
 					region		: 'center',
 					xtype		: 'form',
@@ -259,7 +312,6 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						selectOnFocus	: true,
 						listeners		:{
 							select			: function(combo,record,index){
-
 							}
 						}
 					},{
@@ -317,7 +369,11 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					path			: that.record.get('message_id'),
 					maxFileSize		: 1048576,
 					enableProgress	: true,
-					//singleUpload	: true,
+					listeners		: {
+						fileadd			: function (uploader, store, record){
+							uploader.uploader.upload();
+						}
+					}
 				}]
 			},{
 				region			: 'center',

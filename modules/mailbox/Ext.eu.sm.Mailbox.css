@@ -1,6 +1,16 @@
 .mailUnseen .x-grid3-cell-inner{
 	font-weight:bold;
 }
+.mail_priority_low{
+	background: url(images/flag_green.png) no-repeat !important;
+}
+.mail_priority_medium{
+	background: url(images/flag_orange.png) no-repeat !important;
+}
+.mail_priority_high{
+	background: url(images/flag_red.png) no-repeat !important;
+}
+
 .x-tree-mail_mail_check_delete_all .x-tree-node-icon,.mail__check_delete_all{
 	background: url(images/mailbox/mail_check_all_delete.png) no-repeat !important;
 }

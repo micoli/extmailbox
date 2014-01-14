@@ -28,6 +28,21 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 		}).reader.readRecords(emails).records;
 	},
 
+	getValues:function(){
+		var that =this;
+		var res=[];
+		Ext.each(that.getValue().split(','),function(v,k){
+			if(v){
+				var idx=that.store.find('email',v);
+				res.push({
+					email		: v,
+					personnal	: (idx>=0)?that.store.getAt(idx).get('personal'):''
+				});
+			}
+		})
+		return res;
+	},
+
 	setEmails:function(emails){
 		this.store.removeAll();
 		this.setValues(this.getEmailsValues(emails));

@@ -22,6 +22,7 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/ical/ijp.js"></script>
 
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/broofa-node-uuid/uuid.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/pdfobject.js"></script>
 
 		<!--
 		-->
@@ -64,6 +65,9 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
+
+		<script type="text/javascript"			src= "modules/mailbox/Ext.eu.sm.inlineViewer.js"></script>
+
 		<script type="text/javascript"			src ="libs/ext.plugins/uploader/Ext.ux.FileUploader.js"></script>
 
 

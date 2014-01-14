@@ -315,8 +315,10 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			}],
 			listeners		: {
 				click			: function(node){
-					var mailGrid = Ext.getCmp(that.mailGridId);
-					mailGrid.load.call(mailGrid,that.account,node.id);
+					if(node.attributes.folderType=='folder'){
+						var mailGrid = Ext.getCmp(that.mailGridId);
+						mailGrid.load.call(mailGrid,that.account,node.id);
+					}
 				},
 				beforedrop		: function(dropEvent){
 					return true;
@@ -360,6 +362,9 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				html			: '<H1></H1>'
 			}],
 			listeners		: {
+				messagessent: function (tab){
+					Ext.getCmp(that.mailPreviewsId).remove(tab);
+				},
 				contextmenu : function (tabPanel, panel, e){
 					e.stopEvent();
 					new Ext.menu.Menu({

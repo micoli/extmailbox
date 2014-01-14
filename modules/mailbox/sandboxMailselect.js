@@ -226,7 +226,8 @@ Ext.onReady(function(){
 				idx		: 0,
 				name	: 'pdf 1',
 				type	: 'pdf',
-				url		: 'http://fc01.deviantart.net/fs70/f/2012/124/c/8/papercraft_charr_pdf_by_riot_inducer-d4yishn.pdf'
+				url		: "proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
+					//'http://fc01.deviantart.net/fs70/f/2012/124/c/8/papercraft_charr_pdf_by_riot_inducer-d4yishn.pdf'
 			},{
 				idx		: 1,
 				name	: 'img 1',
