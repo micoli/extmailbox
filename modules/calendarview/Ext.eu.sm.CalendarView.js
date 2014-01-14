@@ -27,6 +27,11 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			default: return undefined;
 		}
 	},
+	setDate				: function(){
+		var that = this;
+		that.load(that.date);
+		Ext.getCmp(that.datePickerId).setText(that.date.format('d/m/Y'));
+	},
 
 	load				: function(date){
 		var that = this;
@@ -41,15 +46,18 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 
 	displayRange		: function(date1,date2){
 		var that = this;
-		if(Ext.getCmp(that.labelDateRangeId)){
-			Ext.getCmp(that.labelDateRangeId).setText(date1.format('d/m/Y')+' - '+date2.format('d/m/Y'));
+		if(Ext.getCmp(that.labelDateRangeFromId)){
+			Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y'));
+			Ext.getCmp(that.labelDateRangeToId).setText(date2.format('d/m/Y'));
 		}
 	},
 
 	initComponent		: function(){
 		var that = this;
 
-		that.labelDateRangeId = Ext.id();
+		that.labelDateRangeFromId = Ext.id();
+		that.labelDateRangeToId = Ext.id();
+		that.datePickerId = Ext.id();
 		that.viewMonthId = Ext.id();
 		that.viewWeekId = Ext.id();
 
@@ -59,8 +67,24 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 		Ext.apply(that,{
 			layout		: 'card',
 			tbar		:[{
+				xtype		: 'label',
+				id			: that.labelDateRangeFromId
+			},{
+				text		: that.date.format('d/m/Y'),
+				iconCls		: 'calendarSelectIcon',
+				id			: that.datePickerId,
+				menu		: new Ext.menu.DateMenu({
+					startDay	: 1,
+					handler 	: function(dp, date){
+						that.date = date.clone();
+						that.setDate();
+					}
+				})
+			},{
+				xtype		: 'label',
+				id			: that.labelDateRangeToId
+			},'|',{
 				xtype		: 'button',
-				text		: 'previous',
 				iconCls		: 'x-tbar-page-prev',
 				handler		: function(){
 					switch(that.viewMode){
@@ -71,20 +95,18 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 							that.date.setDate(that.date.getDate()-7);
 						break;
 					}
-					that.load(that.date);
+					that.setDate();
 				}
 			},{
 				xtype		: 'button',
-				text		: 'refresh',
 				iconCls		: 'x-tbar-loading',
 				handler		: function(){
 					that.getLayout().activeItem.date = that.date;
-					that.load(that.date);
+					that.setDate();
 				}
 			},{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-next',
-				text		: 'next',
 				handler		: function(){
 					switch(that.viewMode){
 						case 'month':
@@ -94,22 +116,9 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 							that.date.setDate(that.date.getDate()+7);
 						break;
 					}
-					that.load(that.date);
+					that.setDate(that.date);
 				}
 			},'|',{
-				xtype		: 'label',
-				id			: that.labelDateRangeId
-			},'|',{
-				text		: 'date',
-				iconCls		: 'calendarSelectIcon',
-				menu		: new Ext.menu.DateMenu({
-					startDay	: 1,
-					handler 	: function(dp, date){
-						that.date = date.clone();
-						that.load(that.date);
-					}
-				})
-			},{
 				xtype		: 'button',
 				text		: 'month',
 				iconCls		: 'calendarSelectMonthIcon',
@@ -118,7 +127,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				handler		: function(){
 					that.viewMode='month';
 					that.getLayout().setActiveItem(that.viewMonthId);
-					that.load(that.date);
+					that.setDate();
 				}
 			},{
 				xtype		: 'button',
@@ -129,7 +138,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				handler		: function(){
 					that.viewMode='week';
 					that.getLayout().setActiveItem(that.viewWeekId);
-					that.load(that.date);
+					that.setDate();
 				}
 			}],
 			activeItem	: 0,
