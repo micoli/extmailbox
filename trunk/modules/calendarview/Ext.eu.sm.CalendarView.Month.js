@@ -72,7 +72,7 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.eu.sm.CalendarView.View, {
 								'margin-left'	: ''+left+'px',
 								'margin-right'	: ''+right+'px'
 							},
-							html	: that.eventTpl.apply(record.data)
+							html	: that.horizontalEventTpl.apply(record.data)
 						},
 						listeners: {
 							render: function(component) {
