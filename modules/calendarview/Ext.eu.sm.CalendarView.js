@@ -4,8 +4,6 @@ Ext.ns('Ext.eu.sm.CalendarView');
 Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	viewMode			: 'month',
 	date				: new Date(),
-	dateBegin			: null,
-	dateEnd				: null,
 
 	dateDiff			: function (date1,date2,interval) {
 		//http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
@@ -29,273 +27,144 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			default: return undefined;
 		}
 	},
+
+	load				: function(date){
+		var that = this;
+		that.getLayout().activeItem.date = date
+		that.eventStore.load({
+			params	:{
+				date_begin	:	that.getLayout().activeItem.dateBegin.format('Y-m-d H:i:s'),
+				date_end	:	that.getLayout().activeItem.dateEnd.format('Y-m-d H:i:s'),
+			}
+		});
+	},
+
+	displayRange		: function(date1,date2){
+		var that = this;
+		if(Ext.getCmp(that.labelDateRangeId)){
+			Ext.getCmp(that.labelDateRangeId).setText(date1.format('d/m/Y')+' - '+date2.format('d/m/Y'));
+		}
+	},
+
 	initComponent		: function(){
 		var that = this;
-		that.addEvents('eventclick','eventdblclick');
+
+		that.labelDateRangeId = Ext.id();
+		that.viewMonthId = Ext.id();
+		that.viewWeekId = Ext.id();
+
+		that.addEvents('dayclick','eventclick','eventdblclick');
+
 		that.viewId = Ext.id();
 		Ext.apply(that,{
-			layout		: 'fit',
+			layout		: 'card',
 			tbar		:[{
 				xtype		: 'button',
 				text		: 'previous',
+				iconCls		: 'x-tbar-page-prev',
 				handler		: function(){
-					that.date.setMonth(that.date.getMonth()-1);
-					Ext.getCmp(that.viewId).date = that.date;
-					that.eventStore.load();
-					//Ext.getCmp(that.viewId).refresh();
+					switch(that.viewMode){
+						case 'month':
+							that.date.setMonth(that.date.getMonth()-1);
+						break;
+						case 'week':
+							that.date.setDate(that.date.getDate()-7);
+						break;
+					}
+					that.load(that.date);
 				}
 			},{
 				xtype		: 'button',
 				text		: 'refresh',
+				iconCls		: 'x-tbar-loading',
 				handler		: function(){
-					Ext.getCmp(that.viewId).date = that.date;
-					that.eventStore.load();
-					//Ext.getCmp(that.viewId).refresh();
+					that.getLayout().activeItem.date = that.date;
+					that.load(that.date);
 				}
 			},{
 				xtype		: 'button',
+				iconCls		: 'x-tbar-page-next',
 				text		: 'next',
 				handler		: function(){
-					that.date.setMonth(that.date.getMonth()+1);
-					Ext.getCmp(that.viewId).date = that.date;
-					that.eventStore.load();
-					//Ext.getCmp(that.viewId).refresh();
+					switch(that.viewMode){
+						case 'month':
+							that.date.setMonth(that.date.getMonth()+1);
+						break;
+						case 'week':
+							that.date.setDate(that.date.getDate()+7);
+						break;
+					}
+					that.load(that.date);
+				}
+			},'|',{
+				xtype		: 'label',
+				id			: that.labelDateRangeId
+			},'|',{
+				text		: 'date',
+				iconCls		: 'calendarSelectIcon',
+				menu		: new Ext.menu.DateMenu({
+					startDay	: 1,
+					handler 	: function(dp, date){
+						that.date = date.clone();
+						that.load(that.date);
+					}
+				})
+			},{
+				xtype		: 'button',
+				text		: 'month',
+				iconCls		: 'calendarSelectMonthIcon',
+				toggleGroup	: 'viewMode',
+				pressed		: (that.viewMode=='month'),
+				handler		: function(){
+					that.viewMode='month';
+					that.getLayout().setActiveItem(that.viewMonthId);
+					that.load(that.date);
+				}
+			},{
+				xtype		: 'button',
+				text		: 'week',
+				iconCls		: 'calendarSelectWeekIcon',
+				toggleGroup	: 'viewMode',
+				pressed		: (that.viewMode=='week'),
+				handler		: function(){
+					that.viewMode='week';
+					that.getLayout().setActiveItem(that.viewWeekId);
+					that.load(that.date);
 				}
 			}],
-			bbar		:[{
-			}],
-			items		:[{
-				region		: 'center',
+			activeItem	: 0,
+			items		: [{
 				xtype		: 'calendarView.month',
-				id			: that.viewId,
+				id			: that.viewMonthId,
 				eventStore	: that.eventStore,
-				view		: that
+				calendarView: that,
+				listeners	:{
+					scope		: that,
+					initdates	: that.displayRange
+				}
+			},{
+				xtype		: 'calendarView.week',
+				id			: that.viewWeekId,
+				eventStore	: that.eventStore,
+				calendarView: that,
+				listeners	:{
+					scope		: that,
+					initdates	: that.displayRange
+				}
 			}]
 		});
+		if(that.tooltipTpl){
+			that.items[0].tooltipTpl=that.tooltipTpl;
+			that.items[1].tooltipTpl=that.tooltipTpl;
+		}
+		if(that.monthEventTpl){
+			that.items[0].eventTpl=that.monthEventTpl;
+		}
+		if(that.weekEventTpl){
+			that.items[1].eventTpl=that.weekEventTpl;
+		}
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
 	}
 });
+
 Ext.reg('calendarView',Ext.eu.sm.CalendarView);
-
-
-Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.Panel, {
-	date				: new Date(),
-	dateBegin			: null,
-	dateEnd				: null,
-	showWeekend			: true,
-	domDates			: {},
-	withTooltip			: true,
-	tooltipTpl			: {},
-
-	initComponent		: function(){
-		var that = this;
-
-		Ext.apply(that,{
-		});
-
-		Ext.eu.sm.CalendarView.Month.superclass.initComponent.call(this);
-		that.eventStore.on('load',function(store,records,options){
-			that.displayEvents();
-		});
-	},
-	displayEvents		: function(){
-		var that = this;
-		that.refresh();
-		Ext.each(that.days,function(v,k){
-			var t = v.child(".calendarView-monthView-weekView-dayView-content").query('li');
-			Ext.each(t,function(vv,kk){
-				vv.remove();
-			})
-		});
-		var gIdx=-1;
-		that.eventStore.each(function(record){
-			var diff = Ext.eu.sm.CalendarView.prototype.dateDiff(record.get('date_begin'),record.get('date_end'),'days')+1;
-			var dateEvent = new Date(record.get('date_begin').format('Y-m-d'));
-			//console.log(record.get('date_begin'),record.get('date_end'),diff);
-			gIdx = (gIdx+1)%18;
-			for(n=1;n<=diff;n++){
-				var dom = that.domDates[dateEvent.format('Y-m-d')];
-				if(dom){
-					var containerContent = that.days[dom.index].child(".calendarView-monthView-weekView-dayView-content");
-					var ggIdx = Ext.id();
-					var li = containerContent.createChild('<li class="" id='+ggIdx+'></li>')
-					var left=0;
-					var right=0;
-					if(n==1){
-						left = parseInt(record.get('date_begin').format('H'))*60+parseInt(record.get('date_begin').format('m'))
-						left = (that.dayWidth/(24*60))*left
-					}else{
-						left = 0
-					}
-					if(n==diff){
-						right = parseInt(record.get('date_end').format('H'))*60+parseInt(record.get('date_end').format('m'))
-						right = that.dayWidth - that.dayWidth/(24*60)*right
-					}else{
-						right = 0
-					}
-					left = parseInt(left);
-					right = parseInt(right);
-					var gg = new Ext.BoxComponent({
-						renderTo : ggIdx,
-						dataIdx : record.get('idx'),
-						autoEl	: {
-							tag		: 'div',
-							class	: 'event  evt-idx-'+record.get('idx')+' event-color-'+(gIdx),
-							style	: {
-								'margin-left'	: ''+left+'px',
-								'margin-right'	: ''+right+'px'
-							},
-							html	: record.get('title')
-						},
-						listeners: {
-							render: function(component) {
-								if(that.withTooltip){
-									new Ext.ToolTip({
-										target	: component.el.id,
-										html	: record.get('title')
-									});
-								}
-
-								component.el.on('click',function(evt,dom){
-									that.view.fireEvent('eventClick',that.view,record.data);
-								});
-
-								component.el.on('dblclick',function(evt,dom){
-									that.view.fireEvent('eventDblClick',that.view,record.data);
-								});
-
-								li.on('mouseover',function(evt,dom){
-									Ext.each(that.elTable.select('.evt-idx-'+component.dataIdx),function(el){
-										el.addClass('eventOver');
-									})
-								});
-
-								li.on('mouseout',function(evt,dom){
-									Ext.each(that.elTable.select('.evt-idx-'+component.dataIdx),function(el){
-										el.removeClass('eventOver');
-									});
-								});
-							}
-						}
-					});
-					dateEvent.setDate(dateEvent.getDate()+1);
-				}else{
-					n=diff;
-				}
-			}
-		})
-	},
-
-	refresh				: function(auto){
-		var that = this;
-		that.dateBegin = that.date.getFirstDateOfMonth().clone();
-
-		while (that.dateBegin.getDay()!=1){
-			that.dateBegin.setDate(that.dateBegin.getDate()-1);
-		}
-		that.dateEnd = that.date.getLastDateOfMonth().clone();
-		while (that.dateEnd.getDay()!=0){
-			that.dateEnd.setDate(that.dateEnd.getDate()+1);
-		}
-		that.numWeeks = Ext.eu.sm.CalendarView.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
-		console.log(that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
-		if(auto==undefined){
-			this.lastSize=-1;
-			that.setSize(that.getSize());
-			that.displayView();
-		}
-	},
-
-	displayView			:  function(){
-		var that = this;
-		var n = 0;
-		var date = that.dateBegin.clone();
-		that.domDates = {};
-		for(var i=0;i<6;i++){
-			for(var j=0;j<7;j++){
-				that.domDates[date.format('Y-m-d')] = {
-					index : n,
-					class : 'day-'+(i+1)+'-'+(j+1),
-				}
-				that.days[n].setWidth(that.dayWidth);
-				that.days[n].show();
-				if((!that.showWeekend && j>=5) ||i>=that.numWeeks){
-					that.days[n].setWidth(0);
-					that.days[n].hide();
-				}
-				if(i<=that.numWeeks){
-					that.days[n].child(".calendarView-monthView-weekView-dayView-header").dom.innerHTML=date.format('d/m');
-					if(i>=that.numWeeks){
-						that.days[n].child(".calendarView-monthView-weekView-dayView-content").setHeight(0);
-					}else{
-						that.days[n].child(".calendarView-monthView-weekView-dayView-content").setHeight(that.dayHeight-14);
-					}
-				}
-				if(date.format('m')==that.date.format('m')){
-					that.days[n].removeClass('outMonth');
-				}else{
-					that.days[n].addClass('outMonth');
-				}
-				date.setDate(date.getDate()+1);
-				n++;
-			}
-			if(i>=that.numWeeks){
-				that.weeks[i].setHeight(0);
-				that.weeks[i].hide();
-			}else{
-				that.weeks[i].setHeight(that.dayHeight);
-				that.weeks[i].show();
-			}
-		}
-	},
-
-	onResize: function(ct, position){
-		var that = this;
-		Ext.eu.sm.CalendarView.Month.superclass.onResize.call(this, ct, this.maininput);
-		var containerSize = Ext.get(this.el.findParent('.x-panel-body-noheader')).getSize();
-		that.dayHeight=parseInt(containerSize.height/that.numWeeks)-3;
-		that.dayWidth=parseInt(containerSize.width/(that.showWeekend?7:5));
-		that.displayView();
-	},
-
-	afterRender: function(ct, position){
-		var that = this;
-		that.refresh();
-		Ext.eu.sm.CalendarView.Month.superclass.afterRender.call(that, ct);
-	},
-
-	onRender: function(ct, position){
-		var that = this;
-		var str = '<table class="calendarView-monthView">';
-		that.el = ct.createChild({
-			tag		: 'div' ,
-			class	: 'calendarView-monthView-div'
-		});
-
-		for(var i=0;i<6;i++){
-			str +='<tr class="calendarView-monthView-weekView week-'+(i+1)+'">';
-			for(var j=0;j<7;j++){
-				str+='<td class	= "calendarView-monthView-weekView-dayView day-'+(i+1)+'-'+(j+1)+'"><div class="calendarView-monthView-weekView-dayView-header"></div><ul class="calendarView-monthView-weekView-dayView-content"></ul></td>';
-			}
-			str = str+'</tr>';
-		}
-		str = str+'</table>';
-		that.elTable = that.el.createChild(str);
-		that.days=new Array(6*7);
-		that.weeks=new Array(6);
-		var n = 0;
-
-		for(var i=0;i<6;i++){
-			that.weeks[i]=that.elTable.child('.week-'+(i+1));
-			for(var j=0;j<7;j++){
-				that.days[n]=that.elTable.child('.day-'+(i+1)+'-'+(j+1));
-				if(j>=5){
-					that.days[n].addClass('weekend');
-				}
-				n++;
-			}
-		}
-		Ext.eu.sm.CalendarView.Month.superclass.onRender.call(that, ct);
-	}
-});
-Ext.reg('calendarView.month',Ext.eu.sm.CalendarView.Month);

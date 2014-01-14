@@ -1,47 +1,89 @@
 .calendarView-monthView{
-	font				:  11px tahoma,arial,helvetica,sans-serif;
+	font					:  11px tahoma,arial,helvetica,sans-serif;
 }
-.calendarView-monthView-weekView{
-	height:50px;
+/* http://www.iconarchive.com/show/fugue-icons-by-yusuke-kamiyamane.8.html */
+.calendarIcon {
+	background-image: url("images/calendar.gif") !important;
 }
-.calendarView-monthView-weekView-dayView{
-	width				: 50px;
-	border				: 1px solid #EEE;
-	text-align			: left;
-	vertical-align		: top;
+.calendarSelectMonthIcon {
+	background-image: url("images/calendar-select-month-icon.png") !important;
 }
-.calendarView-monthView-weekView-dayView .event{
-	/*border				: 1px solid red;*/
-	/*background				: none repeat scroll 0 0 #DFE8F6;*/
+.calendarSelectWeekIcon {
+	background-image: url("images/calendar-select-week-icon.png") !important;
+}
+
+.calendarSelectIcon {
+	background-image: url("images/calendar-select-icon.png") !important;
+}
+
+.calendarView-monthView-day-header,.calendarView-weekView-day-header {
+	height					: 16px;
+	line-height				: 16px;
+}
+.calendarView-monthView-weekdayView,.calendarView-weekView-weekdayView{
+	text-align				: center;
+}
+.weekend .calendarView-monthView-dayView-header{
+	background				: #EEE;
+}
+.weekend .calendarView-weekView-dayView-header{
+	background				: #EEE;
+}
+.outMonth .calendarView-monthView-dayView-header {
+	background				: #888;
+}
+.outMonth .calendarView-weekView-dayView-header {
+	background				: #888;
+}
+
+.calendarView-monthView-weekView,.calendarView-weekView-weekView{
+	height					: 50px;
+}
+
+.calendarView-monthView-dayView{
+	width					: 50px;
+	border					: 1px solid #EEE;
+	text-align				: left;
+	vertical-align			: top;
+}
+
+.calendarView-weekView-dayView{
+	width					: 50px;
+	border					: 1px solid #EEE;
+	text-align				: left;
+	vertical-align			: top;
+}
+.calendarView-monthView-dayView .event{
+	height					: 16px;
+	line-height				: 16px;
+	margin-top				: 2px;
+	padding					: 1px 1px 1px 4px;
+}
+.calendarView-weekView-dayView .event{
 	height					: 16px;
 	line-height				: 16px;
 	margin-top				: 2px;
 	padding					: 1px 1px 1px 4px;
 }
 
-/*.calendarView-monthView-weekView-dayView .event.eventOver{
-	background			: #99BBE8;
+/*.calendarView-monthView-dayView .event.eventOver{
+	background				: #99BBE8;
 }*/
-.calendarView-monthView-weekView-dayView-header{
-	height				: 12px;
-	line-height			: 12px;
+.calendarView-monthView-dayView-header,.calendarView-weekView-dayView-header{
+	height					: 14px;
+	line-height				: 14px;
+	text-align				: right;
 }
-.calendarView-monthView-weekView-dayView-content{
-	overflow			: auto;
-}
-
-.calendarView-monthView-weekView-dayView.weekend{
-	background			: #EEE;
+.calendarView-monthView-dayView-content,.calendarView-weekView-dayView-content{
+	overflow				: auto;
 }
 
-.calendarView-monthView-weekView-dayView.outMonth{
-	background			: #888;
-	border				: 1px solid #888;
+.calendarView-monthView-dayView-content .event{
+	overflow: hidden;
 }
-
-.event-color-{
+.calendarView-weekView-dayView-content .event{
+	overflow: hidden;
 }
-
 .event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}
 .event-color-1 { background-color:#fcaf3e; }	.event-color-1.eventOver {background-color:#f57900;}
 .event-color-2 { background-color:#e9b96e; }	.event-color-2.eventOver {background-color:#c17d11;}
