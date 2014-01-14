@@ -166,11 +166,9 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			that.items[0].tooltipTpl=that.tooltipTpl;
 			that.items[1].tooltipTpl=that.tooltipTpl;
 		}
-		if(that.monthEventTpl){
-			that.items[0].eventTpl=that.monthEventTpl;
-		}
-		if(that.weekEventTpl){
-			that.items[1].eventTpl=that.weekEventTpl;
+		if(that.horizontalEventTpl){
+			that.items[0].horizontalEventTpl=that.horizontalEventTpl;
+			that.items[1].horizontalEventTpl=that.horizontalEventTpl;
 		}
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
 	}

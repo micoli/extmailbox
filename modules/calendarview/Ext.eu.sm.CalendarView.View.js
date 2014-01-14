@@ -19,8 +19,8 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 				'<p>{content}</p>'
 			);
 		}
-		if(!that.eventTpl){
-			that.eventTpl = new Ext.XTemplate(
+		if(!that.horizontalEventTpl){
+			that.horizontalEventTpl = new Ext.XTemplate(
 					'{title}'+
 					'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
 					'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
