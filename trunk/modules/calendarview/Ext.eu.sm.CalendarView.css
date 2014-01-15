@@ -16,12 +16,12 @@
 	background-image: url("images/calendar-select-icon.png") !important;
 }
 
-.calendarView-monthView-day-header,.calendarView-weekView-day-header {
+.calendarView-monthView-day-header,.calendarView-weekView-day-header,.calendarView-dayView-day-header {
 	height					: 16px;
 	line-height				: 16px;
 }
-.calendarView-monthView-weekdayView,.calendarView-weekView-weekdayView{
-	text-align				: center;
+.calendarView-monthView-weekdayView,.calendarView-weekView-weekdayView,.calendarView-dayView-weekdayView{
+/*	text-align				: center;*/
 }
 .weekend .calendarView-monthView-dayView-header{
 	background				: #EEE;
@@ -36,7 +36,7 @@
 	background				: #888;
 }
 
-.calendarView-monthView-weekView,.calendarView-weekView-weekView{
+.calendarView-monthView-weekView,.calendarView-weekView-weekView,.calendarView-dayView-weekView{
 	height					: 50px;
 }
 
@@ -53,6 +53,13 @@
 	text-align				: left;
 	vertical-align			: top;
 }
+.calendarView-dayView-dayView{
+	width					: 50px;
+	border					: 1px solid #EEE;
+	text-align				: left;
+	vertical-align			: top;
+}
+
 .calendarView-monthView-dayView .event{
 	height					: 16px;
 	line-height				: 16px;
@@ -65,10 +72,34 @@
 	margin-top				: 2px;
 	padding					: 1px 1px 1px 4px;
 }
-
+.calendarView-dayView-dayView .event{
+	height					: 16px;
+	line-height				: 16px;
+	margin-top				: 2px;
+	padding					: 1px 1px 1px 4px;
+}
+.currentDay{
+	border					: 1px solid red;
+}
+.weekNum{
+	float:left;
+	font-style:italic
+}
+.dayNum{
+	float:right;
+}
 /*.calendarView-monthView-dayView .event.eventOver{
 	background				: #99BBE8;
 }*/
+ul.calendarView-monthView-dayView-content{
+	overflow				: auto;
+}
+ul.calendarView-weekView-dayView-content{
+	overflow				: auto;
+}
+ul.calendarView-dayView-dayView-content{
+	overflow				: auto;
+}
 .calendarView-monthView-dayView-header,.calendarView-weekView-dayView-header{
 	height					: 14px;
 	line-height				: 14px;
@@ -82,6 +113,9 @@
 	overflow: hidden;
 }
 .calendarView-weekView-dayView-content .event{
+	overflow: hidden;
+}
+.calendarView-dayView-dayView-content .event{
 	overflow: hidden;
 }
 .event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}

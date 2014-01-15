@@ -1,9 +1,21 @@
 Ext.ns('Ext.eu');
 Ext.ns('Ext.eu.sm.CalendarView');
-
+/*
+Ext.eu.sm.CalendarView
+Ext.eu.sm.CalendarView.View
+	Ext.eu.sm.CalendarView.Weeks
+		Ext.eu.sm.CalendarView.Month
+		Ext.eu.sm.CalendarView.Week
+	Ext.eu.sm.CalendarView.Day
+*/
 Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	viewMode			: 'month',
 	date				: new Date(),
+	showWeekend			: true,
+	controls			: [],
+	monthModeEnabled	: true,
+	weekModeEnabled		: true,
+	dayModeEnabled		: true,
 
 	dateDiff			: function (date1,date2,interval) {
 		//http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
@@ -44,12 +56,13 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 		});
 	},
 
-	displayRange		: function(date1,date2){
+	displayRange		: function(date,date1,date2){
 		var that = this;
 		if(Ext.getCmp(that.labelDateRangeFromId)){
-			Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y'));
-			Ext.getCmp(that.labelDateRangeToId).setText(date2.format('d/m/Y'));
+			Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y')==date.format('d/m/Y')?'-':date1.format('d/m/Y'));
+			Ext.getCmp(that.labelDateRangeToId  ).setText(date2.format('d/m/Y')==date.format('d/m/Y')?'-':date2.format('d/m/Y'));
 		}
+		that.fireEvent('datechanged',that,date,date1,date2);
 	},
 
 	initComponent		: function(){
@@ -60,39 +73,62 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 		that.datePickerId = Ext.id();
 		that.viewMonthId = Ext.id();
 		that.viewWeekId = Ext.id();
+		that.viewDayId = Ext.id();
 
-		that.addEvents('dayclick','eventclick','eventdblclick');
+		that.addEvents('datechanged','dayclick','daycontextmenu','daydblclick','eventclick','eventcontextmenu','eventdblclick');
 
 		that.viewId = Ext.id();
 		Ext.apply(that,{
 			layout		: 'card',
-			tbar		:[{
-				xtype		: 'label',
-				id			: that.labelDateRangeFromId
+			tbar		: [{
+				xtype		: 'button',
+				text		: 'month',
+				iconCls		: 'calendarSelectMonthIcon',
+				toggleGroup	: 'viewMode',
+				hidden		: !that.monthModeEnabled,
+				pressed		: (that.viewMode=='month'),
+				handler		: function(){
+					that.viewMode='month';
+					that.getLayout().setActiveItem(that.viewMonthId);
+					that.setDate();
+				}
 			},{
-				text		: that.date.format('d/m/Y'),
+				xtype		: 'button',
+				text		: 'week',
+				iconCls		: 'calendarSelectWeekIcon',
+				toggleGroup	: 'viewMode',
+				hidden		: !that.weekModeEnabled,
+				pressed		: (that.viewMode=='week'),
+				handler		: function(){
+					that.viewMode='week';
+					that.getLayout().setActiveItem(that.viewWeekId);
+					that.setDate();
+				}
+			},{
+				xtype		: 'button',
+				text		: 'day',
 				iconCls		: 'calendarSelectIcon',
-				id			: that.datePickerId,
-				menu		: new Ext.menu.DateMenu({
-					startDay	: 1,
-					handler 	: function(dp, date){
-						that.date = date.clone();
-						that.setDate();
-					}
-				})
-			},{
-				xtype		: 'label',
-				id			: that.labelDateRangeToId
+				toggleGroup	: 'viewMode',
+				hidden		: !that.dayModeEnabled,
+				pressed		: (that.viewMode=='day'),
+				handler		: function(){
+					that.viewMode='day';
+					that.getLayout().setActiveItem(that.viewDayId);
+					that.setDate();
+				}
 			},'|',{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-prev',
 				handler		: function(){
 					switch(that.viewMode){
-						case 'month':
-							that.date.setMonth(that.date.getMonth()-1);
+						case 'day':
+							that.date.setDate(that.date.getDate()-1);
 						break;
 						case 'week':
 							that.date.setDate(that.date.getDate()-7);
+						break;
+						case 'month':
+							that.date.setMonth(that.date.getMonth()-1);
 						break;
 					}
 					that.setDate();
@@ -109,67 +145,88 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				iconCls		: 'x-tbar-page-next',
 				handler		: function(){
 					switch(that.viewMode){
-						case 'month':
-							that.date.setMonth(that.date.getMonth()+1);
+						case 'day':
+							that.date.setDate(that.date.getDate()+1);
 						break;
 						case 'week':
 							that.date.setDate(that.date.getDate()+7);
+						break;
+						case 'month':
+							that.date.setMonth(that.date.getMonth()+1);
 						break;
 					}
 					that.setDate(that.date);
 				}
 			},'|',{
-				xtype		: 'button',
-				text		: 'month',
-				iconCls		: 'calendarSelectMonthIcon',
-				toggleGroup	: 'viewMode',
-				pressed		: (that.viewMode=='month'),
-				handler		: function(){
-					that.viewMode='month';
-					that.getLayout().setActiveItem(that.viewMonthId);
-					that.setDate();
-				}
+				xtype		: 'label',
+				width		: 100,
+				id			: that.labelDateRangeFromId
 			},{
-				xtype		: 'button',
-				text		: 'week',
-				iconCls		: 'calendarSelectWeekIcon',
-				toggleGroup	: 'viewMode',
-				pressed		: (that.viewMode=='week'),
-				handler		: function(){
-					that.viewMode='week';
-					that.getLayout().setActiveItem(that.viewWeekId);
-					that.setDate();
-				}
-			}],
+				text		: that.date.format('d/m/Y'),
+				iconCls		: 'calendarSelectIcon',
+				id			: that.datePickerId,
+				menu		: new Ext.menu.DateMenu({
+					startDay	: 1,
+					listeners	: {
+						show		: function(datePickerMenu){
+							datePickerMenu.picker.setValue(that.date);
+						}
+					},
+					handler 	: function(dp, date){
+						that.date = date.clone();
+						that.setDate();
+					}
+				})
+			},{
+				xtype		: 'label',
+				width		: 100,
+				id			: that.labelDateRangeToId
+			}].concat(that.controls),
 			activeItem	: 0,
 			items		: [{
 				xtype		: 'calendarView.month',
 				id			: that.viewMonthId,
 				eventStore	: that.eventStore,
 				calendarView: that,
+				showWeekend	: that.showWeekend,
 				listeners	:{
 					scope		: that,
-					initdates	: that.displayRange
+					datechanged	: that.displayRange
 				}
 			},{
 				xtype		: 'calendarView.week',
 				id			: that.viewWeekId,
 				eventStore	: that.eventStore,
 				calendarView: that,
+				showWeekend	: that.showWeekend,
 				listeners	:{
 					scope		: that,
-					initdates	: that.displayRange
+					datechanged	: that.displayRange
+				}
+			},{
+				xtype		: 'calendarView.day',
+				id			: that.viewDayId,
+				eventStore	: that.eventStore,
+				calendarView: that,
+				listeners	:{
+					scope		: that,
+					datechanged	: that.displayRange
 				}
 			}]
 		});
+
 		if(that.tooltipTpl){
 			that.items[0].tooltipTpl=that.tooltipTpl;
 			that.items[1].tooltipTpl=that.tooltipTpl;
+			that.items[2].tooltipTpl=that.tooltipTpl;
 		}
+
 		if(that.horizontalEventTpl){
 			that.items[0].horizontalEventTpl=that.horizontalEventTpl;
 			that.items[1].horizontalEventTpl=that.horizontalEventTpl;
+			that.items[2].horizontalEventTpl=that.horizontalEventTpl;
 		}
+
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
 	}
 });

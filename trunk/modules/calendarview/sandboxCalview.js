@@ -45,6 +45,14 @@ Ext.onReady(function(){
 				xtype				: 'calendarView',
 				region				: 'center',
 				eventStore			: that.eventStore,
+				//dayModeEnabled		: false,
+				controls				: ['|',{
+					xtype				: 'button',
+					text				: 'rr',
+					handler				: function(){
+						console.log(this);
+					}
+				}],
 				horizontalEventTpl	: new Ext.XTemplate(
 						'{title}'+
 						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
@@ -57,16 +65,26 @@ Ext.onReady(function(){
 						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
 						'<p>{content}</p>'
 				),
+				showWeekend			: false,
 				//date				: new Date('2013-01-01'),
 				listeners			: {
+					datechanged : function(calendarView,date,date1,date2){
+						console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
+					},
 					eventclick : function(calendarView,event){
 						console.log('click',calendarView,event);
+					},
+					eventcontextmenu : function(calendarView,event){
+						console.log('eventcontextmenu',calendarView,event);
 					},
 					eventdblclick : function(calendarView,event){
 						console.log('dblclick',calendarView,event);
 					},
 					dayclick : function(calendarView,date){
 						console.log('dayclick',date);
+					},
+					daycontextmenu : function(calendarView,date){
+						console.log('daycontextmenu',date);
 					},
 					daydblclick : function(calendarView,date){
 						console.log('daydblclick',date);
