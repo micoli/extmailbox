@@ -8,8 +8,10 @@
 		<link rel="stylesheet" type="text/css"	href="modules/calendarview/Ext.eu.sm.CalendarView.css" />
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.View.js"></script>
-		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Month.js"></script>
+		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Weeks.js"></script>
+		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Day.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Week.js"></script>
+		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Month.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/sandboxCalview.js"></script>
 		<script>
 			Ext.BLANK_IMAGE_URL = '/ext-2.2.1/release/resources/images/default/s.gif';
