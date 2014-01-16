@@ -20,7 +20,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 
 		for(var j=6;j<=7;j++){
 			var domDay = that.el.child('.'+that.viewClass+'-day-header .calday-0-'+j);
-			if(!that.showWeekend){
+			if(!that.calendarView.showWeekend){
 				domDay.setWidth(0);
 				domDay.hide();
 			}else{
@@ -39,7 +39,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				}
 				that.days[n].setWidth(that.dayWidth);
 				that.days[n].show();
-				if((!that.showWeekend && j>=5) ||i>=that.numWeeks){
+				if((!that.calendarView.showWeekend && j>=5) ||i>=that.numWeeks){
 					that.days[n].setWidth(1);
 					that.days[n].hide();
 				}
@@ -48,7 +48,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 					that.days[n].child("."+that.viewClass+"-dayView-header").child('.weekNum').dom.innerHTML=date.format('W');
 				}
 				if (i<=that.numWeeks){
-					if(that.showWeekend || (!that.showWeekend && date.getDay()!=0 && date.getDay()!=6) && i<that.numWeeks){
+					if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && date.getDay()!=0 && date.getDay()!=6) && i<that.numWeeks){
 						that.days[n].child("."+that.viewClass+"-dayView-header").child('.dayNum').dom.innerHTML=date.format('d');
 					}
 					if(i>=that.numWeeks){
@@ -80,7 +80,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		Ext.eu.sm.CalendarView.Weeks.superclass.onResize.call(this, ct, this.maininput);
 		var containerSize = Ext.get(this.el.findParent('.x-panel-body-noheader')).getSize();
 		that.dayHeight =(parseInt(containerSize.height)-16)/that.numWeeks - 5;
-		that.dayWidth  =parseInt(containerSize.width/(that.showWeekend?7:5));
+		that.dayWidth  =parseInt(containerSize.width/(that.calendarView.showWeekend?7:5));
 		that.displayView();
 	},
 
@@ -95,7 +95,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		str +='<tr class="'+that.viewClass+'-day-header">';
 		for(var j=0;j<7;j++){
 			var strDay='';
-			if(that.showWeekend || (!that.showWeekend && j<5)){
+			if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && j<5)){
 				strDay = that.getWeekDayName(j);
 			}
 

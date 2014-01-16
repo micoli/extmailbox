@@ -5,7 +5,6 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 	date				: new Date(),
 	dateBegin			: null,
 	dateEnd				: null,
-	showWeekend			: true,
 	domDates			: {},
 	datesDom			: {},
 	withTooltip			: true,
@@ -15,27 +14,10 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 
 	initComponent		: function(){
 		var that = this;
-		if(!that.tooltipTpl){
-			that.tooltipTpl	= new Ext.XTemplate(
-				'<h1>{title}</h1>'+
-				'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
-				'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
-				'<p>{content}</p>'
-			);
-		}
-		if(!that.horizontalEventTpl){
-			that.horizontalEventTpl = new Ext.XTemplate(
-					'{title}'+
-					'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
-					'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
-					'<p>{content}</p>'
-			);
-		}
-
 
 		Ext.eu.sm.CalendarView.View.superclass.initComponent.call(this);
 
-		that.eventStore.on('load',function(store,records,options){
+		that.calendarView.eventStore.on('load',function(store,records,options){
 			that.displayEvents();
 		});
 	},
@@ -72,7 +54,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 		that.refresh();
 		that.cleanEvents();
 		var gIdx=-1;
-		that.eventStore.each(function(record){
+		that.calendarView.eventStore.each(function(record){
 			var numDays = Ext.eu.sm.CalendarView.prototype.dateDiff(record.get('date_begin'),record.get('date_end'),'days')+1;
 			var dateEvent = new Date(record.get('date_begin').format('Y-m-d'));
 
@@ -81,7 +63,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 			for(n=1;n<=numDays;n++){
 				var parentDom = that.domDates[dateEvent.format('Y-m-d')];
 				if(parentDom){
-					if(that.showWeekend || (!that.showWeekend && dateEvent.getDay()!=0 && dateEvent.getDay()!=6)){
+					if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && dateEvent.getDay()!=0 && dateEvent.getDay()!=6)){
 						that.createLinearEvent(parentDom, record,n,numDays,gIdx);
 					}
 				}
@@ -125,14 +107,14 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 					'margin-left'	: ''+left+'px',
 					'margin-right'	: ''+right+'px'
 				},
-				html	: that.horizontalEventTpl.apply(record.data)
+				html	: that.calendarView.horizontalEventTpl.apply(record.data)
 			},
 			listeners	: {
 				render		: function(component) {
 					if(that.withTooltip){
 						new Ext.ToolTip({
 							target	: component.el.id,
-							html	: that.tooltipTpl.apply(record.data)
+							html	: that.calendarView.tooltipTpl.apply(record.data)
 						});
 					}
 
