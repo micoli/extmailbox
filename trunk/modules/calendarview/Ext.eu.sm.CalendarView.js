@@ -16,7 +16,18 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	monthModeEnabled	: true,
 	weekModeEnabled		: true,
 	dayModeEnabled		: true,
-
+	tooltipTpl			: new Ext.XTemplate(
+		'<h1>{title}</h1>'+
+		'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
+		'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
+		'<p>{content}</p>'
+	),
+	horizontalEventTpl : new Ext.XTemplate(
+		'{title}'+
+		'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
+		'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
+		'<p>{content}</p>'
+	),
 	dateDiff			: function (date1,date2,interval) {
 		//http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
 		var second=1000, minute=second*60, hour=minute*60, day=hour*24, week=day*7;
@@ -74,6 +85,16 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 		that.viewMonthId = Ext.id();
 		that.viewWeekId = Ext.id();
 		that.viewDayId = Ext.id();
+
+		that.backDaysEventStore = new Ext.data.Store({
+			reader	: new Ext.data.ArrayReader({}, Ext.data.Record.create([
+				{name: 'date', type: 'date', dateFormat: 'Y-m-d'},
+				{name: 'title'},
+				{name: 'color'},
+			])),
+			proxy	: new Ext.data.MemoryProxy(),
+			autoLoad: true,
+		});
 
 		that.addEvents('datechanged','dayclick','daycontextmenu','daydblclick','eventclick','eventcontextmenu','eventdblclick');
 
@@ -184,48 +205,31 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			}].concat(that.controls),
 			activeItem	: 0,
 			items		: [{
-				xtype		: 'calendarView.month',
-				id			: that.viewMonthId,
-				eventStore	: that.eventStore,
-				calendarView: that,
-				showWeekend	: that.showWeekend,
-				listeners	:{
-					scope		: that,
-					datechanged	: that.displayRange
+				xtype			: 'calendarView.month',
+				id				: that.viewMonthId,
+				calendarView	: that,
+				listeners		:{
+					scope			: that,
+					datechanged		: that.displayRange
 				}
 			},{
-				xtype		: 'calendarView.week',
-				id			: that.viewWeekId,
-				eventStore	: that.eventStore,
-				calendarView: that,
-				showWeekend	: that.showWeekend,
-				listeners	:{
-					scope		: that,
-					datechanged	: that.displayRange
+				xtype			: 'calendarView.week',
+				id				: that.viewWeekId,
+				calendarView	: that,
+				listeners		:{
+					scope			: that,
+					datechanged		: that.displayRange
 				}
 			},{
-				xtype		: 'calendarView.day',
-				id			: that.viewDayId,
-				eventStore	: that.eventStore,
-				calendarView: that,
-				listeners	:{
-					scope		: that,
-					datechanged	: that.displayRange
+				xtype			: 'calendarView.day',
+				id				: that.viewDayId,
+				calendarView	: that,
+				listeners		:{
+					scope			: that,
+					datechanged		: that.displayRange
 				}
 			}]
 		});
-
-		if(that.tooltipTpl){
-			that.items[0].tooltipTpl=that.tooltipTpl;
-			that.items[1].tooltipTpl=that.tooltipTpl;
-			that.items[2].tooltipTpl=that.tooltipTpl;
-		}
-
-		if(that.horizontalEventTpl){
-			that.items[0].horizontalEventTpl=that.horizontalEventTpl;
-			that.items[1].horizontalEventTpl=that.horizontalEventTpl;
-			that.items[2].horizontalEventTpl=that.horizontalEventTpl;
-		}
 
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
 	}

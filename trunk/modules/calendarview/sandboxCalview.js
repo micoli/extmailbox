@@ -1,5 +1,4 @@
 Ext.onReady(function(){
-
 	var that = this;
 
 	that.eventStore = new Ext.data.JsonStore({
