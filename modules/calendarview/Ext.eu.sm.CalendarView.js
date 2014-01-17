@@ -16,6 +16,11 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	monthModeEnabled	: true,
 	weekModeEnabled		: true,
 	dayModeEnabled		: true,
+	showViewsLabel		: true,
+	showRefresh			: true,
+	showPrevNext		: true,
+	showDatePicker		: true,
+	showDateRange		: true,
 	tooltipTpl			: new Ext.XTemplate(
 		'<h1>{title}</h1>'+
 		'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
@@ -103,9 +108,9 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			layout		: 'card',
 			tbar		: [{
 				xtype		: 'button',
-				text		: 'month',
 				iconCls		: 'calendarSelectMonthIcon',
 				toggleGroup	: 'viewMode',
+				text		: that.showViewsLabel?'month':'',
 				hidden		: !that.monthModeEnabled,
 				pressed		: (that.viewMode=='month'),
 				handler		: function(){
@@ -115,9 +120,9 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				}
 			},{
 				xtype		: 'button',
-				text		: 'week',
 				iconCls		: 'calendarSelectWeekIcon',
 				toggleGroup	: 'viewMode',
+				text		: that.showViewsLabel?'week':'',
 				hidden		: !that.weekModeEnabled,
 				pressed		: (that.viewMode=='week'),
 				handler		: function(){
@@ -127,9 +132,9 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				}
 			},{
 				xtype		: 'button',
-				text		: 'day',
 				iconCls		: 'calendarSelectIcon',
 				toggleGroup	: 'viewMode',
+				text		: that.showViewsLabel?'day':'',
 				hidden		: !that.dayModeEnabled,
 				pressed		: (that.viewMode=='day'),
 				handler		: function(){
@@ -140,6 +145,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			},'|',{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-prev',
+				hidden		: !that.showPrevNext,
 				handler		: function(){
 					switch(that.viewMode){
 						case 'day':
@@ -157,6 +163,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			},{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-loading',
+				hidden		: !that.showRefresh,
 				handler		: function(){
 					that.getLayout().activeItem.date = that.date;
 					that.setDate();
@@ -164,6 +171,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			},{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-next',
+				hidden		: !that.showPrevNext,
 				handler		: function(){
 					switch(that.viewMode){
 						case 'day':
@@ -181,10 +189,12 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			},'|',{
 				xtype		: 'label',
 				width		: 100,
+				hidden		: !that.showDateRange,
 				id			: that.labelDateRangeFromId
 			},{
 				text		: that.date.format('d/m/Y'),
 				iconCls		: 'calendarSelectIcon',
+				hidden		: !that.showDatePicker,
 				id			: that.datePickerId,
 				menu		: new Ext.menu.DateMenu({
 					startDay	: 1,
@@ -201,6 +211,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			},{
 				xtype		: 'label',
 				width		: 100,
+				hidden		: !that.showDateRange,
 				id			: that.labelDateRangeToId
 			}].concat(that.controls),
 			activeItem	: 0,

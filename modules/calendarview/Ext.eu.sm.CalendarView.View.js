@@ -1,6 +1,7 @@
 Ext.ns('Ext.eu');
 Ext.ns('Ext.eu.sm.CalendarView');
-
+//http://stackoverflow.com/questions/11311410/visualization-of-calendar-events-algorithm-to-layout-events-with-maximum-width
+//http://jsbin.com/akudop/edit#javascript,html,live
 Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 	date				: new Date(),
 	dateBegin			: null,
@@ -9,7 +10,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 	datesDom			: {},
 	withTooltip			: true,
 	maxColorClasses		: 18,
-	contentSelectorClass: '',
+	contentSelectorClass: '.dayView-content',
 	viewModeName		: '',
 
 	initComponent		: function(){
@@ -97,6 +98,12 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 			colorClass = 'event-color-'+record.get('colorIdx');
 		}
 
+		if(n==1){
+			colorClass+=' roundLeft';
+		}
+		if(n==numDays){
+			colorClass+=' roundRight';
+		}
 		var boxEvent = new Ext.BoxComponent({
 			renderTo	: boxEventIdx,
 			dataIdx		: record.get('idx'),

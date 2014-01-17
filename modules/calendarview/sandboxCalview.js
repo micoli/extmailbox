@@ -45,7 +45,9 @@ Ext.onReady(function(){
 				region				: 'center',
 				eventStore			: that.eventStore,
 				//dayModeEnabled		: false,
-				controls				: ['|',{
+				showWeekend			: true,
+				showViewsLabel		: false,
+				controls			: ['|',{
 					xtype				: 'button',
 					text				: 'rr',
 					handler				: function(){
@@ -64,7 +66,6 @@ Ext.onReady(function(){
 						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
 						'<p>{content}</p>'
 				),
-				showWeekend			: false,
 				//date				: new Date('2013-01-01'),
 				listeners			: {
 					datechanged : function(calendarView,date,date1,date2){

@@ -3,8 +3,7 @@ Ext.ns('Ext.eu.sm.CalendarView');
 
 Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 	viewModeName		: 'month',
-	viewClass			: 'calendarView-monthView',
-	contentSelectorClass: '.calendarView-monthView-dayView-content',
+	viewClass			: 'monthView',
 	maxWeeks			: 6,
 
 	calcDates			: function(){
