@@ -18,8 +18,8 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		that.domDates = {};
 		that.datesDom = {};
 
-		for(var j=6;j<=7;j++){
-			var domDay = that.el.child('.'+that.viewClass+'-day-header .calday-0-'+j);
+		/*for(var j=6;j<=7;j++){
+			var domDay = that.el.child('.day-header .calday-0-'+j);
 			if(!that.calendarView.showWeekend){
 				domDay.setWidth(0);
 				domDay.hide();
@@ -27,7 +27,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				domDay.setWidth(that.dayWidth);
 				domDay.show();
 			}
-		}
+		}*/
 
 		for(var i=0;i<that.maxWeeks;i++){
 			for(var j=0;j<7;j++){
@@ -45,16 +45,16 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				}
 				that.days[n][(dateYMD==that.currentDay)?'addClass':'removeClass']('currentDay');
 				if (j==0){
-					that.days[n].child("."+that.viewClass+"-dayView-header").child('.weekNum').dom.innerHTML=date.format('W');
+					that.days[n].child(".dayView-header").child('.weekNum').dom.innerHTML=date.format('W');
 				}
 				if (i<=that.numWeeks){
 					if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && date.getDay()!=0 && date.getDay()!=6) && i<that.numWeeks){
-						that.days[n].child("."+that.viewClass+"-dayView-header").child('.dayNum').dom.innerHTML=date.format('d');
+						that.days[n].child(".dayView-header").child('.dayNum').dom.innerHTML=date.format('d');
 					}
 					if(i>=that.numWeeks){
-						that.days[n].child("."+that.viewClass+"-dayView-content").setHeight(0);
+						that.days[n].child(".dayView-content").setHeight(0);
 					}else{
-						that.days[n].child("."+that.viewClass+"-dayView-content").setHeight(that.dayHeight-14);
+						that.days[n].child(".dayView-content").setHeight(that.dayHeight-14);
 					}
 				}
 				if(date.format('m')==that.date.format('m')){
@@ -79,7 +79,8 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		var that = this;
 		Ext.eu.sm.CalendarView.Weeks.superclass.onResize.call(this, ct, this.maininput);
 		var containerSize = Ext.get(this.el.findParent('.x-panel-body-noheader')).getSize();
-		that.dayHeight =(parseInt(containerSize.height)-16)/that.numWeeks - 5;
+		//that.dayHeight =(parseInt(containerSize.height)-16)/that.numWeeks - 5;
+		that.dayHeight =parseInt(containerSize.height)/that.numWeeks-1;
 		that.dayWidth  =parseInt(containerSize.width/(that.calendarView.showWeekend?7:5));
 		that.displayView();
 	},
@@ -88,33 +89,36 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		var that = this;
 		that.el = ct.createChild({
 			tag		: 'div' ,
-			class	: that.viewClass+'-div'
+			class	: 'calendarView'
 		});
 
 		var str = '<table class="'+that.viewClass+'"><thead>';
-		str +='<tr class="'+that.viewClass+'-day-header">';
+		/*str +='<tr class="'+that.viewClass+'-day-header">';
 		for(var j=0;j<7;j++){
 			var strDay='';
 			if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && j<5)){
 				strDay = that.getWeekDayName(j);
 			}
 
-			str+='<th class="'+that.viewClass+'-weekdayView calday-0-'+(j+1)+'">'+strDay+'</th>';
-		}
+			str+='<th class="weekdayView calday-0-'+(j+1)+'">'+strDay+'</th>';
+		}*/
 		str = str+'</tr></thead>';
 		str = str+'<tbody>';
 
 		for(var i=0;i<that.maxWeeks;i++){
-			str +='<tr class="'+that.viewClass+'-weekView week-'+(i+1)+'">';
+			str +='<tr class="weekView week-'+(i+1)+'">';
 			for(var j=0;j<7;j++){
 				var strDay='';
 				if(j==0){
 					strDay='<div class="weekNum"></div>'
 				}
 				strDay+='<div class="dayNum"></div>'
-				str+='<td class="'+that.viewClass+'-dayView calday-'+(i+1)+'-'+(j+1)+'">'+
-						'<div class="'+that.viewClass+'-dayView-header">'+strDay+'</div>'+
-						'<ul class="'+that.viewClass+'-dayView-content"></ul>'+
+				if(i==0 && (that.calendarView.showWeekend || (!that.calendarView.showWeekend && j<5))){
+					strDay+='<div class="dayName">'+that.getWeekDayName(j)+'</div>'
+				}
+				str+='<td class="dayView calday-'+(i+1)+'-'+(j+1)+'">'+
+						'<div class="dayView-header">'+strDay+'</div>'+
+						'<ul class="dayView-content"></ul>'+
 					'</td>';
 			}
 			str = str+'</tr>';

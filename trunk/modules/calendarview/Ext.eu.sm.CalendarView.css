@@ -1,5 +1,7 @@
-.calendarView-monthView{
-	font					:  11px tahoma,arial,helvetica,sans-serif;
+.calendarView .monthView,.weekView,.dayViewContainer{
+	font					: 11px helvetica,arial,sans-serif;
+	border-spacing			: 0px;
+	border-collapse			: collapse;
 }
 /* http://www.iconarchive.com/show/fugue-icons-by-yusuke-kamiyamane.8.html */
 .calendarIcon {
@@ -16,106 +18,70 @@
 	background-image: url("images/calendar-select-icon.png") !important;
 }
 
-.calendarView-monthView-day-header,.calendarView-weekView-day-header,.calendarView-dayView-day-header {
+.calendarView .dayView-header{
 	height					: 16px;
 	line-height				: 16px;
-}
-.calendarView-monthView-weekdayView,.calendarView-weekView-weekdayView,.calendarView-dayView-weekdayView{
-/*	text-align				: center;*/
-}
-.weekend .calendarView-monthView-dayView-header{
-	background				: #EEE;
-}
-.weekend .calendarView-weekView-dayView-header{
-	background				: #EEE;
-}
-.outMonth .calendarView-monthView-dayView-header {
-	background				: #888;
-}
-.outMonth .calendarView-weekView-dayView-header {
-	background				: #888;
-}
-
-.calendarView-monthView-weekView,.calendarView-weekView-weekView,.calendarView-dayView-weekView{
-	height					: 50px;
-}
-
-.calendarView-monthView-dayView{
-	width					: 50px;
-	border					: 1px solid #EEE;
-	text-align				: left;
-	vertical-align			: top;
-}
-
-.calendarView-weekView-dayView{
-	width					: 50px;
-	border					: 1px solid #EEE;
-	text-align				: left;
-	vertical-align			: top;
-}
-.calendarView-dayView-dayView{
-	width					: 50px;
-	border					: 1px solid #EEE;
-	text-align				: left;
-	vertical-align			: top;
-}
-
-.calendarView-monthView-dayView .event{
-	height					: 16px;
-	line-height				: 16px;
-	margin-top				: 2px;
-	padding					: 1px 1px 1px 4px;
-}
-.calendarView-weekView-dayView .event{
-	height					: 16px;
-	line-height				: 16px;
-	margin-top				: 2px;
-	padding					: 1px 1px 1px 4px;
-}
-.calendarView-dayView-dayView .event{
-	height					: 16px;
-	line-height				: 16px;
-	margin-top				: 2px;
-	padding					: 1px 1px 1px 4px;
-}
-.currentDay{
-	border					: 1px solid red;
-}
-.weekNum{
-	float:left;
-	font-style:italic
-}
-.dayNum{
-	float:right;
-}
-/*.calendarView-monthView-dayView .event.eventOver{
-	background				: #99BBE8;
-}*/
-ul.calendarView-monthView-dayView-content{
-	overflow				: auto;
-}
-ul.calendarView-weekView-dayView-content{
-	overflow				: auto;
-}
-ul.calendarView-dayView-dayView-content{
-	overflow				: auto;
-}
-.calendarView-monthView-dayView-header,.calendarView-weekView-dayView-header{
-	height					: 14px;
-	line-height				: 14px;
+	font-size				: 16px;
 	text-align				: right;
+	color					: #A7C6DF;
 }
-.calendarView-monthView-dayView-content,.calendarView-weekView-dayView-content{
+.calendarView .weekend  {
+	background				: #EFF9FC;
+}
+.calendarView .outMonth{
+	background				: #EFEFEF;
+	font-color				: ##BBBBBB;
+}
+
+.calendarView .weekView{
+}
+
+.calendarView .dayView {
+	border					: 1px solid #C3D9FF;
+	text-align				: left;
+	vertical-align			: top;
+}
+
+.calendarView .dayView .event{
+	height					: 16px;
+	line-height				: 16px;
+	margin-top				: 2px;
+	padding					: 1px 1px 1px 4px;
+}
+
+.calendarView .dayView .event.roundRight{
+	border-top-right-radius		:3px;
+	border-bottom-right-radius	:3px;
+}
+
+.calendarView .dayView .event.roundLeft{
+	border-top-left-radius		:3px;
+	border-bottom-left-radius	:3px;
+}
+
+.calendarView .currentDay .dayView-header{
+	color					: red;
+}
+
+.calendarView .weekNum{
+	float					:left;
+	font-style				:italic
+}
+.calendarView .dayName {
+	float					:right;
+	padding-right			:5px;
+}
+.calendarView .dayNum {
+	float					:right;
+}
+.calendarView ul.dayView-content{
+	overflow				: auto;
+}
+.calendarView .monthView-dayView-content,.weekView-dayView-content{
 	overflow				: auto;
 }
 
-.calendarView-monthView-dayView-content .event{
-	overflow: hidden;
-}
-.calendarView-weekView-dayView-content .event{
-	overflow: hidden;
-}
-.calendarView-dayView-dayView-content .event{
+.calendarView .dayView-content .event{
 	overflow: hidden;
 }
 .event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}
