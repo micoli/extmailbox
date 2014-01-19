@@ -4,35 +4,59 @@ Ext.ns('Ext.eu.sm.CalendarView');
 Ext.eu.sm.CalendarView
 Ext.eu.sm.CalendarView.View
 	Ext.eu.sm.CalendarView.Weeks
-		Ext.eu.sm.CalendarView.Month
-		Ext.eu.sm.CalendarView.Week
-	Ext.eu.sm.CalendarView.Day
+		Ext.eu.sm.CalendarView.Views.Month
+		Ext.eu.sm.CalendarView.Views.Week
+		Ext.eu.sm.CalendarView.Views.TwoWeek
+	Ext.eu.sm.CalendarView.Views.Day
+
+	that.backDaysEventStore = new Ext.data.Store({
+		reader	: new Ext.data.ArrayReader({}, Ext.data.Record.create([
+			{name: 'date', type: 'date', dateFormat: 'Y-m-d'},
+			{name: 'title'},
+			{name: 'color'},
+		])),
+		id		: 'date',
+		proxy	: new Ext.data.MemoryProxy(),
+		autoLoad: true,
+	});
 */
 Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 	viewMode			: 'month',
 	date				: new Date(),
 	showWeekend			: true,
 	controls			: [],
-	monthModeEnabled	: true,
-	weekModeEnabled		: true,
-	dayModeEnabled		: true,
+	enabledMode			: {
+		'day'				: true,
+		'week'				: true,
+		'twoweek'			: true,
+		'month'				: true,
+	},
 	showViewsLabel		: true,
 	showRefresh			: true,
 	showPrevNext		: true,
 	showDatePicker		: true,
 	showDateRange		: true,
+	activeViews			: {},
+	withTooltip			: true,
+
 	tooltipTpl			: new Ext.XTemplate(
 		'<h1>{title}</h1>'+
 		'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
 		'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
 		'<p>{content}</p>'
 	),
-	horizontalEventTpl : new Ext.XTemplate(
+
+	horizontalEventTpl	: new Ext.XTemplate(
 		'{title}'+
 		'<p>From : {date_begin:date("d/m/Y H:i")}</p>'+
 		'<p>To : {date_end:date("d/m/Y H:i")}</p>'+
 		'<p>{content}</p>'
 	),
+
+	fulldayEventTpl		: new Ext.XTemplate(
+			'{title}'
+	),
+
 	dateDiff			: function (date1,date2,interval) {
 		//http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
 		var second=1000, minute=second*60, hour=minute*60, day=hour*24, week=day*7;
@@ -83,81 +107,101 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 
 	initComponent		: function(){
 		var that = this;
+		that.containerViewId		= Ext.id();
+		that.labelDateRangeFromId	= Ext.id();
+		that.labelDateRangeToId		= Ext.id();
+		that.datePickerId			= Ext.id();
+		that.menuModeId				= Ext.id();
+		that.viewId					= {};
+		that.menuMode				= [];
+		that.items					= [];
 
-		that.labelDateRangeFromId = Ext.id();
-		that.labelDateRangeToId = Ext.id();
-		that.datePickerId = Ext.id();
-		that.viewMonthId = Ext.id();
-		that.viewWeekId = Ext.id();
-		that.viewDayId = Ext.id();
+		if(!that.tooltipFulldayTpl){
+			that.tooltipFulldayTpl = that.tooltipTpl;
+		}
 
-		that.backDaysEventStore = new Ext.data.Store({
-			reader	: new Ext.data.ArrayReader({}, Ext.data.Record.create([
-				{name: 'date', type: 'date', dateFormat: 'Y-m-d'},
-				{name: 'title'},
-				{name: 'color'},
-			])),
-			proxy	: new Ext.data.MemoryProxy(),
-			autoLoad: true,
-		});
+		var n=0;
+		for( var viewType in Ext.eu.sm.CalendarView.Views){
+			var lowViewType = viewType.toLowerCase();
+			if(that.enabledMode[lowViewType]){
+				that.activeViews[lowViewType]	= Ext.eu.sm.CalendarView.Views[viewType].prototype;
+				that.viewId		[lowViewType]	= Ext.id();
+				that.items.push({
+					xtype			: 'calendarView.views.'+lowViewType,
+					id				: that.viewId[lowViewType],
+					calendarView	: that,
+					listeners		:{
+						scope			: that,
+						datechanged		: that.displayRange
+					}
+				});
+				if(that.viewMode==lowViewType){
+					that.activeItem=n;
+				}
+				n++;
+				that.menuMode.push({
+					xtype		: 'button',
+					toggleGroup	: 'viewMode',
+					iconCls		: that.activeViews[lowViewType].iconCls,
+					text		: lowViewType,
+					pressed		: (that.viewMode==lowViewType),
+					handler		: (function(type){
+						return function(){
+							that.viewMode=type;
+							Ext.getCmp(that.menuModeId).setIconClass(that.activeViews[type].iconCls);
+							Ext.getCmp(that.menuModeId).setText(type);
+							that.getLayout().setActiveItem(that.viewId[type]);
+							that.setDate();
+						}
+					})(lowViewType)
+				})
+			}
+		}
 
-		that.addEvents('datechanged','dayclick','daycontextmenu','daydblclick','eventclick','eventcontextmenu','eventdblclick');
+		that.addEvents(
+			'datechanged',
+			'dayclick',
+			'daycontextmenu',
+			'daydblclick',
+			'eventclick',
+			'eventcontextmenu',
+			'eventdblclick'
+		);
 
-		that.viewId = Ext.id();
 		Ext.apply(that,{
 			layout		: 'card',
-			tbar		: [{
-				xtype		: 'button',
-				iconCls		: 'calendarSelectMonthIcon',
-				toggleGroup	: 'viewMode',
-				text		: that.showViewsLabel?'month':'',
-				hidden		: !that.monthModeEnabled,
-				pressed		: (that.viewMode=='month'),
-				handler		: function(){
-					that.viewMode='month';
-					that.getLayout().setActiveItem(that.viewMonthId);
-					that.setDate();
-				}
-			},{
-				xtype		: 'button',
-				iconCls		: 'calendarSelectWeekIcon',
-				toggleGroup	: 'viewMode',
-				text		: that.showViewsLabel?'week':'',
-				hidden		: !that.weekModeEnabled,
-				pressed		: (that.viewMode=='week'),
-				handler		: function(){
-					that.viewMode='week';
-					that.getLayout().setActiveItem(that.viewWeekId);
-					that.setDate();
-				}
-			},{
+			tbar		: [/*{
 				xtype		: 'button',
 				iconCls		: 'calendarSelectIcon',
 				toggleGroup	: 'viewMode',
 				text		: that.showViewsLabel?'day':'',
-				hidden		: !that.dayModeEnabled,
+				hidden		: !that.enabledMode['day'],
 				pressed		: (that.viewMode=='day'),
 				handler		: function(){
 					that.viewMode='day';
-					that.getLayout().setActiveItem(that.viewDayId);
+					that.getLayout().setActiveItem(that.viewId['day']);
 					that.setDate();
 				}
-			},'|',{
+			},*/new Ext.Toolbar.MenuButton({
+				text	: that.viewMode,
+				id		: that.menuModeId,
+				iconCls	: that.activeViews[that.viewMode].iconCls,
+				menu	: {
+					items	:	that.menuMode
+				}
+			}),'|',{
+				xtype		: 'button',
+				iconCls		: 'calendarToday',
+				handler		: function(){
+					that.date = new Date();
+					that.setDate();
+				}
+			},{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-prev',
 				hidden		: !that.showPrevNext,
 				handler		: function(){
-					switch(that.viewMode){
-						case 'day':
-							that.date.setDate(that.date.getDate()-1);
-						break;
-						case 'week':
-							that.date.setDate(that.date.getDate()-7);
-						break;
-						case 'month':
-							that.date.setMonth(that.date.getMonth()-1);
-						break;
-					}
+					that.getLayout().activeItem.getPrevDate(that.date);
 					that.setDate();
 				}
 			},{
@@ -173,18 +217,8 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				iconCls		: 'x-tbar-page-next',
 				hidden		: !that.showPrevNext,
 				handler		: function(){
-					switch(that.viewMode){
-						case 'day':
-							that.date.setDate(that.date.getDate()+1);
-						break;
-						case 'week':
-							that.date.setDate(that.date.getDate()+7);
-						break;
-						case 'month':
-							that.date.setMonth(that.date.getMonth()+1);
-						break;
-					}
-					that.setDate(that.date);
+					that.getLayout().activeItem.getNextDate(that.date);
+					that.setDate();
 				}
 			},'|',{
 				xtype		: 'label',
@@ -213,33 +247,7 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 				width		: 100,
 				hidden		: !that.showDateRange,
 				id			: that.labelDateRangeToId
-			}].concat(that.controls),
-			activeItem	: 0,
-			items		: [{
-				xtype			: 'calendarView.month',
-				id				: that.viewMonthId,
-				calendarView	: that,
-				listeners		:{
-					scope			: that,
-					datechanged		: that.displayRange
-				}
-			},{
-				xtype			: 'calendarView.week',
-				id				: that.viewWeekId,
-				calendarView	: that,
-				listeners		:{
-					scope			: that,
-					datechanged		: that.displayRange
-				}
-			},{
-				xtype			: 'calendarView.day',
-				id				: that.viewDayId,
-				calendarView	: that,
-				listeners		:{
-					scope			: that,
-					datechanged		: that.displayRange
-				}
-			}]
+			}].concat(that.controls)
 		});
 
 		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);

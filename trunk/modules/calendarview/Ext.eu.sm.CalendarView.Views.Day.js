@@ -1,7 +1,8 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarView.Views');
 
-Ext.eu.sm.CalendarView.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
+Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
+	iconCls				: 'calendarSelectIcon',
 	viewModeName		: 'day',
 	viewClass			: 'dayViewContainer',
 
@@ -15,7 +16,13 @@ Ext.eu.sm.CalendarView.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
 	},
 
+	getPrevDate			: function (date){
+		date.setDate(date.getDate()-1);
+	},
 
+	getNextDate			: function (date){
+		date.setDate(date.getDate()+1);
+	},
 
 	displayView			:  function(){
 		var that = this;
@@ -50,8 +57,8 @@ Ext.eu.sm.CalendarView.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 
 	onResize: function(ct, position){
 		var that = this;
-		Ext.eu.sm.CalendarView.Day.superclass.onResize.call(this, ct, this.maininput);
-		var containerSize = Ext.get(this.el.findParent('.x-panel-body-noheader')).getSize();
+		Ext.eu.sm.CalendarView.Views.Day.superclass.onResize.call(this, ct, this.maininput);
+		var containerSize = Ext.get(this.el.findParent('.x-panel-body')).getSize();
 		that.dayHeight =(parseInt(containerSize.height)-16) - 5;
 		that.dayWidth  = containerSize.width;
 		that.displayView();
@@ -74,11 +81,14 @@ Ext.eu.sm.CalendarView.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		str +=	'<td class="dayView calday-1-1">';
 		str +=		'<div class="dayView-header">';
 		str +='			<div class="weekNum"></div>'
+		str +='			<div class="dayTitle"></div>'
 		str +='			<div class="dayNum"></div>'
 		str +='			<div class="dayName"></div>'
 		str +='		</div>';
-		str +=		'<ul class="dayView-content"></ul>';
-		str +=	'</td>';
+		str +='		<div class="dayView-fullday-content">'
+		str +='			<ul class="dayView-content"></ul>';
+		str +='		</div>';
+		str +='	</td>';
 		str += '</tr>';
 		str +='</tbody></table>';
 
@@ -97,9 +107,9 @@ Ext.eu.sm.CalendarView.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 			var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
 			that.calendarView.fireEvent('daydblclick',that.calendarView,that.datesDom[res[0]]);
 		});
-		Ext.eu.sm.CalendarView.Day.superclass.onRender.call(that, ct);
+		Ext.eu.sm.CalendarView.Views.Day.superclass.onRender.call(that, ct);
 		that.calcDates();
 	}
 
 });
-Ext.reg('calendarView.day',Ext.eu.sm.CalendarView.Day);
+Ext.reg('calendarView.views.day',Ext.eu.sm.CalendarView.Views.Day);
