@@ -2,22 +2,62 @@
 	font					: 11px helvetica,arial,sans-serif;
 	border-spacing			: 0px;
 	border-collapse			: collapse;
+	margin					: auto;
 }
 /* http://www.iconarchive.com/show/fugue-icons-by-yusuke-kamiyamane.8.html */
 .calendarIcon {
 	background-image: url("images/calendar.gif") !important;
 }
+.calendarToday {
+	background-image: url("images/calendar-insert-icon.png") !important;
+}
 .calendarSelectMonthIcon {
 	background-image: url("images/calendar-select-month-icon.png") !important;
+}
+.calendarSelectTwoWeekIcon {
+	background-image: url("images/calendar-select-days-span.png") !important;
 }
 .calendarSelectWeekIcon {
 	background-image: url("images/calendar-select-week-icon.png") !important;
 }
-
 .calendarSelectIcon {
 	background-image: url("images/calendar-select-icon.png") !important;
 }
+/* http://lea.verou.me/css3patterns/#diagonal-stripes */
+.eventPatternHStripes{
+	background-image: repeating-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 5px, rgba(255, 255, 255, 0.5) 5px, rgba(255, 255, 255, 0.5) 10px)
+}
+.eventPatternVStripes{
+	background-image: repeating-linear-gradient(90deg,transparent, transparent 20px, rgba(255,255,255,.5) 15px, rgba(255,255,255,.5) 40px);
+}
+.eventPatternDStripes{
+	background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 15px, rgba(255, 255, 255, 0.5) 15px, rgba(255, 255, 255, 0.5) 24px);
+}
+.eventPatternRDStripes{
+	background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 15px, rgba(255, 255, 255, 0.5) 15px, rgba(255, 255, 255, 0.5) 24px);
+}
+.eventPatternZigZag{
+	background:
+	linear-gradient(135deg, white 25%, transparent 25%) -50px 0,
+	linear-gradient(225deg, white 25%, transparent 25%) -50px 0,
+	linear-gradient(315deg, white 25%, transparent 25%),
+	linear-gradient(45deg, white 25%, transparent 25%);
+	background-size: 30px 30px;
+}
+.eventPatternSteps{
+	background-position: 0px 2px, 4px 35px, 29px 31px, 33px 6px,
+	0px 36px, 4px 2px, 29px 6px, 33px 30px;
+	background-image:
+	linear-gradient(335deg, #C90032 23px, transparent 23px),
+	linear-gradient(155deg, #C90032 23px, transparent 23px),
+	linear-gradient(335deg, #C90032 23px, transparent 23px),
+	linear-gradient(155deg, #C90032 23px, transparent 23px),
 
+	linear-gradient(335deg, #C90032 10px, transparent 10px),
+	linear-gradient(155deg, #C90032 10px, transparent 10px),
+	linear-gradient(335deg, #C90032 10px, transparent 10px),
+	linear-gradient(155deg, #C90032 10px, transparent 10px);
+}
 .calendarView .dayView-header{
 	height					: 16px;
 	line-height				: 16px;
@@ -32,33 +72,30 @@
 	background				: #EFEFEF;
 	font-color				: ##BBBBBB;
 }
-
 .calendarView .weekView{
 }
-
 .calendarView .dayView {
 	border					: 1px solid #C3D9FF;
 	text-align				: left;
 	vertical-align			: top;
+	display					: inline-block;
+	overflow				: scroll;
 }
-
 .calendarView .dayView .event{
 	height					: 16px;
 	line-height				: 16px;
 	margin-top				: 2px;
 	padding					: 1px 1px 1px 4px;
+	overflow				: hidden;
 }
-
 .calendarView .dayView .event.roundRight{
 	border-top-right-radius		:3px;
 	border-bottom-right-radius	:3px;
 }
-
 .calendarView .dayView .event.roundLeft{
 	border-top-left-radius		:3px;
 	border-bottom-left-radius	:3px;
 }
-
 .calendarView .currentDay .dayView-header{
 	color					: red;
 }
@@ -66,6 +103,11 @@
 .calendarView .weekNum{
 	float					:left;
 	font-style				:italic
+}
+.calendarView .dayTitle {
+	float					: left;
+	margin-left				: 25px;
+	text-align				: center;
 }
 .calendarView .dayName {
 	float					:right;
@@ -77,12 +119,32 @@
 .calendarView ul.dayView-content{
 	overflow				: auto;
 }
+.calendarView .dayView-content-holder{
+	overflow				: auto;
+}
 .calendarView .monthView-dayView-content,.weekView-dayView-content{
 	overflow				: auto;
 }
-
+.calendarView ul.dayView-fullday-content{
+	color					: #000000;
+	float					: left;
+	font					: 10px helvetica,arial,sans-serif;
+	height					: 14px;
+	overflow				: hidden;
+	text-align				: left;
+}
+.calendarView ul.dayView-fullday-content li{
+	margin-left				: 2px;
+	width					: 25px;
+}
 .calendarView .dayView-content .event{
-	overflow: hidden;
+	overflow				: hidden;
+}
+.range-event{
+
+}
+.fullday-even{
+	border					: 1px dashed #8A8A8A;
 }
 .event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}
 .event-color-1 { background-color:#fcaf3e; }	.event-color-1.eventOver {background-color:#f57900;}

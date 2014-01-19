@@ -4,6 +4,8 @@ Ext.onReady(function(){
 	that.eventStore = new Ext.data.JsonStore({
 		fields			: [
 			'idx',
+			'type',
+			'eventClass',
 			'title',{
 				name:'date_begin',
 				type:'date',
@@ -66,10 +68,16 @@ Ext.onReady(function(){
 						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
 						'<p>{content}</p>'
 				),
+				tooltipFulldayTpl	: new Ext.XTemplate(
+						'{title}'+
+						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
+						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
+						'<p>{content}</p>'
+				),
 				//date				: new Date('2013-01-01'),
 				listeners			: {
 					datechanged : function(calendarView,date,date1,date2){
-						console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
+//						console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
 					},
 					eventclick : function(calendarView,event){
 						console.log('click',calendarView,event);
@@ -100,8 +108,12 @@ Ext.onReady(function(){
 			},{
 				region		: 'east',
 				frame		: true,
-				html		: 'east',
+				//html		: 'east',
 				width		: 50,
+				layout		: 'fit',
+				items		:[{
+					xtype		: 'panel',
+				}],
 				split		: true
 			}]
 	});

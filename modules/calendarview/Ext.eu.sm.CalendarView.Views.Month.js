@@ -1,7 +1,8 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarView.Views');
 
-Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+Ext.eu.sm.CalendarView.Views.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+	iconCls				: 'calendarSelectMonthIcon',
 	viewModeName		: 'month',
 	viewClass			: 'monthView',
 	maxWeeks			: 6,
@@ -21,7 +22,16 @@ Ext.eu.sm.CalendarView.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 		that.numWeeks = Ext.eu.sm.CalendarView.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
 		console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
-	}
+	},
+
+	getPrevDate			: function (date){
+		date.setMonth(date.getMonth()-1);
+	},
+
+	getNextDate			: function (date){
+		date.setMonth(date.getMonth()+1);
+	},
+
 
 });
-Ext.reg('calendarView.month',Ext.eu.sm.CalendarView.Month);
+Ext.reg('calendarView.views.month',Ext.eu.sm.CalendarView.Views.Month);

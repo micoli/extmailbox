@@ -1,7 +1,8 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarView.Views');
 
-Ext.eu.sm.CalendarView.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+Ext.eu.sm.CalendarView.Views.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+	iconCls				: 'calendarSelectWeekIcon',
 	viewModeName		: 'week',
 	viewClass			: 'weekView',
 	maxWeeks			: 1,
@@ -14,13 +15,22 @@ Ext.eu.sm.CalendarView.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 		while (that.dateBegin.getDay()!=1){
 			that.dateBegin.setDate(that.dateBegin.getDate()-1);
 		}
-		that.dateEnd = that.date.getLastDateOfMonth().clone();
+		that.dateEnd = that.date.clone();
 		while (that.dateEnd.getDay()!=0){
 			that.dateEnd.setDate(that.dateEnd.getDate()+1);
 		}
 		that.numWeeks = 1;
 		console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
-	}
+	},
+
+	getPrevDate			: function (date){
+		date.setDate(date.getDate()-7);
+	},
+
+	getNextDate			: function (date){
+		date.setDate(date.getDate()+7);
+	},
+
 });
-Ext.reg('calendarView.week',Ext.eu.sm.CalendarView.Week);
+Ext.reg('calendarView.views.week',Ext.eu.sm.CalendarView.Views.Week);
