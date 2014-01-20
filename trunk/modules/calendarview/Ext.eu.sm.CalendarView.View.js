@@ -94,7 +94,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 				html = that.calendarView.tooltipTpl.apply(record.data);
 			break;
 			case 'fullday':
-				//html =  that.calendarView.tooltipFulldayTpl.apply(record.data);
+				html =  that.calendarView.tooltipFulldayTpl.apply(record.data);
 			break;
 		}
 

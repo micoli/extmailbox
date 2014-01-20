@@ -8,6 +8,9 @@
 
 		<script type="text/javascript"			src="/ext-2.2.1/release/ext-all-debug.js"></script>
 
+		<script type="text/javascript"			src="modules/calendarview/Ext.ux.util.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/arraytree/Ext.ux.tree.ArrayTree.js"></script>
+		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.TriggerTree.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.View.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarView.Weeks.js"></script>

@@ -20,7 +20,7 @@ Ext.eu.sm.CalendarView.Views.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 			that.dateEnd.setDate(that.dateEnd.getDate()+1);
 		}
 		that.numWeeks = 1;
-		console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
+		//console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
 	},
 
