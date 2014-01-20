@@ -17,7 +17,7 @@ class svcCalendar{
 		$tmp[]=array('type'=>'event','idx'=>8,'title'=>'hhh 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59');
 		$tmp[]=array('type'=>'event','idx'=>9,'title'=>'iii 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59','eventClass'=>'event-color-0 eventPatternRDStripes');
 		$tmp[]=array('type'=>'event','idx'=>9,'title'=>'iii 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59','eventClass'=>'event-color-1 eventPatternDStripes');
-		$tmp[]=array('type'=>'day','idx'=>10,'title'=>'jjj 3','date_begin'=>'2014-01-18 00:00:00','date_end'=>'2014-02-15 23:59:59','eventClass'=>'event-color-2 eventPatternHStripes');
+		$tmp[]=array('type'=>'day','idx'=>10,'title'=>'jjj 3','date_begin'=>'2014-01-18 00:00:00','date_end'=>'2014-02-15 23:59:59','eventClass'=>'event-color-5');
 		return array(
 			'data'=>$tmp
 		);

@@ -12,7 +12,7 @@ Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		that.dateBegin = that.date.clone();
 		that.dateEnd = that.date.clone();
 
-		console.log(that.viewModeName,1,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
+		//console.log(that.viewModeName,1,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
 	},
 

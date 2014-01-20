@@ -1,5 +1,6 @@
 Ext.onReady(function(){
 	var that = this;
+	that.triggerTreeId='azaz';
 
 	that.eventStore = new Ext.data.JsonStore({
 		fields			: [
@@ -26,6 +27,28 @@ Ext.onReady(function(){
 			url				: 'proxy.php',
 		}),
 	});
+	that.memStore = new Ext.data.JsonStore({
+		fields : [
+			{name: 'f1'},
+			{name: 'f2'}
+		],
+		idProperty		: 'title',
+		proxy	: new Ext.data.MemoryProxy(),
+		autoLoad: false
+	});
+	that.memStore.loadData([{
+		f1:"aa",
+		f2:1
+	},{
+		f1:"bb",
+		f2:2
+	},{
+		f1:"cc",
+		f2:3
+	},{
+		f1:"dd",
+		f2:4
+	}]);
 
 	var viewport = new Ext.Viewport({
 			layout		: 'border',
@@ -50,8 +73,46 @@ Ext.onReady(function(){
 				showWeekend			: true,
 				showViewsLabel		: false,
 				controls			: ['|',{
-					xtype				: 'button',
-					text				: 'rr',
+					xtype				: 'triggertree',
+					value				: '2.1',
+					id					: that.triggerTreeId,
+					children			: [{
+						text			: 'grp1',
+						id				: '1',
+						expanded		: true,
+						children		: [{
+							text			: 'grp 1.1',
+							id				: '1.1',
+							expanded		: true,
+							leaf			: false,
+							children		: [{
+								text			: 'grp 1.1.1',
+								id				: '1.1.1',
+								leaf			: true
+							},{
+								text			: 'grp 1.1.2',
+								id				: '1.1.2',
+								leaf			: true
+							}]
+						},{
+							text			: 'grp 1.2',
+							id				: '1.2',
+							leaf			: true
+						}]
+					},{
+						text			: 'grp2',
+						id				: '2',
+						expanded		: true,
+						children		: [{
+							text			: 'grp 2.1',
+							id				: '2.1',
+							leaf			: true
+						},{
+							text			: 'grp 2.2',
+							id				: '2.2',
+							leaf			: true
+						}]
+					}],
 					handler				: function(){
 						console.log(this);
 					}
@@ -63,13 +124,13 @@ Ext.onReady(function(){
 						'<p>{content}</p>'
 				),
 				tooltipTpl			: new Ext.XTemplate(
-						'{title}'+
+						'== {title}'+
 						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
 						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
 						'<p>{content}</p>'
 				),
 				tooltipFulldayTpl	: new Ext.XTemplate(
-						'{title}'+
+						'-- {title}'+
 						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
 						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
 						'<p>{content}</p>'
@@ -102,20 +163,57 @@ Ext.onReady(function(){
 			},{
 				region		: 'south',
 				html		: 'south',
+				frame		: true,
+				split		: true,
 				height		: 50,
-				frame		: true,
-				split		: true
 			},{
-				region		: 'east',
-				frame		: true,
-				//html		: 'east',
-				width		: 50,
-				layout		: 'fit',
-				items		:[{
-					xtype		: 'panel',
-				}],
-				split		: true
+				region			: 'east',
+				split			: true,
+				width			: 250,
+				html			: '--'
 			}]
 	});
 	Ext.QuickTips.init();
 });
+/*
+{
+	xtype			: 'arraytree',
+	animate			: true,
+	rootVisible		: false,
+	containerScroll	: true,
+	rootConfig		: {
+		text			:'--',
+		id				:'root'
+	},
+	children		: [{
+		text			: 'Application Design',
+		id				: 'design',
+		expanded		: true,
+		children		: [{
+			text			: 'Complex Data Binding',
+			id				: 'databind',
+			expanded		: true,
+			children		: [{
+				text			: 'Run example1',
+				leaf			: true
+			},{
+				text			: 'Run example2',
+				leaf			: true
+			}]
+		},{
+			text			: 'Complex Data Binding2',
+			id				: 'databind',
+			expanded		: true,
+			children		: [{
+				text			: 'Run example21',
+				iconCls			: 'icon-run',
+				leaf			: true
+			},{
+				text			: 'Run example22',
+				iconCls			: 'icon-run',
+				leaf			: true
+			}]
+		}],
+	}],
+}
+*/
