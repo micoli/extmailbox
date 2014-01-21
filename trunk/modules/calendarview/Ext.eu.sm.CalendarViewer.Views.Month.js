@@ -1,7 +1,7 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView.Views');
+Ext.ns('Ext.eu.sm.CalendarViewer.Views');
 
-Ext.eu.sm.CalendarView.Views.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+Ext.eu.sm.CalendarViewer.Views.Month = Ext.extend(Ext.eu.sm.CalendarViewer.Weeks, {
 	iconCls				: 'calendarSelectMonthIcon',
 	viewModeName		: 'month',
 	viewClass			: 'monthView',
@@ -19,7 +19,7 @@ Ext.eu.sm.CalendarView.Views.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 		while (that.dateEnd.getDay()!=0){
 			that.dateEnd.setDate(that.dateEnd.getDate()+1);
 		}
-		that.numWeeks = Ext.eu.sm.CalendarView.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
+		that.numWeeks = Ext.eu.sm.CalendarViewer.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
 		//console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
 		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
 	},
@@ -34,4 +34,4 @@ Ext.eu.sm.CalendarView.Views.Month = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 
 
 });
-Ext.reg('calendarView.views.month',Ext.eu.sm.CalendarView.Views.Month);
+Ext.reg('CalendarViewer.views.month',Ext.eu.sm.CalendarViewer.Views.Month);

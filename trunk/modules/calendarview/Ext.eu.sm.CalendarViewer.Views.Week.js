@@ -1,7 +1,7 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView.Views');
+Ext.ns('Ext.eu.sm.CalendarViewer.Views');
 
-Ext.eu.sm.CalendarView.Views.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
+Ext.eu.sm.CalendarViewer.Views.Week = Ext.extend(Ext.eu.sm.CalendarViewer.Weeks, {
 	iconCls				: 'calendarSelectWeekIcon',
 	viewModeName		: 'week',
 	viewClass			: 'weekView',
@@ -33,4 +33,4 @@ Ext.eu.sm.CalendarView.Views.Week = Ext.extend(Ext.eu.sm.CalendarView.Weeks, {
 	},
 
 });
-Ext.reg('calendarView.views.week',Ext.eu.sm.CalendarView.Views.Week);
+Ext.reg('CalendarViewer.views.week',Ext.eu.sm.CalendarViewer.Views.Week);
