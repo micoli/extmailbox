@@ -1,13 +1,13 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarViewer');
 /*
-Ext.eu.sm.CalendarView
-Ext.eu.sm.CalendarView.View
-	Ext.eu.sm.CalendarView.Weeks
-		Ext.eu.sm.CalendarView.Views.Month
-		Ext.eu.sm.CalendarView.Views.Week
-		Ext.eu.sm.CalendarView.Views.TwoWeek
-	Ext.eu.sm.CalendarView.Views.Day
+Ext.eu.sm.CalendarViewer
+Ext.eu.sm.CalendarViewer.View
+	Ext.eu.sm.CalendarViewer.Weeks
+		Ext.eu.sm.CalendarViewer.Views.Month
+		Ext.eu.sm.CalendarViewer.Views.Week
+		Ext.eu.sm.CalendarViewer.Views.TwoWeek
+	Ext.eu.sm.CalendarViewer.Views.Day
 
 	that.backDaysEventStore = new Ext.data.Store({
 		reader	: new Ext.data.ArrayReader({}, Ext.data.Record.create([
@@ -20,7 +20,7 @@ Ext.eu.sm.CalendarView.View
 		autoLoad: true,
 	});
 */
-Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
+Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 	viewMode			: 'month',
 	date				: new Date(),
 	showWeekend			: true,
@@ -121,15 +121,15 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 		}
 
 		var n=0;
-		for( var viewType in Ext.eu.sm.CalendarView.Views){
+		for( var viewType in Ext.eu.sm.CalendarViewer.Views){
 			var lowViewType = viewType.toLowerCase();
 			if(that.enabledMode[lowViewType]){
-				that.activeViews[lowViewType]	= Ext.eu.sm.CalendarView.Views[viewType].prototype;
+				that.activeViews[lowViewType]	= Ext.eu.sm.CalendarViewer.Views[viewType].prototype;
 				that.viewId		[lowViewType]	= Ext.id();
 				that.items.push({
-					xtype			: 'calendarView.views.'+lowViewType,
+					xtype			: 'CalendarViewer.views.'+lowViewType,
 					id				: that.viewId[lowViewType],
-					calendarView	: that,
+					CalendarViewer	: that,
 					listeners		:{
 						scope			: that,
 						datechanged		: that.displayRange
@@ -250,8 +250,8 @@ Ext.eu.sm.CalendarView = Ext.extend(Ext.Panel, {
 			}].concat(that.controls)
 		});
 
-		Ext.eu.sm.CalendarView.superclass.initComponent.call(this);
+		Ext.eu.sm.CalendarViewer.superclass.initComponent.call(this);
 	}
 });
 
-Ext.reg('calendarView',Ext.eu.sm.CalendarView);
+Ext.reg('CalendarViewer',Ext.eu.sm.CalendarViewer);

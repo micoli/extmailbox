@@ -66,7 +66,7 @@ Ext.onReady(function(){
 				}
 			}],
 			items		: [{
-				xtype				: 'calendarView',
+				xtype				: 'CalendarViewer',
 				region				: 'center',
 				eventStore			: that.eventStore,
 				//dayModeEnabled		: false,
@@ -76,6 +76,14 @@ Ext.onReady(function(){
 					xtype				: 'triggertree',
 					value				: '2.1',
 					id					: that.triggerTreeId,
+					listeners			:{
+						beforeselect		: function(newValue,oldValue,node){
+							console.log('beforeselect',newValue,oldValue,node);
+						},
+						select				: function(newValue,node){
+							console.log('select',newValue,node);
+						}
+					},
 					children			: [{
 						text			: 'grp1',
 						id				: '1',
@@ -137,25 +145,25 @@ Ext.onReady(function(){
 				),
 				//date				: new Date('2013-01-01'),
 				listeners			: {
-					datechanged : function(calendarView,date,date1,date2){
+					datechanged : function(CalendarViewer,date,date1,date2){
 //						console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
 					},
-					eventclick : function(calendarView,event){
-						console.log('click',calendarView,event);
+					eventclick : function(CalendarViewer,event){
+						console.log('click',CalendarViewer,event);
 					},
-					eventcontextmenu : function(calendarView,event){
-						console.log('eventcontextmenu',calendarView,event);
+					eventcontextmenu : function(CalendarViewer,event){
+						console.log('eventcontextmenu',CalendarViewer,event);
 					},
-					eventdblclick : function(calendarView,event){
-						console.log('dblclick',calendarView,event);
+					eventdblclick : function(CalendarViewer,event){
+						console.log('dblclick',CalendarViewer,event);
 					},
-					dayclick : function(calendarView,date){
+					dayclick : function(CalendarViewer,date){
 						console.log('dayclick',date);
 					},
-					daycontextmenu : function(calendarView,date){
+					daycontextmenu : function(CalendarViewer,date){
 						console.log('daycontextmenu',date);
 					},
-					daydblclick : function(calendarView,date){
+					daydblclick : function(CalendarViewer,date){
 						console.log('daydblclick',date);
 					},
 

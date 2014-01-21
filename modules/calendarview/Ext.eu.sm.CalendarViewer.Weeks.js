@@ -1,9 +1,9 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarViewer');
 
-Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
+Ext.eu.sm.CalendarViewer.Weeks = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 	maxWeeks			: 0,
-	viewClass			: 'calendarView-xxxView',
+	viewClass			: 'CalendarViewer-xxxView',
 
 	calcDates			: function(){
 		var that = this;
@@ -20,7 +20,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 
 		/*for(var j=6;j<=7;j++){
 			var domDay = that.el.child('.day-header .calday-0-'+j);
-			if(!that.calendarView.showWeekend){
+			if(!that.CalendarViewer.showWeekend){
 				domDay.setWidth(0);
 				domDay.hide();
 			}else{
@@ -40,7 +40,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				that.days[n].setWidth(that.dayWidth);
 				that.days[n].setHeight(that.dayHeight);
 				that.days[n].show();
-				if((!that.calendarView.showWeekend && j>=5) ||i>=that.numWeeks){
+				if((!that.CalendarViewer.showWeekend && j>=5) ||i>=that.numWeeks){
 					that.days[n].setWidth(1);
 					that.days[n].setHeight(0);
 					that.days[n].hide();
@@ -50,7 +50,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 					that.days[n].child(".dayView-header").child('.weekNum').dom.innerHTML=date.format('W');
 				}
 				if (i<=that.numWeeks){
-					if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && date.getDay()!=0 && date.getDay()!=6) && i<that.numWeeks){
+					if(that.CalendarViewer.showWeekend || (!that.CalendarViewer.showWeekend && date.getDay()!=0 && date.getDay()!=6) && i<that.numWeeks){
 						var strDayName='';
 						if(i==0){
 							strDayName=that.getWeekDayName(parseInt(date.format('N'))-1)+' ';
@@ -83,11 +83,11 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 
 	onResize: function(ct, position){
 		var that = this;
-		Ext.eu.sm.CalendarView.Weeks.superclass.onResize.call(this, ct, this.maininput);
+		Ext.eu.sm.CalendarViewer.Weeks.superclass.onResize.call(this, ct, this.maininput);
 		var containerSize = Ext.get(this.el.findParent('.x-panel-body')).getSize();
 		//that.dayHeight =(parseInt(containerSize.height)-16)/that.numWeeks - 5;
 		that.dayHeight =parseInt(containerSize.height)/that.numWeeks-1;
-		that.dayWidth  =parseInt(containerSize.width/(that.calendarView.showWeekend?7:5))-1;
+		that.dayWidth  =parseInt(containerSize.width/(that.CalendarViewer.showWeekend?7:5))-1;
 		that.displayView();
 	},
 
@@ -95,14 +95,14 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		var that = this;
 		that.el = ct.createChild({
 			tag		: 'div' ,
-			class	: 'calendarView '
+			class	: 'CalendarViewer '
 		});
 
 		var str = '<table class="'+that.viewClass+'"><thead>';
 		/*str +='<tr class="'+that.viewClass+'-day-header">';
 		for(var j=0;j<7;j++){
 			var strDay='';
-			if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && j<5)){
+			if(that.CalendarViewer.showWeekend || (!that.CalendarViewer.showWeekend && j<5)){
 				strDay = that.getWeekDayName(j);
 			}
 
@@ -121,7 +121,7 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				strDay+='<ul class="dayView-fullday-content"></ul>'
 				strDay+='<div class="dayTitle"></div>'
 				strDay+='<div class="dayNum"></div>'
-				if(i==0 && (that.calendarView.showWeekend || (!that.calendarView.showWeekend && j<5))){
+				if(i==0 && (that.CalendarViewer.showWeekend || (!that.CalendarViewer.showWeekend && j<5))){
 					//strDay+='<div class="dayName">'+that.getWeekDayName(j)+'</div>'
 				}
 				str+='<td class="dayView calday-'+(i+1)+'-'+(j+1)+'">'+
@@ -148,23 +148,23 @@ Ext.eu.sm.CalendarView.Weeks = Ext.extend(Ext.eu.sm.CalendarView.View, {
 				}
 				that.days[n].on('click',function(evt,dom){
 					var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
-					that.calendarView.fireEvent('dayclick',that.calendarView,that.datesDom[res[0]]);
+					that.CalendarViewer.fireEvent('dayclick',that.CalendarViewer,that.datesDom[res[0]]);
 					evt. stopEvent();
 				});
 				that.days[n].on('contextmenu',function(evt,dom){
 					var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
-					that.calendarView.fireEvent('daycontextmenu',that.calendarView,that.datesDom[res[0]]);
+					that.CalendarViewer.fireEvent('daycontextmenu',that.CalendarViewer,that.datesDom[res[0]]);
 					evt. stopEvent();
 				});
 				that.days[n].on('dblclick',function(evt,dom){
 					var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
-					that.calendarView.fireEvent('daydblclick',that.calendarView,that.datesDom[res[0]]);
+					that.CalendarViewer.fireEvent('daydblclick',that.CalendarViewer,that.datesDom[res[0]]);
 					evt. stopEvent();
 				});
 				n++;
 			}
 		}
-		Ext.eu.sm.CalendarView.Weeks.superclass.onRender.call(that, ct);
+		Ext.eu.sm.CalendarViewer.Weeks.superclass.onRender.call(that, ct);
 		that.calcDates();
 	}
 });

@@ -1,8 +1,8 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView');
+Ext.ns('Ext.eu.sm.CalendarViewer');
 //http://stackoverflow.com/questions/11311410/visualization-of-calendar-events-algorithm-to-layout-events-with-maximum-width
 //http://jsbin.com/akudop/edit#javascript,html,live
-Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
+Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 	date						: new Date(),
 	dateBegin					: null,
 	dateEnd						: null,
@@ -17,16 +17,16 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 	initComponent		: function(){
 		var that = this;
 
-		Ext.eu.sm.CalendarView.View.superclass.initComponent.call(this);
+		Ext.eu.sm.CalendarViewer.View.superclass.initComponent.call(this);
 
-		that.calendarView.eventStore.on('load',function(store,records,options){
+		that.CalendarViewer.eventStore.on('load',function(store,records,options){
 			that.displayEvents();
 		});
 	},
 
 	isActive			: function(mode){
 		var that = this;
-		return that.calendarView.viewMode==mode;
+		return that.CalendarViewer.viewMode==mode;
 	},
 
 	getWeekDayName		: function(idx){
@@ -56,18 +56,18 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 		that.refresh();
 		that.cleanEvents();
 		var gIdx=-1;
-		that.calendarView.eventStore.each(function(record){
+		that.CalendarViewer.eventStore.each(function(record){
 			var firstDateDisplayed= record.get('date_begin');
 			if(firstDateDisplayed<that.dateBegin){
 				firstDateDisplayed = that.dateBegin;
 			}
-			var numDays = Ext.eu.sm.CalendarView.prototype.dateDiff(firstDateDisplayed,record.get('date_end'),'days')+1;
+			var numDays = Ext.eu.sm.CalendarViewer.prototype.dateDiff(firstDateDisplayed,record.get('date_end'),'days')+1;
 			var dateEvent = new Date(firstDateDisplayed.format('Y-m-d'));
 			gIdx = (gIdx+1)%that.maxColorClasses;
 			for(n=1;n<=numDays;n++){
 				var parentDom = that.domDates[dateEvent.format('Y-m-d')];
 				if(parentDom){
-					if(that.calendarView.showWeekend || (!that.calendarView.showWeekend && dateEvent.getDay()!=0 && dateEvent.getDay()!=6)){
+					if(that.CalendarViewer.showWeekend || (!that.CalendarViewer.showWeekend && dateEvent.getDay()!=0 && dateEvent.getDay()!=6)){
 						switch(record.get('type')){
 							case 'event':
 								that.createLinearEvent(parentDom, record,n,numDays,gIdx);
@@ -91,14 +91,14 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 		var html;
 		switch(type){
 			case 'linear':
-				html = that.calendarView.tooltipTpl.apply(record.data);
+				html = that.CalendarViewer.tooltipTpl.apply(record.data);
 			break;
 			case 'fullday':
-				html =  that.calendarView.tooltipFulldayTpl.apply(record.data);
+				html =  that.CalendarViewer.tooltipFulldayTpl.apply(record.data);
 			break;
 		}
 
-		if(that.calendarView.withTooltip){
+		if(that.CalendarViewer.withTooltip){
 			new Ext.ToolTip({
 				target	: component.el.id,
 				html	: html
@@ -106,17 +106,17 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 		}
 
 		component.el.on('click',function(evt,parentDom){
-			that.calendarView.fireEvent('eventclick',that.calendarView,record.data);
+			that.CalendarViewer.fireEvent('eventclick',that.CalendarViewer,record.data);
 			evt. stopEvent();
 		});
 
 		component.el.on('contextmenu',function(evt,parentDom){
-			that.calendarView.fireEvent('eventcontextmenu',that.calendarView,record.data);
+			that.CalendarViewer.fireEvent('eventcontextmenu',that.CalendarViewer,record.data);
 			evt. stopEvent();
 		});
 
 		component.el.on('dblclick',function(evt,parentDom){
-			that.calendarView.fireEvent('eventdblclick',that.calendarView,record.data);
+			that.CalendarViewer.fireEvent('eventdblclick',that.CalendarViewer,record.data);
 			evt. stopEvent();
 		});
 
@@ -175,7 +175,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 					'margin-left'	: ''+left+'px',
 					'margin-right'	: ''+right+'px'
 				},
-				html	: that.calendarView.horizontalEventTpl.apply(record.data)
+				html	: that.CalendarViewer.horizontalEventTpl.apply(record.data)
 			},
 			listeners	: {
 				render		: function(component) {
@@ -206,7 +206,7 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 			autoEl		: {
 				tag			: 'div',
 				class		: 'event fullday-event evt-idx-'+record.get('idx')+' '+eventClass,
-				html	: that.calendarView.fulldayEventTpl.apply(record.data)
+				html	: that.CalendarViewer.fulldayEventTpl.apply(record.data)
 			},
 			listeners	: {
 				render		: function(component) {
@@ -236,13 +236,13 @@ Ext.eu.sm.CalendarView.View = Ext.extend(Ext.Panel, {
 
 	onResize: function(ct, position){
 		var that = this;
-		Ext.eu.sm.CalendarView.View.superclass.onResize.call(this, ct, this.maininput);
+		Ext.eu.sm.CalendarViewer.View.superclass.onResize.call(this, ct, this.maininput);
 		that.displayView();
 	},
 
 	afterRender: function(ct, position){
 		var that = this;
 		that.refresh();
-		Ext.eu.sm.CalendarView.View.superclass.afterRender.call(that, ct);
+		Ext.eu.sm.CalendarViewer.View.superclass.afterRender.call(that, ct);
 	},
 });

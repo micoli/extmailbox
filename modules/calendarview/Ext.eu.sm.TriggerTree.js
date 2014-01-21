@@ -1,7 +1,13 @@
 Ext.ns('Ext.eu');
 Ext.ns('Ext.eu.sm');
+
 Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
-	defaultAutoCreate	: {tag: "input", type: "text", size: "24", autocomplete: "off"},
+	defaultAutoCreate	: {
+		tag					: "input",
+		type				: "text",
+		size				: "24",
+		autocomplete		: "off"
+	},
 	listClass			: '',
 	selectedClass		: 'x-combo-selected',
 	triggerClass		: 'x-form-arrow-trigger',
@@ -19,7 +25,38 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 	allQuery			: '',
 	minListWidth		: 70,
 	forceSelection		: false,
+	valueField			: 'id',
+	displayField		: 'text',
+	displayPath			: true,
+	displayPathSeparator: '/',
+	noSelectEvent		: false,
 
+	initComponent : function(){
+		var that = this;
+
+		if(!that.treeRoot){
+			that.treeRoot = new Ext.tree.AsyncTreeNode({
+				text			: '--',
+				id				: 'root',
+				expanded		: true,
+				children		: that.children
+			});
+			that.treePreloader = new Ext.tree.TreeLoader({
+				preloadChildren	: true,
+				clearOnLoad		: false,
+			});
+			that.treePreloader.doPreload(that.treeRoot);
+		}
+
+		that.addEvents(
+				'expand'		,
+				'collapse'		,
+				'beforeselect'	,
+				'select'
+		);
+
+		Ext.eu.sm.TriggerTree.superclass.initComponent.call(this);
+	},
 
 	/**
 	 * http://mishranam.blogspot.fr/2012/01/getting-all-childnodes-including-at-all.html
@@ -30,23 +67,26 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 	 *  removed, using splice/slice methods of JS Array methods)
 	 */
 	getDeepAllChildNodes : function(node){
+		var that = this;
 		var allNodes = new Array();
 		if(!Ext.value(node,false)){
-				return [];
+			return [];
 		}
 
 		if(!node.hasChildNodes()){
-				return node;
+			return node;
 		}else{
-				allNodes.push(node);
-				node.eachChild(function(Mynode){allNodes = allNodes.concat(getDeepAllChildNodes(Mynode));});
+			allNodes.push(node);
+			node.eachChild(function(Mynode){
+				allNodes = allNodes.concat(that.getDeepAllChildNodes(Mynode));
+			});
 		}
 		return allNodes;
 	},
 
 	findDeepChildNode : function(node,property,value){
 		var that = this;
-		var tmp = this.getDeepAllChildNodes(node);
+		var tmp = that.getDeepAllChildNodes(node);
 		for(var i in tmp){
 			if(tmp[i].hasOwnProperty(property) && tmp[i][property]==value){
 				return tmp[i];
@@ -55,576 +95,417 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 		return false;
 	},
 
-	// private
-	initComponent : function(){
-		Ext.eu.sm.TriggerTree.superclass.initComponent.call(this);
-		this.addEvents(
-			'expand',
-			'collapse',
-			'beforeselect',
-			'select',
-			'beforequery'
-		);
-		if(this.transform){
-			this.allowDomMove = false;
-			var s = Ext.getDom(this.transform);
-			if(!this.hiddenName){
-				this.hiddenName = s.name;
-			}
-			if(!this.store){
-				var d = [], opts = s.options;
-				for(var i = 0, len = opts.length;i < len; i++){
-					var o = opts[i];
-					var value = (Ext.isIE ? o.getAttributeNode('value').specified : o.hasAttribute('value')) ? o.value : o.text;
-					if(o.selected) {
-						this.value = value;
-					}
-					d.push([value, o.text]);
-				}
-				this.valueField = 'value';
-				this.displayField = 'text';
-			}
-			s.name = Ext.id(); // wipe out the name in case somewhere else they have a reference
-			if(!this.lazyRender){
-				this.target = true;
-				this.el = Ext.DomHelper.insertBefore(s, this.autoCreate || this.defaultAutoCreate);
-				Ext.removeNode(s); // remove it
-				this.render(this.el.parentNode);
-			}else{
-				Ext.removeNode(s); // remove it
-			}
-		}
-
-		this.selectedNode = null;
-	},
-
-	// private
 	onRender : function(ct, position){
+		var that = this;
 		Ext.eu.sm.TriggerTree.superclass.onRender.call(this, ct, position);
-		if(this.hiddenName){
-			this.hiddenField = this.el.insertSibling({tag:'input', type:'hidden', name: this.hiddenName,
-					id: (this.hiddenId||this.hiddenName)}, 'before', true);
+
+		if(that.hiddenName){
+			that.hiddenField = that.el.insertSibling({
+				tag		: 'input',
+				type	: 'hidden',
+				name	: that.hiddenName,
+				id		: (that.hiddenId||that.hiddenName)
+			}, 'before', true);
 
 			// prevent input submission
-			this.el.dom.removeAttribute('name');
+			that.el.dom.removeAttribute('name');
 		}
+
 		if(Ext.isGecko){
-			this.el.dom.setAttribute('autocomplete', 'off');
+			that.el.dom.setAttribute('autocomplete', 'off');
 		}
 
-		this.on('focus', this.initTree, this, {single: true});
+		that.on('focus', that.initTree, this, {single: true});
 
-		if(!this.editable){
-			this.editable = true;
-			this.setEditable(false);
+		if(!that.editable){
+			that.editable = true;
+			that.setEditable(false);
 		}
 	},
 
-	// private
 	initValue : function(){
+		var that = this;
+		var node;
+		that.doSelectEvent=false;
+		if(node = that.findDeepChildNode(that.treeRoot,'id',that.value)){
+			that.select(node, true);
+		}
 		Ext.eu.sm.TriggerTree.superclass.initValue.call(this);
-		if(this.hiddenField){
-			this.hiddenField.value =
-				this.hiddenValue !== undefined ? this.hiddenValue :
-				this.value !== undefined ? this.value : '';
+		that.doSelectEvent=true;
+
+		if(that.hiddenField){
+			that.hiddenField.value =
+				that.hiddenValue !== undefined ? that.hiddenValue :
+				that.value !== undefined ? that.value : '';
 		}
 	},
 
-	// private
 	initTree : function(){
 		var that = this;
-		if(!this.list){
+		if(!that.treeLayer){
 			var cls = 'x-combo-list';
 
-			this.list = new Ext.Layer({
-				shadow: this.shadow, cls: [cls, this.listClass].join(' '), constrain:false
+			that.treeLayer = new Ext.Layer({
+				shadow: that.shadow, cls: [cls, that.listClass].join(' '), constrain:false
 			});
 
-			var lw = this.listWidth || Math.max(this.wrap.getWidth(), this.minListWidth);
-			this.list.setWidth(lw);
-			this.list.swallowEvent('mousewheel');
-			this.assetHeight = 0;
+			var lw = that.listWidth || Math.max(that.wrap.getWidth(), that.minListWidth);
+			that.treeLayer.setWidth(lw);
+			that.treeLayer.swallowEvent('mousewheel');
+			that.assetHeight = 0;
 
-			this.innerTree = this.list.createChild({cls:cls+'-inner'});
-			this.tree = new Ext.ux.tree.ArrayTree({
-				applyTo			: this.innerTree,
-				height			: this.listHeight,
+			that.innerTree = that.treeLayer.createChild({
+				cls	:cls+'-inner'
+			});
+
+			that.tree = new Ext.tree.TreePanel({
+				applyTo			: that.innerTree,
+				height			: that.listHeight,
 				animate			: true,
 				rootVisible		: false,
 				containerScroll	: true,
-				rootConfig		: {
-					text			:'--',
-					id				:'root'
-				},
-				children		: this.children
+				root			: that.treeRoot,
+				keyNav			: new Ext.KeyNav(that.innerTree, {
+					'esc' : function(e){
+						that.collapse();
+						that.el.focus();
+					},
+
+					scope : that
+				})
+				//loader			: that.treePreloader
 			});
 
-			this.tree.on('click', this.select,this);
+			that.tree.on('click', that.select,this);
 
 			if(that.value){
-				that.tree.getSelectionModel().select(that.tree.getNodeById(that.value));
+				var nodeId = that.tree.getNodeById(that.value);
+				if(nodeId){
+					that.tree.getSelectionModel().select(nodeId);
+				}
 			}
 
-			this.innerTree.setWidth(lw - this.list.getFrameWidth('lr'));
+			that.innerTree.setWidth(lw - that.treeLayer.getFrameWidth('lr'));
 
-			if(this.resizable){
-				this.resizer = new Ext.Resizable(this.list,  {
+			if(that.resizable){
+				that.resizer = new Ext.Resizable(that.treeLayer,  {
 					pinned	:true,
 					handles	:'se'
 				});
-				this.resizer.on('resize', function(r, w, h){
-					this.maxHeight = h-this.handleHeight-this.list.getFrameWidth('tb')-this.assetHeight;
-					this.listWidth = w;
-					this.innerTree.setWidth(w - this.list.getFrameWidth('lr'));
-					this.restrictHeight();
+				that.resizer.on('resize', function(r, w, h){
+					that.maxHeight = h-that.handleHeight-that.treeLayer.getFrameWidth('tb')-that.assetHeight;
+					that.listWidth = w;
+					that.innerTree.setWidth(w - that.treeLayer.getFrameWidth('lr'));
+					that.restrictHeight();
 				}, this);
-				this[this.pageSize?'footer':'innerTree'].setStyle('margin-bottom', this.handleHeight+'px');
+				this[that.pageSize?'footer':'innerTree'].setStyle('margin-bottom', that.handleHeight+'px');
 			}
 		}
 	},
 
-	// private
 	initEvents : function(){
+		var that = this;
+
 		Ext.eu.sm.TriggerTree.superclass.initEvents.call(this);
 
-		this.keyNav = new Ext.KeyNav(this.el, {
+		that.keyNav = new Ext.KeyNav(that.el, {
 			"down" : function(e){
-				if(!this.isExpanded()){
-					this.onTriggerClick();
+				if(!that.isExpanded()){
+					that.onTriggerClick();
 				}
-			},
-
-			"enter" : function(e){
-				this.onViewClick();
-				this.delayedCheck = true;
-				this.unsetDelayCheck.defer(10, this);
-			},
-
-			"esc" : function(e){
-				this.collapse();
-			},
-
-			"tab" : function(e){
-				this.onViewClick(false);
-				return true;
 			},
 
 			scope : this,
 
 			doRelay : function(foo, bar, hname){
-				if(hname == 'down' || this.scope.isExpanded()){
-				return Ext.KeyNav.prototype.doRelay.apply(this, arguments);
+				if(hname == 'down' || that.isExpanded()){
+					return Ext.KeyNav.prototype.doRelay.apply(this, arguments);
 				}
 				return true;
 			},
 
 			forceKeyDown : true
 		});
-		this.queryDelay = Math.max(this.queryDelay || 10, 10);
-		if(this.editable !== false){
-			this.el.on("keyup", this.onKeyUp, this);
+		that.queryDelay = Math.max(that.queryDelay || 10, 10);
+
+		if(that.editable !== false){
+			that.el.on("keyup", that.onKeyUp, this);
 		}
-		if(this.forceSelection){
-			this.on('blur', this.doForce, this);
+
+		if(that.forceSelection){
+			that.on('blur', that.doForce, this);
 		}
 	},
 
-	// private
 	onDestroy : function(){
-		if(this.tree){
-			Ext.destroy(this.tree);
+		var that = this;
+		if(that.tree){
+			Ext.destroy(that.tree);
 		}
-		if(this.list){
-			this.list.destroy();
-		}
-		if (this.dqTask){
-			this.dqTask.cancel();
-			this.dqTask = null;
+		if(that.treeLayer){
+			that.treeLayer.destroy();
 		}
 		Ext.eu.sm.TriggerTree.superclass.onDestroy.call(this);
 	},
 
-	// private
 	unsetDelayCheck : function(){
-		delete this.delayedCheck;
+		var that = this;
+		delete that.delayedCheck;
 	},
 
-	// private
 	fireKey : function(e){
-		if(e.isNavKeyPress() && !this.isExpanded() && !this.delayedCheck){
-			this.fireEvent("specialkey", this, e);
+		var that = this;
+		if(e.isNavKeyPress() && !that.isExpanded() && !that.delayedCheck){
+			that.fireEvent("specialkey", this, e);
 		}
 	},
 
-	// private
 	onResize: function(w, h){
+		var that = this;
 		Ext.eu.sm.TriggerTree.superclass.onResize.apply(this, arguments);
-		if(this.list && this.listWidth === undefined){
-			var lw = Math.max(w, this.minListWidth);
-			this.list.setWidth(lw);
-			this.innerTree.setWidth(lw - this.list.getFrameWidth('lr'));
+		if(that.treeLayer && that.listWidth === undefined){
+			var lw = Math.max(w, that.minListWidth);
+			that.treeLayer.setWidth(lw);
+			that.innerTree.setWidth(lw - that.treeLayer.getFrameWidth('lr'));
 		}
 	},
 
-	// private
 	onEnable: function(){
+		var that = this;
 		Ext.eu.sm.TriggerTree.superclass.onEnable.apply(this, arguments);
-		if(this.hiddenField){
-			this.hiddenField.disabled = false;
+		if(that.hiddenField){
+			that.hiddenField.disabled = false;
 		}
 	},
 
-	// private
 	onDisable: function(){
+		var that = this;
 		Ext.eu.sm.TriggerTree.superclass.onDisable.apply(this, arguments);
-		if(this.hiddenField){
-			this.hiddenField.disabled = true;
+		if(that.hiddenField){
+			that.hiddenField.disabled = true;
 		}
 	},
 
-	/**
-	 * Allow or prevent the user from directly editing the field text.  If false is passed,
-	 * the user will only be able to select from the items defined in the dropdown list.  This method
-	 * is the runtime equivalent of setting the 'editable' config option at config time.
-	 * @param {Boolean} value True to allow the user to directly edit the field text
-	 */
 	setEditable : function(value){
-		if(value == this.editable){
+		var that = this;
+		if(value == that.editable){
 			return;
 		}
-		this.editable = value;
+		that.editable = value;
 		if(!value){
-			this.el.dom.setAttribute('readOnly', true);
-			this.el.on('mousedown', this.onTriggerClick,  this);
-			this.el.addClass('x-combo-noedit');
+			that.el.dom.setAttribute('readOnly', true);
+			that.el.on('mousedown', that.onTriggerClick,  this);
+			that.el.addClass('x-combo-noedit');
 		}else{
-			this.el.dom.removeAttribute('readOnly');
-			this.el.un('mousedown', this.onTriggerClick,  this);
-			this.el.removeClass('x-combo-noedit');
+			that.el.dom.removeAttribute('readOnly');
+			that.el.un('mousedown', that.onTriggerClick,  this);
+			that.el.removeClass('x-combo-noedit');
 		}
 	},
 
-	// private
 	onBeforeLoad : function(){
-		if(!this.hasFocus){
+		var that = this;
+		if(!that.hasFocus){
 			return;
 		}
-		this.innerTree.update(this.loadingText ?
-			'<div class="loading-indicator">'+this.loadingText+'</div>' : '');
-		this.restrictHeight();
-		this.selectedNode = null;
+		that.innerTree.update(that.loadingText ? '<div class="loading-indicator">'+that.loadingText+'</div>' : '');
+		that.restrictHeight();
 	},
 
-	// private
 	onLoad : function(){
-		if(!this.hasFocus){
+		var that = this;
+		if(!that.hasFocus){
 			return;
 		}
-		//this.el.focus();
-		var root = this.tree.getRootNode();
+		//that.el.focus();
+		var root = that.tree.getRootNode();
 		if(root.hasChildNodes()){
-			this.expand();
-			this.restrictHeight();
-			if(this.lastQuery == this.allQuery){
-				if(this.editable){
-					this.el.dom.select();
+			that.expand();
+			that.restrictHeight();
+			if(that.lastQuery == that.allQuery){
+				if(that.editable){
+					that.el.dom.select();
 				}
 				var n;
-				if(!(n = this.findDeepChildNode(root,'text',this.value))){
-					this.select(n, true);
+				if(n = that.findDeepChildNode(root,'text',that.value)){
+					that.select(n, true);
 				}
-			}else{
-				this.selectNext();
-				/*if(this.typeAhead && this.lastKey != Ext.EventObject.BACKSPACE && this.lastKey != Ext.EventObject.DELETE){
-					this.taTask.delay(this.typeAheadDelay);
-				}*/
 			}
 		}else{
-			this.onEmptyResults();
+			that.onEmptyResults();
 		}
 	},
 
-	// private
-	/*onTypeAhead : function(){
-		if(this.store.getCount() > 0){
-			var r = this.store.getAt(0);
-			var newValue = r.data[this.displayField];
-			var len = newValue.length;
-			var selStart = this.getRawValue().length;
-			if(selStart != len){
-				this.setRawValue(newValue);
-				this.selectText(selStart, newValue.length);
-			}
-		}
-	},*/
-
-	// private
-	onSelect : function(node){
-		if(this.fireEvent('beforeselect', this, node, node.attributes.id) !== false){
-			this.setValue(record.data[this.valueField || this.displayField]);
-			this.collapse();
-			this.fireEvent('select', this, record, index);
-		}
-	},
-
-	/**
-	 * Returns the currently selected field value or empty string if no value is set.
-	 * @return {String} value The selected value
-	 */
 	getValue : function(){
-		if(this.valueField){
-			return typeof this.value != 'undefined' ? this.value : '';
+		var that = this;
+		if(that.valueField){
+			return typeof that.value != 'undefined' ? that.value : '';
 		}else{
 			return Ext.eu.sm.TriggerTree.superclass.getValue.call(this);
 		}
 	},
 
-	/**
-	 * Clears any text/value currently set in the field
-	 */
 	clearValue : function(){
-		if(this.hiddenField){
-			this.hiddenField.value = '';
+		var that = this;
+		if(that.hiddenField){
+			that.hiddenField.value = '';
 		}
-		this.setRawValue('');
-		this.lastSelectionText = '';
-		this.applyEmptyText();
-		this.value = '';
+		that.setRawValue('');
+		that.lastSelectionText = '';
+		that.applyEmptyText();
+		that.value = '';
 	},
 
-	/**
-	 * Sets the specified value into the field.  If the value finds a match, the corresponding record text
-	 * will be displayed in the field.  If the value does not match the data value of an existing item,
-	 * and the valueNotFoundText config option is defined, it will be displayed as the default field text.
-	 * Otherwise the field will be blank (although the value will still be set).
-	 * @param {String} value The value to match
-	 */
-	setValue : function(v){
-		var text = v;
-		if(this.valueField){
-			var r = this.findRecord(this.valueField, v);
-			if(r){
-				text = r.data[this.displayField];
-			}else if(this.valueNotFoundText !== undefined){
-				text = this.valueNotFoundText;
-			}
-		}
-		this.lastSelectionText = text;
-		if(this.hiddenField){
-			this.hiddenField.value = v;
-		}
-		Ext.eu.sm.TriggerTree.superclass.setValue.call(this, text);
-		this.value = v;
-	},
-
-	// private
-	findRecord : function(prop, value){
-		return false;
-		var record;
-		if(this.store.getCount() > 0){
-			this.store.each(function(r){
-				if(r.data[prop] == value){
-					record = r;
-					return false;
-				}
-			});
-		}
-		return record;
-	},
-
-	// private
-	onViewClick : function(doFocus){
-		//return false;
-		var index = this.tree.getSelectedNode()[0];
-		var r = this.store.getAt(index);
-		if(r){
-			this.onSelect(r);
-		}
-		if(doFocus !== false){
-			this.el.focus();
-		}
-	},
-
-	// private
 	restrictHeight : function(){
-		this.innerTree.dom.style.height = '';
-		var inner = this.innerTree.dom;
-		var pad = this.list.getFrameWidth('tb')+(this.resizable?this.handleHeight:0)+this.assetHeight;
+		var that = this;
+		that.innerTree.dom.style.height = '';
+		var inner = that.innerTree.dom;
+		var pad = that.treeLayer.getFrameWidth('tb')+(that.resizable?that.handleHeight:0)+that.assetHeight;
 		var h = Math.max(inner.clientHeight, inner.offsetHeight, inner.scrollHeight);
-		var ha = this.getPosition()[1]-Ext.getBody().getScroll().top;
-		var hb = Ext.lib.Dom.getViewHeight()-ha-this.getSize().height;
-		var space = Math.max(ha, hb, this.minHeight || 0)-this.list.shadowOffset-pad-5;
-		h = Math.min(h, space, this.maxHeight);
+		var ha = that.getPosition()[1]-Ext.getBody().getScroll().top;
+		var hb = Ext.lib.Dom.getViewHeight()-ha-that.getSize().height;
+		var space = Math.max(ha, hb, that.minHeight || 0)-that.treeLayer.shadowOffset-pad-5;
+		h = Math.min(h, space, that.maxHeight);
 
-		this.innerTree.setHeight(h);
-		this.list.beginUpdate();
-		this.list.setHeight(h+pad);
-		this.list.alignTo(this.wrap, this.listAlign);
-		this.list.endUpdate();
+		that.innerTree.setHeight(h);
+		that.treeLayer.beginUpdate();
+		that.treeLayer.setHeight(h+pad);
+		that.treeLayer.alignTo(that.wrap, that.listAlign);
+		that.treeLayer.endUpdate();
 	},
 
-	// private
 	onEmptyResults : function(){
-		this.collapse();
+		var that = this;
+		that.collapse();
 	},
 
-	/**
-	 * Returns true if the dropdown list is expanded, else false.
-	 */
 	isExpanded : function(){
-		return this.list && this.list.isVisible();
-	},
-
-	/**
-	 * Select an item in the dropdown list by its data value. This function does NOT cause the select event to fire.
-	 * The store must be loaded and the list expanded for this function to work, otherwise use setValue.
-	 * @param {String} value The data value of the item to select
-	 * @param {Boolean} scrollIntoView False to prevent the dropdown list from autoscrolling to display the
-	 * selected item if it is not currently in view (defaults to true)
-	 * @return {Boolean} True if the value matched an item in the list, else false
-	 */
-	selectByValue : function(v, scrollIntoView){
-		//this.select(this.store.indexOf(r), scrollIntoView);
-		return false;
-		if(v !== undefined && v !== null){
-			var r = this.findRecord(this.valueField || this.displayField, v);
-			if(r){
-				this.select(this.store.indexOf(r), scrollIntoView);
-				return true;
-			}
-		}
-		return false;
+		var that = this;
+		return that.treeLayer && that.treeLayer.isVisible();
 	},
 
 	setValue : function(v,textv){
+		var that = this;
 		var text = v;
-		if(!textv && this.tree){
-			var node = this.tree.getNodeById(v);
+		if(!textv && that.treeRoot){
+			var node = that.findDeepChildNode(that.treeRoot,that.valueField,v);
 			if(node){
-				textv = node.attributes.text;
+				if(that.displayPath){
+					textv = '';
+					node.bubble(function(n){
+						if(n.parentNode){
+							textv = n.attributes[that.displayField]+(textv?that.displayPathSeparator+textv:'');
+						}
+					});
+				}else{
+					textv = node.attributes[that.displayField];
+				}
+				if(!that.doSelectEvent || that.fireEvent('beforeselect', that, v,that.value,node) !== false ){
+					that.lastSelectionText = textv;
+					if(that.hiddenField){
+						that.hiddenField.value = v;
+					}
+					Ext.eu.sm.TriggerTree.superclass.setValue.call(this, textv);
+					that.value = v;
+					if(that.doSelectEvent){
+						that.fireEvent('select', that, v,node );
+					}
+				}
 			}
 		}
-		this.lastSelectionText = textv;
-		if(this.hiddenField){
-			this.hiddenField.value = v;
+	},
+
+	select : function(node){
+		var that = this;
+		that.setValue(node.attributes[that.valueField]);
+		if(that.tree){
+			that.tree.getSelectionModel().select(node)
 		}
-		Ext.form.ComboBox.superclass.setValue.call(this, textv);
-		this.value = v;
 	},
 
-	select : function(node, scrollIntoView){
-		this.selectedIndex = node;
-		this.tree.getSelectionModel().select(node)
-		this.setValue(node.attributes.id);
-		//this.setValue(node.getPath().replace(/^\/root/,''));
-		return;
-	},
-
-	// private
-	selectNext : function(){
-		/*var ct = this.store.getCount();
-		if(ct > 0){
-			if(this.selectedIndex == -1){
-				this.select(0);
-			}else if(this.selectedIndex < ct-1){
-				this.select(this.selectedIndex+1);
-			}
-		}*/
-	},
-
-	// private
-	selectPrev : function(){
-		/*var ct = this.store.getCount();
-		if(ct > 0){
-			if(this.selectedIndex == -1){
-				this.select(0);
-			}else if(this.selectedIndex != 0){
-				this.select(this.selectedIndex-1);
-			}
-		}*/
-	},
-
-	// private
 	onKeyUp : function(e){
-		if(this.editable !== false && !e.isSpecialKey()){
-			this.lastKey = e.getKey();
+		var that = this;
+		if(that.editable !== false && !e.isSpecialKey()){
+			that.lastKey = e.getKey();
 		}
 	},
 
-	// private
 	validateBlur : function(){
-		return !this.list || !this.list.isVisible();
+		var that = this;
+		return !that.treeLayer || !that.treeLayer.isVisible();
 	},
 
-	// private
 	doForce : function(){
-		if(this.el.dom.value.length > 0){
-			this.el.dom.value =
-				this.lastSelectionText === undefined ? '' : this.lastSelectionText;
-			this.applyEmptyText();
+		var that = this;
+		if(that.el.dom.value.length > 0){
+			that.el.dom.value =
+				that.lastSelectionText === undefined ? '' : that.lastSelectionText;
+			that.applyEmptyText();
 		}
 	},
 
-	// private
 	getParams : function(q){
+		var that = this;
 		var p = {};
-		//p[this.queryParam] = q;
-		if(this.pageSize){
+		//p[that.queryParam] = q;
+		if(that.pageSize){
 			p.start = 0;
-			p.limit = this.pageSize;
+			p.limit = that.pageSize;
 		}
 		return p;
 	},
 
 	collapse : function(){
-		if(!this.isExpanded()){
+		var that = this;
+		if(!that.isExpanded()){
 			return;
 		}
-		this.list.hide();
-		Ext.getDoc().un('mousewheel', this.collapseIf, this);
-		Ext.getDoc().un('mousedown', this.collapseIf, this);
-		this.fireEvent('collapse', this);
+		that.treeLayer.hide();
+		Ext.getDoc().un('mousewheel', that.collapseIf, this);
+		Ext.getDoc().un('mousedown', that.collapseIf, this);
+		that.fireEvent('collapse', this);
 	},
 
-	// private
 	collapseIf : function(e){
-		if(!e.within(this.wrap) && !e.within(this.list)){
-			this.collapse();
+		var that = this;
+		if(!e.within(that.wrap) && !e.within(that.treeLayer)){
+			that.collapse();
 		}
 	},
 
-	/**
-	 * Expands the dropdown list if it is currently hidden. Fires the {@link #expand} event on completion.
-	 */
 	expand : function(){
-		if(this.isExpanded() || !this.hasFocus){
+		var that = this;
+		if(that.isExpanded() || !that.hasFocus){
 			return;
 		}
-		this.list.alignTo(this.wrap, this.listAlign);
-		this.list.show();
-		this.innerTree.setOverflow('auto'); // necessary for FF 2.0/Mac
-		Ext.getDoc().on('mousewheel', this.collapseIf, this);
-		Ext.getDoc().on('mousedown', this.collapseIf, this);
-		this.fireEvent('expand', this);
+		that.treeLayer.alignTo(that.wrap, that.listAlign);
+		that.treeLayer.show();
+		that.innerTree.setOverflow('auto'); // necessary for FF 2.0/Mac
+		Ext.getDoc().on('mousewheel', that.collapseIf, this);
+		Ext.getDoc().on('mousedown', that.collapseIf, this);
+		that.fireEvent('expand', this);
 	},
 
-	/**
-	 * @method onTriggerClick
-	 * @hide
-	 */
-	// private
 	// Implements the default empty TriggerField.onTriggerClick function
 	onTriggerClick : function(){
-		if(this.disabled){
+		var that = this;
+		if(that.disabled){
 			return;
 		}
-		if(this.isExpanded()){
-			this.collapse();
-			this.el.focus();
+		if(that.isExpanded()){
+			that.collapse();
+			that.el.focus();
 		}else {
-			this.onFocus({});
-			this.onLoad();
-			this.tree.focus();
+			that.onFocus({});
+			that.onLoad();
+			if(that.tree){
+				var node = that.tree.getSelectionModel().getSelectedNode();
+				if(node){
+					setTimeout(function(){
+						node.getUI().focus();
+					},50);
+				}
+			}
 		}
 	}
 });

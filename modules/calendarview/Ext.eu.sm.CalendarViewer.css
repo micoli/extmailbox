@@ -1,4 +1,4 @@
-.calendarView .monthView,.weekView,.dayViewContainer{
+.CalendarViewer .monthView,.weekView,.dayViewContainer{
 	font					: 11px helvetica,arial,sans-serif;
 	border-spacing			: 0px;
 	border-collapse			: collapse;
@@ -58,74 +58,73 @@
 	linear-gradient(335deg, #C90032 10px, transparent 10px),
 	linear-gradient(155deg, #C90032 10px, transparent 10px);
 }
-.calendarView .dayView-header{
+.CalendarViewer .dayView-header{
 	height					: 16px;
 	line-height				: 16px;
 	font-size				: 16px;
 	text-align				: right;
 	color					: #A7C6DF;
 }
-.calendarView .weekend  {
+.CalendarViewer .weekend  {
 	background				: #EFF9FC;
 }
-.calendarView .outMonth{
+.CalendarViewer .outMonth{
 	background				: #EFEFEF;
 	font-color				: ##BBBBBB;
 }
-.calendarView .weekView{
+.CalendarViewer .weekView{
 }
-.calendarView .dayView {
+.CalendarViewer .dayView {
 	border					: 1px solid #C3D9FF;
 	text-align				: left;
 	vertical-align			: top;
 	display					: inline-block;
 	overflow				: scroll;
 }
-.calendarView .dayView .event{
+.CalendarViewer .dayView .event{
 	height					: 16px;
 	line-height				: 16px;
 	margin-top				: 2px;
 	padding					: 1px 1px 1px 4px;
 	overflow				: hidden;
 }
-.calendarView .dayView .event.roundRight{
+.CalendarViewer .currentDay{
+	border-color				: #DD3333;
+}
+.CalendarViewer .dayView .event.roundRight{
 	border-top-right-radius		:3px;
 	border-bottom-right-radius	:3px;
 }
-.calendarView .dayView .event.roundLeft{
+.CalendarViewer .dayView .event.roundLeft{
 	border-top-left-radius		:3px;
 	border-bottom-left-radius	:3px;
 }
-.calendarView .currentDay .dayView-header{
-	color					: red;
-}
-
-.calendarView .weekNum{
+.CalendarViewer .weekNum{
 	float					:left;
 	font-style				:italic
 }
-.calendarView .dayTitle {
+.CalendarViewer .dayTitle {
 	float					: left;
 	margin-left				: 25px;
 	text-align				: center;
 }
-.calendarView .dayName {
+.CalendarViewer .dayName {
 	float					:right;
 	padding-right			:5px;
 }
-.calendarView .dayNum {
+.CalendarViewer .dayNum {
 	float					:right;
 }
-.calendarView ul.dayView-content{
+.CalendarViewer ul.dayView-content{
 	overflow				: auto;
 }
-.calendarView .dayView-content-holder{
+.CalendarViewer .dayView-content-holder{
 	overflow				: auto;
 }
-.calendarView .monthView-dayView-content,.weekView-dayView-content{
+.CalendarViewer .monthView-dayView-content,.weekView-dayView-content{
 	overflow				: auto;
 }
-.calendarView ul.dayView-fullday-content{
+.CalendarViewer ul.dayView-fullday-content{
 	color					: #000000;
 	float					: left;
 	font					: 10px helvetica,arial,sans-serif;
@@ -133,11 +132,11 @@
 	overflow				: hidden;
 	text-align				: left;
 }
-.calendarView ul.dayView-fullday-content li{
+.CalendarViewer ul.dayView-fullday-content li{
 	margin-left				: 2px;
 	width					: 25px;
 }
-.calendarView .dayView-content .event{
+.CalendarViewer .dayView-content .event{
 	overflow				: hidden;
 }
 .range-event{
@@ -146,6 +145,7 @@
 .fullday-even{
 	border					: 1px dashed #8A8A8A;
 }
+
 .event-color-0 { background-color:#fce94f; }	.event-color-0.eventOver {background-color:#edd400;}
 .event-color-1 { background-color:#fcaf3e; }	.event-color-1.eventOver {background-color:#f57900;}
 .event-color-2 { background-color:#e9b96e; }	.event-color-2.eventOver {background-color:#c17d11;}

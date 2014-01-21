@@ -1,7 +1,7 @@
 Ext.ns('Ext.eu');
-Ext.ns('Ext.eu.sm.CalendarView.Views');
+Ext.ns('Ext.eu.sm.CalendarViewer.Views');
 
-Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
+Ext.eu.sm.CalendarViewer.Views.Day = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 	iconCls				: 'calendarSelectIcon',
 	viewModeName		: 'day',
 	viewClass			: 'dayViewContainer',
@@ -57,7 +57,7 @@ Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 
 	onResize: function(ct, position){
 		var that = this;
-		Ext.eu.sm.CalendarView.Views.Day.superclass.onResize.call(this, ct, this.maininput);
+		Ext.eu.sm.CalendarViewer.Views.Day.superclass.onResize.call(this, ct, this.maininput);
 		var containerSize = Ext.get(this.el.findParent('.x-panel-body')).getSize();
 		that.dayHeight =(parseInt(containerSize.height)-16) - 5;
 		that.dayWidth  = containerSize.width;
@@ -68,7 +68,7 @@ Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		var that = this;
 		that.el = ct.createChild({
 			tag		: 'div' ,
-			class	: 'calendarView'
+			class	: 'CalendarViewer'
 		});
 		var str = '<table class="'+that.viewClass+'"><thead>';
 		//var strDay= that.getWeekDayName(j);
@@ -101,15 +101,15 @@ Ext.eu.sm.CalendarView.Views.Day = Ext.extend(Ext.eu.sm.CalendarView.View, {
 		that.days[0]=that.elTable.child('.calday-1-1');
 		that.days[0].on('click',function(evt,dom){
 			var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
-			that.calendarView.fireEvent('dayclick',that.calendarView,that.datesDom[res[0]]);
+			that.CalendarViewer.fireEvent('dayclick',that.CalendarViewer,that.datesDom[res[0]]);
 		});
 		that.days[0].on('dblclick',function(evt,dom){
 			var res = this.dom.className.match(/calday-[0-9]{1,2}-[0-9]{1,2}/);
-			that.calendarView.fireEvent('daydblclick',that.calendarView,that.datesDom[res[0]]);
+			that.CalendarViewer.fireEvent('daydblclick',that.CalendarViewer,that.datesDom[res[0]]);
 		});
-		Ext.eu.sm.CalendarView.Views.Day.superclass.onRender.call(that, ct);
+		Ext.eu.sm.CalendarViewer.Views.Day.superclass.onRender.call(that, ct);
 		that.calcDates();
 	}
 
 });
-Ext.reg('calendarView.views.day',Ext.eu.sm.CalendarView.Views.Day);
+Ext.reg('CalendarViewer.views.day',Ext.eu.sm.CalendarViewer.Views.Day);
