@@ -3,9 +3,6 @@ Ext.ns('Ext.eu.sm.CalendarViewer');
 //http://stackoverflow.com/questions/11311410/visualization-of-calendar-events-algorithm-to-layout-events-with-maximum-width
 //http://jsbin.com/akudop/edit#javascript,html,live
 Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
-	date						: new Date(),
-	dateBegin					: null,
-	dateEnd						: null,
 	domDates					: {},
 	datesDom					: {},
 	withTooltip					: true,
@@ -35,7 +32,7 @@ Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 
 	calcDates			: function(){
 		var that = this;
-		that.fireEvent('initdates',that.dateBegin,that.dateEnd);
+		//that.fireEvent('initdates',that.CalendarViewer.dateBegin,that.CalendarViewer.dateEnd);
 	},
 
 	refresh				: function(auto){
@@ -58,8 +55,8 @@ Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 		var gIdx=-1;
 		that.CalendarViewer.eventStore.each(function(record){
 			var firstDateDisplayed= record.get('date_begin');
-			if(firstDateDisplayed<that.dateBegin){
-				firstDateDisplayed = that.dateBegin;
+			if(firstDateDisplayed<that.CalendarViewer.dateBegin){
+				firstDateDisplayed = that.CalendarViewer.dateBegin;
 			}
 			var numDays = Ext.eu.sm.CalendarViewer.prototype.dateDiff(firstDateDisplayed,record.get('date_end'),'days')+1;
 			var dateEvent = new Date(firstDateDisplayed.format('Y-m-d'));
@@ -79,7 +76,7 @@ Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 					}
 				}
 				dateEvent.setDate(dateEvent.getDate()+1);
-				if (dateEvent>that.dateEnd){
+				if (dateEvent>that.CalendarViewer.dateEnd){
 					break;
 				}
 			}

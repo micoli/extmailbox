@@ -8,12 +8,13 @@ Ext.eu.sm.CalendarViewer.Views.Day = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 
 	calcDates			: function(){
 		var that = this;
+		var d1,d2;
 		that.currentDay = (new Date()).format('Y-m-d');
-		that.dateBegin = that.date.clone();
-		that.dateEnd = that.date.clone();
+		d1 = that.CalendarViewer.date.clone();
+		d2 = that.CalendarViewer.date.clone();
 
-		//console.log(that.viewModeName,1,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
-		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
+		//console.log(that.viewModeName,1,'=',that.CalendarViewer.dateBegin.format('Y-m-d N'),'<',that.CalendarViewer.date.format('Y-m-d'),'>',that.CalendarViewer.dateEnd.format('Y-m-d N'));
+		that.fireEvent('datechanged',that.CalendarViewer.date,d1,d2,that);
 	},
 
 	getPrevDate			: function (date){
@@ -27,7 +28,7 @@ Ext.eu.sm.CalendarViewer.Views.Day = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 	displayView			:  function(){
 		var that = this;
 		var n = 0;
-		var date = that.dateBegin.clone();
+		var date = that.CalendarViewer.dateBegin.clone();
 		that.domDates = {};
 		that.datesDom = {};
 
@@ -46,7 +47,7 @@ Ext.eu.sm.CalendarViewer.Views.Day = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 		that.days[0].child(".dayView-header").child('.dayNum').dom.innerHTML=date.format('d');
 		that.days[0].child(".dayView-header").child('.weekNum').dom.innerHTML=date.format('W');
 		that.days[0].child(".dayView-content").setHeight(that.dayHeight-14);
-		if(date.format('m')==that.date.format('m')){
+		if(date.format('m')==that.CalendarViewer.date.format('m')){
 			that.days[0].removeClass('outMonth');
 		}else{
 			that.days[0].addClass('outMonth');
@@ -86,7 +87,9 @@ Ext.eu.sm.CalendarViewer.Views.Day = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 		str +='			<div class="dayName"></div>'
 		str +='		</div>';
 		str +='		<div class="dayView-fullday-content">'
-		str +='			<ul class="dayView-content"></ul>';
+		str +='			<div class="dayView-content-holder">'
+		str +='				<ul class="dayView-content"></ul>';
+		str +='			</div>';
 		str +='		</div>';
 		str +='	</td>';
 		str += '</tr>';

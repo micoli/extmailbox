@@ -10,18 +10,18 @@ Ext.eu.sm.CalendarViewer.Views.Month = Ext.extend(Ext.eu.sm.CalendarViewer.Weeks
 	calcDates			: function(){
 		var that = this;
 		that.currentDay = (new Date()).format('Y-m-d');
-		that.dateBegin = that.date.getFirstDateOfMonth().clone();
+		var d1,d2;
+		d1 = that.CalendarViewer.date.getFirstDateOfMonth().clone();
 
-		while (that.dateBegin.getDay()!=1){
-			that.dateBegin.setDate(that.dateBegin.getDate()-1);
+		while (d1.getDay()!=1){
+			d1.setDate(d1.getDate()-1);
 		}
-		that.dateEnd = that.date.getLastDateOfMonth().clone();
-		while (that.dateEnd.getDay()!=0){
-			that.dateEnd.setDate(that.dateEnd.getDate()+1);
+		d2 = that.CalendarViewer.date.getLastDateOfMonth().clone();
+		while (d2.getDay()!=0){
+			d2.setDate(d2.getDate()+1);
 		}
-		that.numWeeks = Ext.eu.sm.CalendarViewer.prototype.dateDiff(that.dateBegin,that.dateEnd,'weeks')+1;
-		//console.log(that.viewModeName,that.numWeeks,'=',that.dateBegin.format('Y-m-d N'),'<',that.date.format('Y-m-d'),'>',that.dateEnd.format('Y-m-d N'));
-		that.fireEvent('datechanged',that.date,that.dateBegin,that.dateEnd);
+		that.numWeeks = Ext.eu.sm.CalendarViewer.prototype.dateDiff(d1,d2,'weeks')+1;
+		that.fireEvent('datechanged',that.CalendarViewer.date,d1,d2,that);
 	},
 
 	getPrevDate			: function (date){

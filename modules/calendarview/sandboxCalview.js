@@ -2,8 +2,27 @@ if (true){
 	Ext.ns('Ext.eu.sm');
 
 	Ext.eu.sm.CXD = Ext.extend(Ext.Panel, {
+		readOnly			: false,
 		initComponent		: function(){
 			var that = this;
+
+			that.treeUsersId = Ext.id();
+			that.calendarViewerId = Ext.id();
+
+			that.getUsersList = function(){
+				var userListId=[];
+				var tree = Ext.getCmp(that.treeUsersId);
+				if(tree){
+					var allChecked = tree.getChecked();
+					if (allChecked.length>0){
+						Ext.each(allChecked,function(v,k){
+							userListId.push(v.attributes.id);
+						});
+					}
+				}
+				return userListId;
+			}
+
 			that.eventStore = new Ext.data.JsonStore({
 				fields			: [
 					'idx',
@@ -20,14 +39,19 @@ if (true){
 					},'text'],
 				root			: 'data',
 				idProperty		: 'idx',
-				remoteSort		: true,
-				autoLoad		: true,
+				autoLoad		: false,
 				baseParams		: {
 					'exw_action'	: 'local.calendar.getEvents'
 				},
 				proxy			: new Ext.data.HttpProxy({
 					url				: 'proxy.php',
+					method			: 'GET'
 				}),
+				listeners		: {
+					beforeload		: function (store,options){
+						store.baseParams.userList = that.getUsersList();
+					}
+				}
 			});
 
 			that.memStoreEventType = new Ext.data.JsonStore({
@@ -55,29 +79,29 @@ if (true){
 				layout		: 'border',
 				items		: [{
 					xtype				: 'CalendarViewer',
+					id					: that.calendarViewerId,
 					eventStore			: that.eventStore,
 					region				: 'center',
-					//dayModeEnabled		: false,
 					showWeekend			: true,
 					showViewsLabel		: false,
 					controls			: ['|'],
 					horizontalEventTpl	: new Ext.XTemplate(
-							'{title}'+
-							'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
-							'<p>{date_end:date("d/m/Y-H:i")}</p>'+
-							'<p>{content}</p>'
+						'{title}'+
+						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
+						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
+						'<p>{content}</p>'
 					),
 					tooltipTpl			: new Ext.XTemplate(
-							'== {title}'+
-							'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
-							'<p>{date_end:date("d/m/Y-H:i")}</p>'+
-							'<p>{content}</p>'
+						'== {title}'+
+						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
+						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
+						'<p>{content}</p>'
 					),
 					tooltipFulldayTpl	: new Ext.XTemplate(
-							'-- {title}'+
-							'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
-							'<p>{date_end:date("d/m/Y-H:i")}</p>'+
-							'<p>{content}</p>'
+						'-- {title}'+
+						'<p>{date_begin:date("d/m/Y-H:i")}</p>'+
+						'<p>{date_end:date("d/m/Y-H:i")}</p>'+
+						'<p>{content}</p>'
 					),
 					//date				: new Date('2013-01-01'),
 					listeners			: {
@@ -101,8 +125,7 @@ if (true){
 						},
 						daydblclick : function(CalendarViewer,date){
 							console.log('daydblclick',date);
-						},
-
+						}
 					}
 				},{
 					region			: 'west',
@@ -112,94 +135,59 @@ if (true){
 					items			: [{
 						title				: 'Groups',
 						xtype				: 'treepanel',
-						height				: 150,
+						id					: that.treeUsersId,
+						height				: 250,
 						rootVisible			: false,
 						autoScroll			: true,
+						onlyOneChecked		: false,
 						listeners			: {
-							beforeselect		: function(newValue,oldValue,node){
-								console.log('beforeselect',newValue,oldValue,node);
-							},
-							select				: function(newValue,node){
-								console.log('select',newValue,node);
-							},
-							'checkchange': function(node, checked){
+							checkchange			: function(node, checked){
 								var tree = node.getOwnerTree();
 								var allChecked = tree.getChecked();
-								if(allChecked.length==0){
+								if (allChecked.length==0){
 									node.attributes.checked=true;
 									node.ui.checkbox.checked=true;
 								}else{
 									Ext.each(allChecked,function(v,k){
-										if (v.attributes.id!=node.attributes.id){
+										if (v.attributes.id!=node.attributes.id && (v.attributes.level!=node.attributes.level||tree.onlyOneChecked)){
 											v.attributes.checked=false;
 											v.ui.checkbox.checked=false;
 										}
 									});
-									console.log('check',node.attributes.id);
 								}
+								that.eventStore.load();
 							}
 						},
 						loader		: new Ext.tree.TreeLoader({
-						}),
-						root		: new Ext.tree.AsyncTreeNode({
+							dataUrl		: 'proxy.php',
+							clearOnLoad	: true,
+							baseParams	: {
+								exw_action	: 'local.calendar.getUsers'
+							},
+							baseAttrs	: {
+								leaf		: true,
+								expanded	: false,
+								checked		: false,
+								level		: 'C'
+							},
 							listeners			: {
-								load				: function(node){
+								load				: function(treeLoader,node){
+									that.eventStore.load();
+									/*console.log(node);
 									setTimeout(function(){
 										var tree = node.getOwnerTree();
 										var sel = Ext.eu.sm.treeUtils.findDeepChildNode(tree.getRootNode(),'id','2.1');
 										sel.attributes.checked=true;
 										sel.ui.checkbox.checked=true;
-									},200);
+									},200);*/
 								},
 							},
+
+						}),
+						root		: new Ext.tree.AsyncTreeNode({
 							expanded	: true,
 							leaf		: false,
-							text		: 'Tree Root',
-							children	: [{
-								text			: 'grp1',
-								id				: '1',
-								expanded		: true,
-								checked			: false,
-								children		: [{
-									text			: 'grp 1.1',
-									id				: '1.1',
-									expanded		: true,
-									checked			: false,
-									leaf			: false,
-									children		: [{
-										text			: 'grp 1.1.1',
-										id				: '1.1.1',
-										leaf			: true,
-										checked			: false,
-									},{
-										text			: 'grp 1.1.2',
-										id				: '1.1.2',
-										leaf			: true,
-										checked			: false,
-									}]
-								},{
-									text			: 'grp 1.2',
-									id				: '1.2',
-									leaf			: true,
-									checked			: false,
-								}]
-							},{
-								text			: 'grp2',
-								id				: '2',
-								expanded		: true,
-								checked			: false,
-								children		: [{
-									text			: 'grp 2.1',
-									id				: '2.1',
-									leaf			: true,
-									checked			: false,
-								},{
-									text			: 'grp 2.2',
-									id				: '2.2',
-									leaf			: true,
-									checked			: false,
-								}]
-							}]
+							text		: ''
 						})
 					},{
 						xtype			: 'form',
@@ -212,18 +200,26 @@ if (true){
 							itemCls			: 'x-check-group-alt',
 							columns			: 1,
 							defaults		: {
+								checked			: true,
 								listeners		: {
 									check			: function(){
-										console.log(arguments);
+										that.eventStore.load();
 									}
 								}
 							},
-							items			: [
-								{boxLabel: 'Ghost'		, name: 'ghost'		},
-								{boxLabel: 'Rainy'		, name: 'rainy'		},
-								{boxLabel: 'Allowance'	, name: 'allowance'	},
-								{boxLabel: 'Contest'	, name: 'contest'	}
-							]
+							items			: [{
+								boxLabel: 'Ghost'	,
+								name	: 'ghost'
+							},{
+								boxLabel: 'Rainy'	,
+								name	: 'rainy'
+							},{
+								boxLabel: 'Allowance',
+								name	: 'allowance'
+							},{
+								boxLabel: 'Contest'	,
+								name	: 'contest'
+							}]
 						}]
 					}]
 				},{
