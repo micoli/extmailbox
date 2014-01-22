@@ -117,19 +117,19 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 		}
 
 		if(diff){
-			console.log('datechanged',
-					'date ',date.format('Y-m-d-His'),'//',
-					'dateBegin ',that.dateBegin.format('Y-m-d-His'),'//',
-					'dateEnd   ',that.dateEnd  .format('Y-m-d-His'),'//'
-					);
 			that.dateBegin=date1;
 			that.dateEnd  =date2;
+			/*console.log('datechanged',
+				'date ',date.format('Y-m-d-His'),'//',
+				'dateBegin ',that.dateBegin.format('Y-m-d-His'),'//',
+				'dateEnd   ',that.dateEnd  .format('Y-m-d-His'),'//'
+			);*/
 			if(that.eventStore){
 				that.eventStore.baseParams.date_begin = that.dateBegin.format('Y-m-d H:i:s');
 				that.eventStore.baseParams.date_end   = that.dateEnd  .format('Y-m-d H:i:s');
 			}
 
-			that.fireEvent('datechanged',that,date,date1,date2);
+			that.fireEvent('datechanged',that,that.date,that.dateBegin,that.dateEnd);
 
 			if(Ext.getCmp(that.labelDateRangeFromId)){
 				Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y')==date.format('d/m/Y')?'-':date1.format('d/m/Y'));
