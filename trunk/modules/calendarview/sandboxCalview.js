@@ -1,13 +1,113 @@
 if (true){
 	Ext.ns('Ext.eu.sm');
 
-	Ext.eu.sm.CXD = Ext.extend(Ext.Panel, {
+	Ext.eu.sm.CXDEditor = Ext.extend(Ext.form.FormPanel, {
 		readOnly			: false,
+		initComponent		: function(){
+			var that = this;
+
+			Ext.apply(this,{
+				frame			: true,
+				items			: [{
+					xtype			: 'combo',
+					fieldLabel		: 'Type',
+					width			: 100,
+					store			: new Ext.data.JsonStore({
+						fields		: ['id','value'],
+						idProperty	: 'id',
+						data		:	that.CXDTypes
+					}),
+					displayField	: 'id',
+					valueField		: 'value',
+					typeAhead		: true,
+					mode			: 'local',
+					forceSelection	: true,
+					triggerAction	: 'all',
+					emptyText		: 'Select a type...',
+					selectOnFocus	: true,
+				}]
+			});
+
+			Ext.eu.sm.CXDEditor.superclass.initComponent.call(this);
+		}
+	});
+	Ext.reg('CXDEditor',Ext.eu.sm.CXDEditor);
+
+	Ext.eu.sm.CXDViewer = Ext.extend(Ext.Panel, {
+		readOnly			: false,
+		CXDTypes			: [{
+			id		: "ghost",
+			value	: "Ghost"
+		},{
+			id		: "rainy",
+			value	: "Rainy"
+		},{
+			id		: "allowance",
+			value	: "Allowance"
+		},{
+			id		: "contest",
+			value	: "Contest"
+		}],
+
+		newCXDWindow		: function(date){
+			var that = this;
+			var radioTypes=[];
+			Ext.each(that.CXDTypes,function(v,k){
+				radioTypes.push({
+					boxLabel	: v.value,
+					name		: 'cxdtype',
+					inputValue	: v.value,
+					checked		: (k==0)
+				});
+			});
+			var win = new Ext.Window({
+				layout			: 'fit',
+				width			: 500,
+				height			: 300,
+				closeAction		:'hide',
+				plain			: true,
+				items			: {
+					xtype			: 'form',
+					frame			: true,
+					items			:[{
+						xtype			: 'datefield',
+						fieldLabel		: 'Date',
+						value			: date,
+						format			: 'd/m/Y'
+					},{
+						xtype			: 'radiogroup',
+						fieldLabel		: 'Type',
+						name			: 'cxdtype',
+						items			: radioTypes
+					},{
+						xtype			: 'triggertree',
+						fieldLabel		: 'Rep',
+						name			: 'user',
+						children		: that.treeUsersChildren
+					}]
+				},
+				buttons: [{
+					text     : 'Ok',
+					disabled : true,
+					handler  : function(){
+						win.destroy();
+					}
+				},{
+					text     : 'Close',
+					handler  : function(){
+						win.destroy();
+					}
+				}]
+			});
+			win.show();
+		},
+
 		initComponent		: function(){
 			var that = this;
 
 			that.treeUsersId = Ext.id();
 			that.calendarViewerId = Ext.id();
+			that.CXDEditorId = Ext.id();
 
 			that.getUsersList = function(){
 				var userListId=[];
@@ -16,7 +116,6 @@ if (true){
 					var allChecked = tree.getChecked();
 					if (allChecked.length>0){
 						Ext.each(allChecked,function(v,k){
-							userListId.push(v.attributes.id);
 						});
 					}
 				}
@@ -54,27 +153,6 @@ if (true){
 				}
 			});
 
-			that.memStoreEventType = new Ext.data.JsonStore({
-				fields		: ['id','value'],
-				idProperty	: 'id',
-				proxy		: new Ext.data.MemoryProxy(),
-				autoLoad	: false
-			});
-
-			that.memStoreEventType.loadData([{
-				id		: "ghost",
-				value	: "ghost"
-			},{
-				id		: "rainy",
-				value	: "rainy"
-			},{
-				id		: "allowance",
-				value	: "allowance"
-			},{
-				id		: "contest",
-				value	: "contest"
-			}]);
-
 			Ext.apply(that,{
 				layout		: 'border',
 				items		: [{
@@ -106,7 +184,7 @@ if (true){
 					//date				: new Date('2013-01-01'),
 					listeners			: {
 						datechanged : function(CalendarViewer,date,date1,date2){
-	//						console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
+							console.log('datechanged',date.format('Y-m-d'),date1.format('Y-m-d'),date2.format('Y-m-d'));
 						},
 						eventclick : function(CalendarViewer,event){
 							console.log('click',CalendarViewer,event);
@@ -125,6 +203,7 @@ if (true){
 						},
 						daydblclick : function(CalendarViewer,date){
 							console.log('daydblclick',date);
+							that.newCXDWindow(date);
 						}
 					}
 				},{
@@ -171,8 +250,11 @@ if (true){
 								level		: 'C'
 							},
 							listeners			: {
-								load				: function(treeLoader,node){
-									that.eventStore.load();
+								load				: function(treeLoader,node,response){
+									if (response.statusText=='OK'){
+										that.treeUsersChildren=JSON.parse(response.responseText);
+										that.eventStore.load();
+									}
 									/*console.log(node);
 									setTimeout(function(){
 										var tree = node.getOwnerTree();
@@ -226,29 +308,16 @@ if (true){
 					region			: 'east',
 					split			: false,
 					width			: 250,
-					xtype			: 'form',
-					frame			: true,
-					items			: [{
-						xtype			: 'combo',
-						fieldLabel		: 'Type',
-						width			: 100,
-						store			: that.memStoreEventType,
-						displayField	: 'id',
-						valueField		: 'value',
-						typeAhead		: true,
-						mode			: 'local',
-						forceSelection	: true,
-						triggerAction	: 'all',
-						emptyText		: 'Select a state...',
-						selectOnFocus	: true,
-					}]
+					xtype			: 'CXDEditor',
+					id				: that.CXDEditorId,
+					CXDTypes		: that.CXDTypes
 				}]
 			});
 
-			Ext.eu.sm.CXD.superclass.initComponent.call(this);
+			Ext.eu.sm.CXDViewer.superclass.initComponent.call(this);
 		}
 	});
-	Ext.reg('CXD',Ext.eu.sm.CXD);
+	Ext.reg('CXDViewer',Ext.eu.sm.CXDViewer);
 
 	Ext.onReady(function(){
 		var that = this;
@@ -257,7 +326,7 @@ if (true){
 			layout		: 'border',
 			frame		: true,
 			items		:[{
-				xtype		: 'CXD',
+				xtype		: 'CXDViewer',
 				region		: 'center',
 			}]
 		});
@@ -492,4 +561,25 @@ if (true){
 		}],
 	}],
 }
+
+that.memStoreEventType = new Ext.data.JsonStore({
+	fields		: ['id','value'],
+	idProperty	: 'id',
+	proxy		: new Ext.data.MemoryProxy(),
+	autoLoad	: false
+});
+
+that.memStoreEventType.loadData([{
+	id		: "ghost",
+	value	: "ghost"
+},{
+	id		: "rainy",
+	value	: "rainy"
+},{
+	id		: "allowance",
+	value	: "allowance"
+},{
+	id		: "contest",
+	value	: "contest"
+}]);
 */
