@@ -5,16 +5,10 @@ Ext.eu.sm.CalendarViewer.Weeks = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 	maxWeeks			: 0,
 	viewClass			: 'CalendarViewer-xxxView',
 
-	calcDates			: function(){
-		var that = this;
-		that.fireEvent('initdates',that.dateBegin,that.dateEnd);
-	},
-
-
 	displayView			:  function(){
 		var that = this;
 		var n = 0;
-		var date = that.dateBegin.clone();
+		var date = that.CalendarViewer.dateBegin.clone();
 		that.domDates = {};
 		that.datesDom = {};
 
@@ -63,7 +57,7 @@ Ext.eu.sm.CalendarViewer.Weeks = Ext.extend(Ext.eu.sm.CalendarViewer.View, {
 						that.days[n].child(that.contentSelectorClass).setHeight(that.dayHeight-18);
 					}
 				}
-				if(date.format('m')==that.date.format('m')){
+				if(date.format('m')==that.CalendarViewer.date.format('m')){
 					that.days[n].removeClass('outMonth');
 				}else{
 					that.days[n].addClass('outMonth');

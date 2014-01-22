@@ -20,6 +20,7 @@ Ext.eu.sm.CalendarViewer.View
 		autoLoad: true,
 	});
 */
+
 Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 	viewMode			: 'month',
 	date				: new Date(),
@@ -79,34 +80,70 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 			default: return undefined;
 		}
 	},
+
 	setDate				: function(){
 		var that = this;
+		that.setDateTime(that.date, 12, 0, 0);
 		that.load(that.date);
 		Ext.getCmp(that.datePickerId).setText(that.date.format('d/m/Y'));
 	},
 
 	load				: function(date){
 		var that = this;
-		that.getLayout().activeItem.date = date
-		that.eventStore.load({
-			params	:{
-				date_begin	:	that.getLayout().activeItem.dateBegin.format('Y-m-d H:i:s'),
-				date_end	:	that.getLayout().activeItem.dateEnd.format('Y-m-d H:i:s'),
-			}
-		});
+		that.date = date
+		that.eventStore.load();
 	},
 
-	displayRange		: function(date,date1,date2){
+	setDateTime			: function(dat,h,m,s){
+		dat.setHours	(h);
+		dat.setMinutes	(m);
+		dat.setSeconds	(s);
+	},
+
+	dateChangedHandler	: function(date,date1,date2,view){
 		var that = this;
-		if(Ext.getCmp(that.labelDateRangeFromId)){
-			Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y')==date.format('d/m/Y')?'-':date1.format('d/m/Y'));
-			Ext.getCmp(that.labelDateRangeToId  ).setText(date2.format('d/m/Y')==date.format('d/m/Y')?'-':date2.format('d/m/Y'));
+		if(that.getLayout().activeItem.viewModeName!=view.viewModeName){
+			return;
 		}
-		that.fireEvent('datechanged',that,date,date1,date2);
+		var diff = false;
+		that.setDateTime(that.date	,12, 0, 0);
+		that.setDateTime(date1		, 0, 0, 0);
+		that.setDateTime(date2		,23,59,59);
+		if(!that.dateBegin || that.dateBegin.format('YmdHis')!=date1.format('YmdHis')){
+			diff=true;
+		}
+		if(!that.dateEnd || that.dateEnd  .format('Y-m-dHis')!=date2.format('Y-m-dHis')){
+			diff=true;
+		}
+
+		if(diff){
+			console.log('datechanged',
+					'date ',date.format('Y-m-d-His'),'//',
+					'dateBegin ',that.dateBegin.format('Y-m-d-His'),'//',
+					'dateEnd   ',that.dateEnd  .format('Y-m-d-His'),'//'
+					);
+			that.dateBegin=date1;
+			that.dateEnd  =date2;
+			if(that.eventStore){
+				that.eventStore.baseParams.date_begin = that.dateBegin.format('Y-m-d H:i:s');
+				that.eventStore.baseParams.date_end   = that.dateEnd  .format('Y-m-d H:i:s');
+			}
+
+			that.fireEvent('datechanged',that,date,date1,date2);
+
+			if(Ext.getCmp(that.labelDateRangeFromId)){
+				Ext.getCmp(that.labelDateRangeFromId).setText(date1.format('d/m/Y')==date.format('d/m/Y')?'-':date1.format('d/m/Y'));
+				Ext.getCmp(that.labelDateRangeToId  ).setText(date2.format('d/m/Y')==date.format('d/m/Y')?'-':date2.format('d/m/Y'));
+			}
+		}
+
 	},
 
 	initComponent		: function(){
 		var that = this;
+		that.setDateTime(that.date, 12, 0, 0);
+		that.dateBegin = that.date.clone();
+		that.dateEnd   = that.date.clone();
 		that.containerViewId		= Ext.id();
 		that.labelDateRangeFromId	= Ext.id();
 		that.labelDateRangeToId		= Ext.id();
@@ -132,7 +169,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 					CalendarViewer	: that,
 					listeners		:{
 						scope			: that,
-						datechanged		: that.displayRange
+						datechanged		: that.dateChangedHandler
 					}
 				});
 				if(that.viewMode==lowViewType){
@@ -151,6 +188,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 							Ext.getCmp(that.menuModeId).setIconClass(that.activeViews[type].iconCls);
 							Ext.getCmp(that.menuModeId).setText(type);
 							that.getLayout().setActiveItem(that.viewId[type]);
+							that.getLayout().activeItem.calcDates();
 							that.setDate();
 						}
 					})(lowViewType)
@@ -170,19 +208,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 
 		Ext.apply(that,{
 			layout		: 'card',
-			tbar		: [/*{
-				xtype		: 'button',
-				iconCls		: 'calendarSelectIcon',
-				toggleGroup	: 'viewMode',
-				text		: that.showViewsLabel?'day':'',
-				hidden		: !that.enabledMode['day'],
-				pressed		: (that.viewMode=='day'),
-				handler		: function(){
-					that.viewMode='day';
-					that.getLayout().setActiveItem(that.viewId['day']);
-					that.setDate();
-				}
-			},*/new Ext.Toolbar.MenuButton({
+			tbar		: [new Ext.Toolbar.MenuButton({
 				text	: that.viewMode,
 				id		: that.menuModeId,
 				iconCls	: that.activeViews[that.viewMode].iconCls,
@@ -194,6 +220,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 				iconCls		: 'calendarToday',
 				handler		: function(){
 					that.date = new Date();
+					that.getLayout().activeItem.calcDates();
 					that.setDate();
 				}
 			},{
@@ -202,6 +229,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 				hidden		: !that.showPrevNext,
 				handler		: function(){
 					that.getLayout().activeItem.getPrevDate(that.date);
+					that.getLayout().activeItem.calcDates();
 					that.setDate();
 				}
 			},{
@@ -210,6 +238,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 				hidden		: !that.showRefresh,
 				handler		: function(){
 					that.getLayout().activeItem.date = that.date;
+					that.getLayout().activeItem.calcDates();
 					that.setDate();
 				}
 			},{
@@ -218,6 +247,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 				hidden		: !that.showPrevNext,
 				handler		: function(){
 					that.getLayout().activeItem.getNextDate(that.date);
+					that.getLayout().activeItem.calcDates();
 					that.setDate();
 				}
 			},'|',{
@@ -239,6 +269,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 					},
 					handler 	: function(dp, date){
 						that.date = date.clone();
+						that.getLayout().activeItem.calcDates();
 						that.setDate();
 					}
 				})
