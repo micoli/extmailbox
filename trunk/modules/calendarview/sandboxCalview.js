@@ -86,10 +86,18 @@ if (true){
 					fieldLabel		: 'Rep',
 					name			: 'user',
 					id				: that.treeRepId,
+					width			: 300,
 					children		: that.treeUsersChildren,
 					treeConfig		:{
 						onlyOneChecked	: true,
 						listeners		: {
+							click		: function(node){
+								node.attributes.checked=true;
+								node.ui.checkbox.checked=true;
+								var tree = node.getOwnerTree();
+								tree.fireEvent.call(tree,'checkchange',node,true);
+								console.log('select');
+							},
 							checkchange		: function(node, checked){
 								var tree = node.getOwnerTree();
 								var allChecked = tree.getChecked();
@@ -173,7 +181,10 @@ if (true){
 		newCXDWindow		: function(record){
 			var that = this;
 
-			var win = new Ext.Window({
+			var win = new Ext./*eu.attached*/Window({
+				resizeTriggerCmp: that,
+				stickCmp		: that,
+				title			: 'Edit',
 				layout			: 'fit',
 				width			: 500,
 				height			: 230,
