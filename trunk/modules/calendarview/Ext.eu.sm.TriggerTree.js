@@ -92,7 +92,6 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 				'beforeselect'	,
 				'select'
 		);
-
 		Ext.eu.sm.TriggerTree.superclass.initComponent.call(this);
 	},
 
@@ -160,7 +159,7 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 				cls	:cls+'-inner'
 			});
 
-			that.tree = new Ext.tree.TreePanel({
+			that.tree = new Ext.tree.TreePanel(Ext.apply({
 				applyTo			: that.innerTree,
 				height			: that.listHeight,
 				animate			: true,
@@ -176,7 +175,7 @@ Ext.eu.sm.TriggerTree = Ext.extend(Ext.form.TriggerField, {
 					scope : that
 				})
 				//loader			: that.treePreloader
-			});
+			},that.treeConfig || {}));
 
 			that.tree.on('click', that.select,this);
 

@@ -1,5 +1,8 @@
 Ext.ns('Ext.eu');
 Ext.ns('Ext.eu.sm.CalendarViewer');
+
+//slide month to month
+
 /*
 Ext.eu.sm.CalendarViewer
 Ext.eu.sm.CalendarViewer.View
@@ -225,6 +228,20 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 				}
 			},{
 				xtype		: 'button',
+				iconCls		: 'x-tbar-loading',
+				hidden		: !that.showRefresh,
+				handler		: function(){
+					that.getLayout().activeItem.date = that.date;
+					that.getLayout().activeItem.calcDates();
+					that.setDate();
+				}
+			},'|',{
+				xtype		: 'label',
+				width		: 100,
+				hidden		: !that.showDateRange,
+				id			: that.labelDateRangeFromId
+			},{
+				xtype		: 'button',
 				iconCls		: 'x-tbar-page-prev',
 				hidden		: !that.showPrevNext,
 				handler		: function(){
@@ -233,13 +250,16 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 					that.setDate();
 				}
 			},{
-				xtype		: 'button',
-				iconCls		: 'x-tbar-loading',
-				hidden		: !that.showRefresh,
-				handler		: function(){
-					that.getLayout().activeItem.date = that.date;
-					that.getLayout().activeItem.calcDates();
-					that.setDate();
+				xtype		: 'datepickerbutton',
+				iconCls		: 'calendarSelectIcon',
+				hidden		: !that.showDatePicker,
+				id			: that.datePickerId,
+				listeners 	: {
+					select		: function(dp, date){
+						that.date = date.clone();
+						that.getLayout().activeItem.calcDates();
+						that.setDate();
+					}
 				}
 			},{
 				xtype		: 'button',
@@ -250,29 +270,6 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 					that.getLayout().activeItem.calcDates();
 					that.setDate();
 				}
-			},'|',{
-				xtype		: 'label',
-				width		: 100,
-				hidden		: !that.showDateRange,
-				id			: that.labelDateRangeFromId
-			},{
-				text		: that.date.format('d/m/Y'),
-				iconCls		: 'calendarSelectIcon',
-				hidden		: !that.showDatePicker,
-				id			: that.datePickerId,
-				menu		: new Ext.menu.DateMenu({
-					startDay	: 1,
-					listeners	: {
-						show		: function(datePickerMenu){
-							datePickerMenu.picker.setValue(that.date);
-						}
-					},
-					handler 	: function(dp, date){
-						that.date = date.clone();
-						that.getLayout().activeItem.calcDates();
-						that.setDate();
-					}
-				})
 			},{
 				xtype		: 'label',
 				width		: 100,
