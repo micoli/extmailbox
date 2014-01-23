@@ -73,54 +73,41 @@ if (true){
 						return true;
 					}
 				},{
-					layout			: 'column',
-					fieldLabel		: 'allRep',
-					items			: [{
-						columnWidth		: .7,
-						layout			: 'form',
-						items			: [{
-							xtype			: 'triggertree',
-							fieldLabel		: 'Rep',
-							name			: 'user',
-							id				: that.treeRepId,
-							children		: that.treeUsersChildren,
-							treeConfig		:{
-								onlyOneChecked	: true,
-								listeners		: {
-									checkchange		: function(node, checked){
-										var tree = node.getOwnerTree();
-										var allChecked = tree.getChecked();
-										if (allChecked.length==0){
-											node.attributes.checked=true;
-											node.ui.checkbox.checked=true;
-										}else{
-											Ext.each(allChecked,function(v,k){
-												if (v.attributes.id!=node.attributes.id && (v.attributes.level!=node.attributes.level||tree.onlyOneChecked)){
-													v.attributes.checked=false;
-													v.ui.checkbox.checked=false;
-												}
-											});
+					xtype			: 'checkbox',
+					fieldLabel		: 'All Rep',
+					name			: 'userAll',
+					listeners		: {
+						check			: function(field,value){
+							that.form.findField('user').setDisabled(value);
+						}
+					}
+				},{
+					xtype			: 'triggertree',
+					fieldLabel		: 'Rep',
+					name			: 'user',
+					id				: that.treeRepId,
+					children		: that.treeUsersChildren,
+					treeConfig		:{
+						onlyOneChecked	: true,
+						listeners		: {
+							checkchange		: function(node, checked){
+								var tree = node.getOwnerTree();
+								var allChecked = tree.getChecked();
+								if (allChecked.length==0){
+									node.attributes.checked=true;
+									node.ui.checkbox.checked=true;
+								}else{
+									Ext.each(allChecked,function(v,k){
+										if (v.attributes.id!=node.attributes.id && (v.attributes.level!=node.attributes.level||tree.onlyOneChecked)){
+											v.attributes.checked=false;
+											v.ui.checkbox.checked=false;
 										}
-										Ext.getCmp(that.treeRepId).setValue(node.attributes.id)
-									}
+									});
 								}
+								Ext.getCmp(that.treeRepId).setValue(node.attributes.id)
 							}
-						}]
-					},{
-						columnWidth		: .3,
-						layout			: 'form',
-						labelWidth		: 40,
-						items			: [{
-							xtype			: 'checkbox',
-							fieldLabel		: 'All',
-							name			: 'userAll',
-							listeners		: {
-								check			: function(field,value){
-									that.form.findField('user').setDisabled(value);
-								}
-							}
-						}]
-					}]
+						}
+					}
 				},{
 					xtype			: 'radiogroup',
 					radioDepency	: ['rainy','allowance'],
@@ -189,7 +176,7 @@ if (true){
 			var win = new Ext.Window({
 				layout			: 'fit',
 				width			: 500,
-				height			: 200,
+				height			: 230,
 				closeAction		:'hide',
 				plain			: true,
 				items			: {
