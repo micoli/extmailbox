@@ -1,100 +1,212 @@
 if (true){
 	Ext.ns('Ext.eu.sm');
 
-	Ext.eu.sm.CXDEditor = Ext.extend(Ext.form.FormPanel, {
+	Ext.eu.sm.CxdEditor = Ext.extend(Ext.form.FormPanel, {
+		lastPayDate			: new Date(),
 		readOnly			: false,
+		treeUsersChildren	: [],
+		cxdType				: null,
+		cxdTypes			: [],
 		initComponent		: function(){
 			var that = this;
+			that.cxdTypeId = Ext.id();
+			that.treeRepId = Ext.id();
+			that.dateId = Ext.id();
+			var radioTypes=[];
+
+			Ext.each(that.cxdTypes,function(v,k){
+				radioTypes.push({
+					boxLabel	: v.value,
+					name		: 'cxdtype',
+					inputValue	: v.id,
+					checked		: (v.id==that.record.cxdType)
+				});
+			});
+
+			that.changeCxdType = function(cxdType){
+				that.items.each(function(formField){
+					if(formField.radioDepency){
+						var disabled = formField.radioDepency.indexOf(cxdType)==-1;
+						formField[disabled?'hide':'show']();
+						formField.setDisabled(disabled);
+						formField.getEl().up('.x-form-item').setDisplayed(!disabled)
+					}
+				});
+			}
 
 			Ext.apply(this,{
 				frame			: true,
 				items			: [{
-					xtype			: 'combo',
+					xtype			: 'radiogroup',
 					fieldLabel		: 'Type',
-					width			: 100,
-					store			: new Ext.data.JsonStore({
-						fields		: ['id','value'],
-						idProperty	: 'id',
-						data		:	that.CXDTypes
-					}),
-					displayField	: 'id',
-					valueField		: 'value',
-					typeAhead		: true,
-					mode			: 'local',
-					forceSelection	: true,
-					triggerAction	: 'all',
-					emptyText		: 'Select a type...',
-					selectOnFocus	: true,
+					name			: 'cxdtype',
+					id				: that.cxdTypeId,
+					items			: radioTypes,
+					defaults		: {
+						listeners		:{
+							check			: function (field,checked){
+								if(checked){
+									that.changeCxdType(field.inputValue);
+									Ext.getCmp(that.dateId).validate();
+								}
+							}
+						}
+					}
+				},{
+					xtype			: 'datefield',
+					startDay		: 1,
+					minValue		: that.lastPayDate,
+					id				: that.dateId,
+					fieldLabel		: 'Date',
+					value			: that.record.date,
+					format			: 'd/m/Y',
+					validator		: function (value){
+						var date = Date.parseDate(value,this.format);
+						var rg = Ext.getCmp(that.cxdTypeId);
+						var isGhost=false
+						try{
+							isGhost = (rg.getEl().query('input[type=radio]:checked/@value')[0].firstChild.nodeValue=='ghost');
+						}catch(e){}
+						if(isGhost && date.format('N')!=1){
+							return 'Ghost must be a monday';
+						}
+						return true;
+					}
+				},{
+					layout			: 'column',
+					fieldLabel		: 'allRep',
+					items			: [{
+						columnWidth		: .7,
+						layout			: 'form',
+						items			: [{
+							xtype			: 'triggertree',
+							fieldLabel		: 'Rep',
+							name			: 'user',
+							id				: that.treeRepId,
+							children		: that.treeUsersChildren,
+							treeConfig		:{
+								onlyOneChecked	: true,
+								listeners		: {
+									checkchange		: function(node, checked){
+										var tree = node.getOwnerTree();
+										var allChecked = tree.getChecked();
+										if (allChecked.length==0){
+											node.attributes.checked=true;
+											node.ui.checkbox.checked=true;
+										}else{
+											Ext.each(allChecked,function(v,k){
+												if (v.attributes.id!=node.attributes.id && (v.attributes.level!=node.attributes.level||tree.onlyOneChecked)){
+													v.attributes.checked=false;
+													v.ui.checkbox.checked=false;
+												}
+											});
+										}
+										Ext.getCmp(that.treeRepId).setValue(node.attributes.id)
+									}
+								}
+							}
+						}]
+					},{
+						columnWidth		: .3,
+						layout			: 'form',
+						labelWidth		: 40,
+						items			: [{
+							xtype			: 'checkbox',
+							fieldLabel		: 'All',
+							name			: 'userAll',
+							listeners		: {
+								check			: function(field,value){
+									that.form.findField('user').setDisabled(value);
+								}
+							}
+						}]
+					}]
+				},{
+					xtype			: 'radiogroup',
+					radioDepency	: ['rainy','allowance'],
+					fieldLabel		: 'Percentage',
+					items			: [{
+						boxLabel		: 50,
+						name			: 'percentage',
+						inputValue		: 50,
+					},{
+						boxLabel		: 100,
+						name			: 'percentage',
+						inputValue		: 100,
+					}]
+				},{
+					xtype			: 'radiogroup',
+					radioDepency	: ['contest'],
+					fieldLabel		: 'Contest',
+					items			: [{
+						boxLabel		: 5,
+						name			: 'contestpoints',
+						inputValue		: 5
+					},{
+						boxLabel		: 10,
+						name			: 'contestpoints',
+						inputValue		: 10
+					},{
+						boxLabel		: 20,
+						name			: 'contestpoints',
+						inputValue		: 20
+					},{
+						boxLabel		: 30,
+						name			: 'contestpoints',
+						inputValue		: 30
+					}]
 				}]
 			});
 
-			Ext.eu.sm.CXDEditor.superclass.initComponent.call(this);
+			that.on('afterlayout',function(){
+				that.changeCxdType(that.record.cxdType);
+			});
+
+			Ext.eu.sm.CxdEditor.superclass.initComponent.call(this);
 		}
 	});
-	Ext.reg('CXDEditor',Ext.eu.sm.CXDEditor);
+	Ext.reg('cxdEditor',Ext.eu.sm.CxdEditor);
 
 	Ext.eu.sm.CXDViewer = Ext.extend(Ext.Panel, {
 		readOnly			: false,
-		CXDTypes			: [{
+		cxdTypes			: [{
+			id		: "contest",
+			value	: "Contest"
+		},{
 			id		: "ghost",
-			value	: "Ghost"
+			value	: "Ghost",
 		},{
 			id		: "rainy",
-			value	: "Rainy"
+			value	: "Rainy",
 		},{
 			id		: "allowance",
 			value	: "Allowance"
-		},{
-			id		: "contest",
-			value	: "Contest"
 		}],
 
-		newCXDWindow		: function(date){
+		newCXDWindow		: function(record){
 			var that = this;
-			var radioTypes=[];
-			Ext.each(that.CXDTypes,function(v,k){
-				radioTypes.push({
-					boxLabel	: v.value,
-					name		: 'cxdtype',
-					inputValue	: v.value,
-					checked		: (k==0)
-				});
-			});
+
 			var win = new Ext.Window({
 				layout			: 'fit',
 				width			: 500,
-				height			: 300,
+				height			: 200,
 				closeAction		:'hide',
 				plain			: true,
 				items			: {
-					xtype			: 'form',
-					frame			: true,
-					items			:[{
-						xtype			: 'datefield',
-						fieldLabel		: 'Date',
-						value			: date,
-						format			: 'd/m/Y'
-					},{
-						xtype			: 'radiogroup',
-						fieldLabel		: 'Type',
-						name			: 'cxdtype',
-						items			: radioTypes
-					},{
-						xtype			: 'triggertree',
-						fieldLabel		: 'Rep',
-						name			: 'user',
-						children		: that.treeUsersChildren
-					}]
+					xtype				: 'cxdEditor',
+					cxdTypes			: that.cxdTypes,
+					record				: record,
+					treeUsersChildren	: that.treeUsersChildren,
 				},
 				buttons: [{
-					text     : 'Ok',
-					disabled : true,
-					handler  : function(){
+					text		: 'Ok',
+					disabled	: true,
+					handler		: function(){
 						win.destroy();
 					}
 				},{
-					text     : 'Close',
-					handler  : function(){
+					text		: 'Close',
+					handler		: function(){
 						win.destroy();
 					}
 				}]
@@ -203,7 +315,7 @@ if (true){
 						},
 						daydblclick : function(CalendarViewer,date){
 							console.log('daydblclick',date);
-							that.newCXDWindow(date);
+							that.newCXDWindow({cxdType : 'contest',date : date,idx:-1});
 						}
 					}
 				},{
@@ -212,15 +324,20 @@ if (true){
 					width			: 200,
 					frame			: true,
 					items			: [{
-						title				: 'Groups',
-						xtype				: 'treepanel',
-						id					: that.treeUsersId,
-						height				: 250,
-						rootVisible			: false,
-						autoScroll			: true,
-						onlyOneChecked		: false,
-						listeners			: {
-							checkchange			: function(node, checked){
+						title			: 'Groups',
+						xtype			: 'treepanel',
+						id				: that.treeUsersId,
+						height			: 250,
+						rootVisible		: false,
+						autoScroll		: true,
+						onlyOneChecked	: false,
+						root			: new Ext.tree.AsyncTreeNode({
+							expanded		: true,
+							leaf			: false,
+							text			: ''
+						}),
+						listeners		: {
+							checkchange		: function(node, checked){
 								var tree = node.getOwnerTree();
 								var allChecked = tree.getChecked();
 								if (allChecked.length==0){
@@ -237,23 +354,40 @@ if (true){
 								that.eventStore.load();
 							}
 						},
-						loader		: new Ext.tree.TreeLoader({
-							dataUrl		: 'proxy.php',
-							clearOnLoad	: true,
-							baseParams	: {
-								exw_action	: 'local.calendar.getUsers'
+						loader			: new Ext.tree.TreeLoader({
+							dataUrl			: 'proxy.php',
+							clearOnLoad		: true,
+							baseParams		: {
+								exw_action		: 'local.calendar.getUsers'
 							},
-							baseAttrs	: {
-								leaf		: true,
-								expanded	: false,
-								checked		: false,
-								level		: 'C'
+							baseAttrs		: {
+								leaf			: true,
+								expanded		: false,
+								checked			: false,
+								level			: 'C'
 							},
-							listeners			: {
-								load				: function(treeLoader,node,response){
+							listeners		: {
+								load			: function(treeLoader,node,response){
 									if (response.statusText=='OK'){
 										that.treeUsersChildren=JSON.parse(response.responseText);
+										var applyBaseAttr = function(node){
+											Ext.applyIf(node, treeLoader.baseAttrs);
+											if(node.children){
+												for(var t in node.children){
+													applyBaseAttr(node.children[t]);
+												}
+											}
+										}
+										for(var t in that.treeUsersChildren){
+											applyBaseAttr(that.treeUsersChildren[t]);
+										}
 										that.eventStore.load();
+										that.newCXDWindow({
+											cxdType	: 'contest',
+											date	: new Date(),
+											idx		:-1
+										});
+
 									}
 									/*console.log(node);
 									setTimeout(function(){
@@ -265,11 +399,6 @@ if (true){
 								},
 							},
 
-						}),
-						root		: new Ext.tree.AsyncTreeNode({
-							expanded	: true,
-							leaf		: false,
-							text		: ''
 						})
 					},{
 						xtype			: 'form',
@@ -304,14 +433,14 @@ if (true){
 							}]
 						}]
 					}]
-				},{
+				}/*,{
 					region			: 'east',
 					split			: false,
 					width			: 250,
 					xtype			: 'CXDEditor',
 					id				: that.CXDEditorId,
-					CXDTypes		: that.CXDTypes
-				}]
+					cxdTypes		: that.cxdTypes
+				}*/]
 			});
 
 			Ext.eu.sm.CXDViewer.superclass.initComponent.call(this);

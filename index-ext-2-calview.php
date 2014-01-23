@@ -7,10 +7,12 @@
 		<script type="text/javascript"			src="/ext-2.2.1/release/adapter/ext/ext-base.js"></script>
 
 		<script type="text/javascript"			src="/ext-2.2.1/release/ext-all-debug.js"></script>
+		<script type="text/javascript"			src="/ext-2.2.1/release/source/locale/ext-lang-fr.js"></script>
 
 		<script type="text/javascript"			src="modules/calendarview/Ext.ux.util.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/arraytree/Ext.ux.tree.ArrayTree.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.TriggerTree.js"></script>
+		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.datePickerButton.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.View.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.Weeks.js"></script>
