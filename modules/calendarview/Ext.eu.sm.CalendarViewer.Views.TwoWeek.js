@@ -24,11 +24,11 @@ Ext.eu.sm.CalendarViewer.Views.TwoWeek = Ext.extend(Ext.eu.sm.CalendarViewer.Wee
 	},
 
 	getPrevDate			: function (date){
-		date.setDate(date.getDate()-14);
+		date.setDate(date.getDate()-7);
 	},
 
 	getNextDate			: function (date){
-		date.setDate(date.getDate()+14);
+		date.setDate(date.getDate()+7);
 	},
 
 });
