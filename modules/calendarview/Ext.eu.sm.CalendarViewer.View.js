@@ -172,7 +172,7 @@ Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 					'margin-left'	: ''+left+'px',
 					'margin-right'	: ''+right+'px'
 				},
-				html	: that.CalendarViewer.horizontalEventTpl.apply(record.data)
+				html	: (n==1?that.CalendarViewer.horizontalEventTpl.apply(record.data):'')
 			},
 			listeners	: {
 				render		: function(component) {
@@ -190,7 +190,7 @@ Ext.eu.sm.CalendarViewer.View = Ext.extend(Ext.Panel, {
 
 		var eventClass = 'event-color';
 		if (record.get('eventClass')){
-			if(!isNaN(record.get('eventClass'))){
+			if(isNaN(record.get('eventClass'))){
 				eventClass = 'event-color-'+record.get('eventClass');
 			}else{
 				eventClass = record.get('eventClass');

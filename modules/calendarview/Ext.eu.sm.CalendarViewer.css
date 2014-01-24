@@ -163,3 +163,8 @@
 .event-color-15{ background-color:#cc0000; }	.event-color-15.eventOver{background-color:#a40000;}
 .event-color-16{ background-color:#d3d7cf; }	.event-color-16.eventOver{background-color:#babdb6;}
 .event-color-17{ background-color:#555753; }	.event-color-17.eventOver{background-color:#2e3436;}
+
+.event_cxd_ghost		{ background-color:#fce94f; }	.event_cxd_ghost.eventOver		{background-color:#edd400;}
+.event_cxd_allowance	{ background-color:#c17d11; }	.event_cxd_allowance.eventOver	{background-color:#8f5902;}
+.event_cxd_rainy		{ background-color:#ad7fa8; }	.event_cxd_rainy.eventOver		{background-color:#75507b;}
+.event_cxd_contest		{ background-color:#73d216; }	.event_cxd_contest.eventOver	{background-color:#4e9a06;}

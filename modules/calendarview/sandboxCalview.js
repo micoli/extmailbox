@@ -1,52 +1,161 @@
 if (true){
 	Ext.ns('Ext.eu.sm');
 
+	//http://webspotlite.blogspot.fr/2010/06/ext-22-radiogroup-getvaluesetvalue.html
+	Ext.override(Ext.form.RadioGroup, {
+		rgGetName : function() {
+			return this.items.first().name;
+		},
+		rgGetValue : function() {
+			var v;
+			if (this.rendered) {
+				this.items.each(function(item) {
+					if (!item.getValue())
+						return true;
+					v = item.getRawValue();
+					return false;
+				});
+			} else {
+				for ( var k in this.items) {
+					if (this.items[k].checked) {
+						v = this.items[k].inputValue;
+						break;
+					}
+				}
+			}
+			return v;
+		},
+		rgSetValue : function(v) {
+			if (this.rendered) {
+				this.items.each(function(item) {
+					item.setValue(item.getRawValue() == v);
+				});
+			} else {
+				for ( var k in this.items) {
+					this.items[k].checked = this.items[k].inputValue == v;
+				}
+			}
+		}
+	});
+	/*
+	 * cxd_id
+	 * cxd_type
+	 * enum('bank','allowance','rainy','contest','ghost','helpedby','dayoff','dayoff_in_advance','dayoff_familly_reason','dayoff_other_reason')|allowance
+	 * --cxd_contest_id
+	 * cxd_id_employe
+	 * cxd_date
+	 * cxd_day_type //1
+	 * cxd_percent
+	 * cxd_contest_point
+	 * cdx_last_aut_id
+	 * cdx_last_update
+	 */
 	Ext.eu.sm.CxdEditor = Ext.extend(Ext.form.FormPanel, {
 		lastPayDate			: new Date(),
 		readOnly			: false,
 		treeUsersChildren	: [],
-		cxdType				: null,
 		cxdTypes			: [],
+
+		getFieldByName		: function(fieldName){
+			var that =this;
+			return that.items.itemAt(that.items.findIndex('name',fieldName))
+		},
+
+		isValid				: function(){
+			var that =this;
+			var allOk = true;
+			that.items.each(function(formField){
+				if(!formField.disabled &&  formField.validate && !formField.validate()){
+					allOk = false;
+				}
+			});
+			return allOk;
+		},
+
+		setValues			: function(record){
+			var that =this;
+			for(var fieldName in record){
+				var value = record[fieldName];
+				var cmp = that.getFieldByName(fieldName);
+				if(cmp){
+					cmp[cmp.xtype=="radiogroup"?"rgSetValue":"setValue"](value);
+					if(cmp.postSetValue){
+						cmp.postSetValue(value);
+					}
+				}
+			}
+		},
+
+		getValues			: function(){
+			var that=this;
+			var record = {
+				cxd_id				: -1,
+				cxd_type			: '',
+				cxd_id_employe		: -1,
+				cxd_date			: '',
+				cxd_day_type		: 1,
+				cxd_percent			: 0,
+				cxd_contest_point	: 0
+			}
+			var typeForm = that.getFieldByName('cxd_type').rgGetValue();
+			that.items.each(function(formField){
+				var inType=true;
+				if(!(formField.radioDepency && formField.radioDepency.indexOf(typeForm)==-1)){
+					record[formField.name]=formField[formField.xtype=="radiogroup"?"rgGetValue":"getValue"]();
+					if(formField.xtype=='datefield'){
+						record[formField.name]=record[formField.name].format('Y-m-d');
+					}
+				}
+			});
+			return record;
+		},
+
 		initComponent		: function(){
 			var that = this;
-			that.cxdTypeId = Ext.id();
-			that.treeRepId = Ext.id();
-			that.dateId = Ext.id();
+
+			that.cxdTypeId	= Ext.id();
+			that.treeRepId	= Ext.id();
+			that.dateId		= Ext.id();
+
 			var radioTypes=[];
+			var treeUser = that.treeUsersChildren.copy();
 
 			Ext.each(that.cxdTypes,function(v,k){
 				radioTypes.push({
 					boxLabel	: v.value,
-					name		: 'cxdtype',
+					name		: 'cxd_type',
 					inputValue	: v.id,
-					checked		: (v.id==that.record.cxdType)
 				});
 			});
-
-			that.changeCxdType = function(cxdType){
-				that.items.each(function(formField){
-					if(formField.radioDepency){
-						var disabled = formField.radioDepency.indexOf(cxdType)==-1;
-						formField[disabled?'hide':'show']();
-						formField.setDisabled(disabled);
-						formField.getEl().up('.x-form-item').setDisplayed(!disabled)
-					}
-				});
-			}
 
 			Ext.apply(this,{
 				frame			: true,
 				items			: [{
+					xtype			: 'textfield',
+					fieldLabel		: 'Id',
+					name			: 'cxd_id',
+					readOnly		: true
+				},{
 					xtype			: 'radiogroup',
 					fieldLabel		: 'Type',
-					name			: 'cxdtype',
+					name			: 'cxd_type',
 					id				: that.cxdTypeId,
 					items			: radioTypes,
+					postSetValue	: function(cxdType){
+						that.items.each(function(formField){
+							if(formField.radioDepency){
+								var disabled = formField.radioDepency.indexOf(cxdType)==-1;
+								formField[disabled?'hide':'show']();
+								formField.setDisabled(disabled);
+								formField.getEl().up('.x-form-item').setDisplayed(!disabled)
+							}
+						});
+					},
 					defaults		: {
 						listeners		:{
 							check			: function (field,checked){
 								if(checked){
-									that.changeCxdType(field.inputValue);
+									Ext.getCmp(that.cxdTypeId).postSetValue(field.inputValue);
 									Ext.getCmp(that.dateId).validate();
 								}
 							}
@@ -54,49 +163,40 @@ if (true){
 					}
 				},{
 					xtype			: 'datefield',
+					name			: 'cxd_date',
 					startDay		: 1,
 					minValue		: that.lastPayDate,
 					id				: that.dateId,
 					fieldLabel		: 'Date',
-					value			: that.record.date,
 					format			: 'd/m/Y',
 					validator		: function (value){
 						var date = Date.parseDate(value,this.format);
-						var rg = Ext.getCmp(that.cxdTypeId);
+						var radioGroup = Ext.getCmp(that.cxdTypeId);
 						var isGhost=false
 						try{
-							isGhost = (rg.getEl().query('input[type=radio]:checked/@value')[0].firstChild.nodeValue=='ghost');
-						}catch(e){}
+							isGhost = (radioGroup.getEl().query('input[type=radio]:checked/@value')[0].firstChild.nodeValue=='ghost');
+						}catch(e){
+						}
 						if(isGhost && date.format('N')!=1){
-							return 'Ghost must be a monday';
+							return 'Ghost date must be a monday';
 						}
 						return true;
 					}
 				},{
-					xtype			: 'checkbox',
-					fieldLabel		: 'All Rep',
-					name			: 'userAll',
-					listeners		: {
-						check			: function(field,value){
-							that.form.findField('user').setDisabled(value);
-						}
-					}
-				},{
 					xtype			: 'triggertree',
+					name			: 'cxd_id_employe',
 					fieldLabel		: 'Rep',
-					name			: 'user',
 					id				: that.treeRepId,
 					width			: 300,
-					children		: that.treeUsersChildren,
+					children		: treeUser,
 					treeConfig		:{
-						onlyOneChecked	: true,
+						/*onlyOneChecked	: true,
 						listeners		: {
 							click		: function(node){
 								node.attributes.checked=true;
 								node.ui.checkbox.checked=true;
 								var tree = node.getOwnerTree();
 								tree.fireEvent.call(tree,'checkchange',node,true);
-								console.log('select');
 							},
 							checkchange		: function(node, checked){
 								var tree = node.getOwnerTree();
@@ -114,12 +214,13 @@ if (true){
 								}
 								Ext.getCmp(that.treeRepId).setValue(node.attributes.id)
 							}
-						}
+						}*/
 					}
 				},{
 					xtype			: 'radiogroup',
-					radioDepency	: ['rainy','allowance'],
+					name			: 'cxd_percent',
 					fieldLabel		: 'Percentage',
+					radioDepency	: ['rainy','allowance'],
 					items			: [{
 						boxLabel		: 50,
 						name			: 'percentage',
@@ -131,8 +232,9 @@ if (true){
 					}]
 				},{
 					xtype			: 'radiogroup',
-					radioDepency	: ['contest'],
+					name			: 'cxd_contest_point',
 					fieldLabel		: 'Contest',
+					radioDepency	: ['contest'],
 					items			: [{
 						boxLabel		: 5,
 						name			: 'contestpoints',
@@ -152,12 +254,12 @@ if (true){
 					}]
 				}]
 			});
-
-			that.on('afterlayout',function(){
-				that.changeCxdType(that.record.cxdType);
-			});
-
 			Ext.eu.sm.CxdEditor.superclass.initComponent.call(this);
+			that.on('afterlayout',function(){
+				if(that.record){
+					that.setValues(that.record);
+				}
+			});
 		}
 	});
 	Ext.reg('cxdEditor',Ext.eu.sm.CxdEditor);
@@ -181,26 +283,34 @@ if (true){
 		newCXDWindow		: function(record){
 			var that = this;
 
+			var cxdEditorId = Ext.id();
+
 			var win = new Ext./*eu.attached*/Window({
 				resizeTriggerCmp: that,
 				stickCmp		: that,
 				title			: 'Edit',
 				layout			: 'fit',
 				width			: 500,
-				height			: 230,
+				height			: 260,
 				closeAction		:'hide',
 				plain			: true,
 				items			: {
 					xtype				: 'cxdEditor',
+					id					: cxdEditorId,
 					cxdTypes			: that.cxdTypes,
-					record				: record,
 					treeUsersChildren	: that.treeUsersChildren,
 				},
 				buttons: [{
 					text		: 'Ok',
-					disabled	: true,
+					disabled	: false,
 					handler		: function(){
-						win.destroy();
+						var editor = Ext.getCmp(cxdEditorId);
+						if(editor.isValid()){
+							console.log(editor.getValues());
+						}else{
+							console.log('not valid');
+						}
+						//win.destroy();
 					}
 				},{
 					text		: 'Close',
@@ -209,7 +319,9 @@ if (true){
 					}
 				}]
 			});
-			win.show();
+			win.show(null,function(cmp){
+				Ext.getCmp(cxdEditorId).setValues(record);
+			});
 		},
 
 		initComponent		: function(){
@@ -245,7 +357,7 @@ if (true){
 						name:'date_end',
 						type:'date',
 						dateFormat:'Y-m-d H:i:s'
-					},'text'],
+					},'text','cxd'],
 				root			: 'data',
 				idProperty		: 'idx',
 				autoLoad		: false,
@@ -304,6 +416,7 @@ if (true){
 						},
 						eventdblclick : function(CalendarViewer,event){
 							console.log('dblclick',CalendarViewer,event);
+							that.newCXDWindow(event.cxd);
 						},
 						dayclick : function(CalendarViewer,date){
 							console.log('dayclick',date);
@@ -313,7 +426,7 @@ if (true){
 						},
 						daydblclick : function(CalendarViewer,date){
 							console.log('daydblclick',date);
-							that.newCXDWindow({cxdType : 'contest',date : date,idx:-1});
+							that.newCXDWindow({cxd_type : 'contest',cxd_date : date ,cxd_id:-1});
 						}
 					}
 				},{
@@ -368,23 +481,31 @@ if (true){
 								load			: function(treeLoader,node,response){
 									if (response.statusText=='OK'){
 										that.treeUsersChildren=JSON.parse(response.responseText);
-										var applyBaseAttr = function(node){
-											Ext.applyIf(node, treeLoader.baseAttrs);
-											if(node.children){
-												for(var t in node.children){
-													applyBaseAttr(node.children[t]);
-												}
-											}
-										}
-										for(var t in that.treeUsersChildren){
-											applyBaseAttr(that.treeUsersChildren[t]);
-										}
-										that.eventStore.load();
-										that.newCXDWindow({
-											cxdType	: 'contest',
-											date	: new Date(),
-											idx		:-1
+										delete(that.treeUsersChildren[0].checked);
+										that.treeUsersChildren.unshift({
+											id				: -1,
+											text			: 'All'
+										})
+
+										Ext.eu.sm.treeUtils.eachChildren(that.treeUsersChildren,function(node){
+											Ext.applyIf(node, {
+												leaf			: true,
+												expanded		: false
+											});
 										});
+
+										that.eventStore.load();
+										// CCXXDD
+										/*
+										that.newCXDWindow({
+											cxd_id				: -1,
+											cxd_id_employe		: 1072,
+											cxd_type			: 'contest',
+											cxd_date			: (new Date()).format('Y-m-d'),
+											cxd_percent			: 50,
+											cxd_contest_point	: 20
+
+										});*/
 
 									}
 									/*console.log(node);
@@ -431,14 +552,7 @@ if (true){
 							}]
 						}]
 					}]
-				}/*,{
-					region			: 'east',
-					split			: false,
-					width			: 250,
-					xtype			: 'CXDEditor',
-					id				: that.CXDEditorId,
-					cxdTypes		: that.cxdTypes
-				}*/]
+				}]
 			});
 
 			Ext.eu.sm.CXDViewer.superclass.initComponent.call(this);
