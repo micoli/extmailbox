@@ -45,6 +45,35 @@ class svcCalendar{
 			)
 		));
 	}
+
+	private function transformCxd2Event($cxd){
+		$event = array(
+			'type'			=> 'event',
+			'idx'			=> $cxd['cxd_id'],
+			'date_begin'	=> $cxd['cxd_date'].' 00:00:00',
+			'date_end'		=> $cxd['cxd_date'].' '.($cxd['cxd_percent']==50?'12:00:00':'23:59:59'),
+			'eventClass'	=> 'event_cxd_'.$cxd['cxd_type'].' '.($cxd['cxd_percent']>0?' cxd_percent_'.$cxd['cxd_percent']:' '),
+			'title'			=> $cxd['aut_nom'].' '.$cxd['cxd_type'].' ',
+			'cxd'			=> $cxd
+		);
+		switch($cxd['cxd_type']){
+			case 'ghost':
+				$event['date_end'	] = date('Y-m-d 23:59:59',strtotime($cxd['cxd_date'].' +6 days '));
+			break;
+			case 'allowance':
+			case 'rainy':
+				$event['title'		] .= $cxd['cxd_percent'	].'%';
+			break;
+			case 'contest':
+				$event['title'		] .= $cxd['cxd_contest_point'	].' points';
+			break;
+		}
+		if($cxd['aut_nom']=='ALL'){
+			$event['eventClass'	].=' eventPatternHStripes ';
+		}
+		return $event;
+	}
+
 	/**
 	 *
 	 * @param array $o
@@ -52,7 +81,22 @@ class svcCalendar{
 	 */
 	public function pub_getEvents($o){
 		$tmp = array();
-		$tmp[]=array('type'=>'event','idx'=>1,'title'=>'aaa 1','date_begin'=>'2014-01-13 08:00:00','date_end'=>'2014-01-14 12:00:00','eventClass'=>'event-color-2 eventPatternVStripes');
+		$id=0;
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-06', 'aut_nom'=>'RT','cxd_id_employe'=>3074);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-13', 'aut_nom'=>'RT','cxd_id_employe'=>3074);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-27', 'aut_nom'=>'AL','cxd_id_employe'=>3075);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'allowance'	,'cxd_date'=>'2014-01-03', 'aut_nom'=>'RE','cxd_id_employe'=>1074,'cxd_percent'=>50);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'allowance'	,'cxd_date'=>'2014-01-08', 'aut_nom'=>'RT','cxd_id_employe'=>2074,'cxd_percent'=>100);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'rainy'		,'cxd_date'=>'2014-01-23', 'aut_nom'=>'AL','cxd_id_employe'=>3074,'cxd_percent'=>50);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'rainy'		,'cxd_date'=>'2014-01-15', 'aut_nom'=>'ALL','cxd_id_employe'=>-1,'cxd_percent'=>50);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'contest'		,'cxd_date'=>'2014-01-10', 'aut_nom'=>'KL','cxd_id_employe'=>1074,'cxd_contest_point'=>10);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'contest'		,'cxd_date'=>'2014-01-17', 'aut_nom'=>'KL','cxd_id_employe'=>1076,'cxd_contest_point'=>10);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'contest'		,'cxd_date'=>'2014-01-08', 'aut_nom'=>'HJ','cxd_id_employe'=>1077,'cxd_contest_point'=>20);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'contest'		,'cxd_date'=>'2014-01-28', 'aut_nom'=>'KL','cxd_id_employe'=>2073,'cxd_contest_point'=>5);
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'contest'		,'cxd_date'=>'2014-01-13', 'aut_nom'=>'RT','cxd_id_employe'=>2074,'cxd_contest_point'=>20);
+
+
+		/*$tmp[]=array('type'=>'event','idx'=>1,'title'=>'aaa 1','date_begin'=>'2014-01-13 08:00:00','date_end'=>'2014-01-14 12:00:00','eventClass'=>'event-color-2 eventPatternVStripes');
 		$tmp[]=array('type'=>'event','idx'=>2,'title'=>'bbb 2','date_begin'=>'2014-01-14 12:00:00','date_end'=>'2014-01-15 23:59:59');
 		$tmp[]=array('type'=>'event','idx'=>3,'title'=>'ccc 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-21 23:59:59');
 		//$tmp[]=array('type'=>'event','idx'=>4,'title'=>'ddd 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59');
@@ -63,8 +107,13 @@ class svcCalendar{
 		$tmp[]=array('type'=>'event','idx'=>9,'title'=>'iii 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59','eventClass'=>'event-color-0 eventPatternRDStripes');
 		$tmp[]=array('type'=>'event','idx'=>9,'title'=>'iii 3','date_begin'=>'2014-01-15 00:00:00','date_end'=>'2014-01-15 23:59:59','eventClass'=>'event-color-1 eventPatternDStripes');
 		$tmp[]=array('type'=>'day','idx'=>10,'title'=>'jjj 3','date_begin'=>'2014-01-18 00:00:00','date_end'=>'2014-02-15 23:59:59','eventClass'=>'event-color-5');
+		*/
+		$result = array();
+		foreach($tmp as $v){
+			$result[]=$this->transformCxd2Event($v);
+		}
 		return array(
-			'data'=>$tmp
+			'data'=>$result
 		);
 	}
 }
