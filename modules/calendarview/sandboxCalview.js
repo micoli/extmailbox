@@ -124,6 +124,7 @@ if (true){
 				radioTypes.push({
 					boxLabel	: v.value,
 					name		: 'cxd_type',
+					clspreview	: 'event_cxd_'+v.id,
 					inputValue	: v.id,
 				});
 			});
@@ -139,6 +140,7 @@ if (true){
 					xtype			: 'radiogroup',
 					fieldLabel		: 'Type',
 					name			: 'cxd_type',
+					defaultType		: 'eu.sm.radio',
 					id				: that.cxdTypeId,
 					items			: radioTypes,
 					postSetValue	: function(cxdType){
@@ -489,7 +491,7 @@ if (true){
 											text			: 'All'
 										})
 
-										Ext.eu.sm.treeUtils.eachChildren(that.treeUsersChildren,function(node){
+										Ext.eu.sm.tree.utils.eachChildren(that.treeUsersChildren,function(node){
 											Ext.applyIf(node, {
 												leaf			: true,
 												expanded		: false
@@ -498,7 +500,6 @@ if (true){
 
 										that.eventStore.load();
 										// CCXXDD
-										/*
 										that.newCXDWindow({
 											cxd_id				: -1,
 											cxd_id_employe		: 1072,
@@ -507,13 +508,13 @@ if (true){
 											cxd_percent			: 50,
 											cxd_contest_point	: 20
 
-										});*/
+										});
 
 									}
 									/*console.log(node);
 									setTimeout(function(){
 										var tree = node.getOwnerTree();
-										var sel = Ext.eu.sm.treeUtils.findDeepChildNode(tree.getRootNode(),'id','2.1');
+										var sel = Ext.eu.sm.tree.utils.findDeepChildNode(tree.getRootNode(),'id','2.1');
 										sel.attributes.checked=true;
 										sel.ui.checkbox.checked=true;
 									},200);*/
@@ -530,6 +531,7 @@ if (true){
 							xtype			: 'checkboxgroup',
 							fieldLabel		: 'Single Column',
 							itemCls			: 'x-check-group-alt',
+							defaultType		: 'eu.sm.checkbox',
 							columns			: 1,
 							defaults		: {
 								checked			: true,
@@ -540,17 +542,21 @@ if (true){
 								}
 							},
 							items			: [{
-								boxLabel: 'Ghost'	,
-								name	: 'ghost'
+								boxLabel	: 'Ghost',
+								name		: 'ghost',
+								clspreview	: 'event_cxd_ghost'
 							},{
-								boxLabel: 'Rainy'	,
-								name	: 'rainy'
+								boxLabel	: 'Rainy'	,
+								name		: 'rainy',
+								clspreview	: 'event_cxd_rainy'
 							},{
-								boxLabel: 'Allowance',
-								name	: 'allowance'
+								boxLabel	: 'Allowance',
+								name		: 'allowance',
+								clspreview	: 'event_cxd_allowance'
 							},{
-								boxLabel: 'Contest'	,
-								name	: 'contest'
+								boxLabel	: 'Contest'	,
+								name		: 'contest',
+								clspreview	: 'event_cxd_contest'
 							}]
 						}]
 					}]
