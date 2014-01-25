@@ -1,7 +1,9 @@
 Ext.ns('Ext.eu');
 Ext.ns('Ext.eu.sm.CalendarViewer');
 
-//slide month to month
+// slide month to month
+// color by theme class
+
 
 /*
 Ext.eu.sm.CalendarViewer
@@ -25,6 +27,13 @@ Ext.eu.sm.CalendarViewer.View
 */
 
 Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
+	clsAutoRequired			: [
+		'Ext.eu.sm.CalendarViewer.Weeks',
+		'Ext.eu.sm.CalendarViewer.Views.Day',
+		'Ext.eu.sm.CalendarViewer.Views.Month',
+		'Ext.eu.sm.CalendarViewer.Views.TwoWeek',
+		'Ext.eu.sm.CalendarViewer.Views.Week',
+	],
 	viewMode			: 'month',
 	date				: new Date(),
 	showWeekend			: true,

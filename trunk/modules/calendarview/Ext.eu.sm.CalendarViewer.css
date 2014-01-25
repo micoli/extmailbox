@@ -81,8 +81,8 @@
 	display					: inline-block;
 }
 .CalendarViewer .dayView .event{
-	height					: 16px;
-	line-height				: 16px;
+	height					: 10px;
+	line-height				: 12px;
 	margin-top				: 2px;
 	padding					: 1px 1px 1px 4px;
 	overflow				: hidden;
