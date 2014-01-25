@@ -23,7 +23,6 @@
 
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/broofa-node-uuid/uuid.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/pdfobject.js"></script>
-
 		<!--
 		-->
 		<script type="text/javascript"			src ="libs/ext.plugins/htmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
@@ -50,8 +49,8 @@
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/column-tree.css" />
 		<link rel="stylesheet" type="text/css"	href="modules/mailbox/Ext.eu.sm.Mailbox.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/mailselect.css" />
-		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.dataTemplateSelector.js"></script>
-		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.attachedWindow.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.sm.dataTemplateSelector.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.attachedWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.Mailbox.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailView.js"></script>
@@ -61,13 +60,12 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailGrid.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSearchForm.js"></script>
-		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
+		<script type="text/javascript"			src= "modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
 
-		<script type="text/javascript"			src= "modules/mailbox/Ext.eu.sm.inlineViewer.js"></script>
-
+		<script type="text/javascript"			src= "libs/ext.plugins/Ext.eu.sm.inlineViewer.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/uploader/Ext.ux.FileUploader.js"></script>
 
 
