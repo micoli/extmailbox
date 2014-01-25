@@ -168,3 +168,13 @@
 .event_cxd_allowance	{ background-color:#c17d11; }	.event_cxd_allowance.eventOver	{background-color:#8f5902;}
 .event_cxd_rainy		{ background-color:#ad7fa8; }	.event_cxd_rainy.eventOver		{background-color:#75507b;}
 .event_cxd_contest		{ background-color:#73d216; }	.event_cxd_contest.eventOver	{background-color:#4e9a06;}
+
+.x-form-cb-label-classpreview{
+	border			: 1px solid #DDDDDD;
+	display			: inline-block;
+	width			: 12px;
+	height			: 12px;
+	vertical-align	: bottom;
+	margin-bottom	: 2px;
+	margin-right	: 2px;
+}
