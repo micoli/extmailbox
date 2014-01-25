@@ -327,9 +327,9 @@ if (true){
 		initComponent		: function(){
 			var that = this;
 
-			that.treeUsersId = Ext.id();
-			that.calendarViewerId = Ext.id();
-			that.CXDEditorId = Ext.id();
+			that.treeUsersId		= Ext.id();
+			that.CXDEditorId		= Ext.id();
+			that.calendarViewerId	= Ext.id();
 
 			that.getUsersList = function(){
 				var userListId=[];
@@ -338,10 +338,12 @@ if (true){
 					var allChecked = tree.getChecked();
 					if (allChecked.length>0){
 						Ext.each(allChecked,function(v,k){
+							userListId=userListId.concat([v.id]);
+							userListId=userListId.concat(v.attributes.all_child_id);
 						});
 					}
 				}
-				return userListId;
+				return userListId.join(',');
 			}
 
 			that.eventStore = new Ext.data.JsonStore({

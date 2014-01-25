@@ -1,11 +1,66 @@
 <?php
 class svcCalendar{
+	private function getAllUsersDependendBy($aut_id){
+		include'exportSalesTeamFR.php';
+		$auths=array();
+		foreach($T_AUTH as &$v){
+			if($v['AUT_ACTIF']==1){
+				$auths[$v['AUT_ID']] = array(
+					'id'			=> $v['AUT_ID'],
+					'leaf'			=> 0,
+					'text'			=> $v['AUT_PRENOM'].' '.$v['AUT_NOM'].' ('.$v['AUT_ID'].')',
+					'group'			=> str_replace(',','',str_replace('level_1_leader','',str_replace('calc_commission_sales_','',str_replace('cdr_sales_services_','',$v['GROUPS'])))),
+					'initial'		=> $v['AUT_INITIALES'],
+					'id_superior'	=>$v['AUT_HIERARCHY_SUPERIOR'],
+					'expanded'		=> $aut_id==$v['AUT_ID'],
+					'level'			=> 0,
+					'all_child_id'	=> array(),
+					'children'		=> array()
+				);
+			}
+		}
+		$res = $auths[$aut_id];
+		$this->getAllUsersChildren($res,$auths,1);
+		return $res;
+	}
+
+	private function cmpUserByName($a,$b){
+		if ((array_key_exists('children',$a)&&array_key_exists('children',$b))||(!array_key_exists('children',$a)&&!array_key_exists('children',$b))){
+			return strcmp($a['text'],$b['text']);
+		}elseif(array_key_exists('children',$a)){
+			return 1;
+		}elseif(array_key_exists('children',$b)){
+			return -1;
+		}
+	}
+
+	private function getAllUsersChildren(&$res,$auths,$level){
+		foreach($auths as $auth){
+			if($auth['id_superior']==$res['id']){
+				$res['children'][]=array_merge($auth,array('level'=>$level));
+				$res['all_child_id'][]=$auth['id'];
+			}
+		}
+		if(count($res['children'])==0){
+			$res['leaf']=1;
+			unset($res['children']);
+			$res['all_child_id']=array();
+		}else{
+			$res['text'].=' '.$res['group'];
+			foreach($res['children'] as &$child){
+				$res['all_child_id'] = array_merge($res['all_child_id'],$this->getAllUsersChildren($child, $auths,$level+1));
+			}
+			usort($res['children'],array($this,'cmpUserByName'));
+		}
+		return $res['all_child_id'];
+	}
 	/**
 	 *
 	 * @param array $o
 	 * @return array
 	 */
 	public function pub_getUsers($o){
+		return array($this->getAllUsersDependendBy(1071));
 		return array(array(
 			'text'	=>"DirCom",	'id'=>1071,	'expanded'=> true,'leaf' => false,'level'=>'DC','checked'=>true,
 			'children'	=> array(
