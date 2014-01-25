@@ -9,12 +9,14 @@
 		<script type="text/javascript"			src="/ext-2.2.1/release/ext-all-debug.js"></script>
 		<script type="text/javascript"			src="/ext-2.2.1/release/source/locale/ext-lang-fr.js"></script>
 
-		<script type="text/javascript"			src="modules/calendarview/Ext.ux.util.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.ux.util.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.clsAutoRequired.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/arraytree/Ext.ux.tree.ArrayTree.js"></script>
-		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.treeUtils.js"></script>
-		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.TriggerTree.js"></script>
-		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.datePickerButton.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.tree.utils.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.TriggerTree.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.datePickerButton.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.Checkbox.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.Radio.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.attachedWindow.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.View.js"></script>

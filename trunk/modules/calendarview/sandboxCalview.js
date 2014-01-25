@@ -500,15 +500,14 @@ if (true){
 
 										that.eventStore.load();
 										// CCXXDD
-										that.newCXDWindow({
+										/*that.newCXDWindow({
 											cxd_id				: -1,
 											cxd_id_employe		: 1072,
 											cxd_type			: 'contest',
 											cxd_date			: (new Date()).format('Y-m-d'),
 											cxd_percent			: 50,
 											cxd_contest_point	: 20
-
-										});
+										});*/
 
 									}
 									/*console.log(node);
