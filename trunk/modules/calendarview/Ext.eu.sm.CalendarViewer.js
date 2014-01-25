@@ -1,8 +1,7 @@
 Ext.ns('Ext.eu.sm.CalendarViewer');
 
 // slide month to month
-// color by theme class
-//redio theme color !!!!!!!!!!!!!!!!
+
 /*
 Ext.eu.sm.CalendarViewer
 Ext.eu.sm.CalendarViewer.View
