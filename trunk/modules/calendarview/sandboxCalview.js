@@ -349,7 +349,7 @@ if (true){
 					id					: that.calendarViewerId,
 					eventStore			: that.eventStore,
 					region				: 'center',
-					viewMode			: 'list',
+					viewMode			: 'month',
 					showWeekend			: true,
 					showViewsLabel		: false,
 					controls			: ['|'],
