@@ -122,6 +122,9 @@ class svcCalendar{
 			case 'contest':
 				$event['title'		] .= $cxd['cxd_contest_point'	].' points';
 			break;
+			case 'long':
+				$event['date_end'	] = date('Y-m-d 23:59:59',strtotime($cxd['cxd_date'].' +36 days '));
+			break;
 		}
 		if($cxd['aut_nom']=='ALL'){
 			$event['eventClass'	].=' eventPatternHStripes ';
@@ -137,6 +140,7 @@ class svcCalendar{
 	public function pub_getEvents($o){
 		$tmp = array();
 		$id=0;
+		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'long'			,'cxd_date'=>'2013-12-23', 'aut_nom'=>'RT','cxd_id_employe'=>3074);
 		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-06', 'aut_nom'=>'RT','cxd_id_employe'=>3074);
 		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-13', 'aut_nom'=>'RT','cxd_id_employe'=>3074);
 		$tmp[]=array('cxd_id'=>$id++,'cxd_type'=>'ghost'		,'cxd_date'=>'2014-01-27', 'aut_nom'=>'AL','cxd_id_employe'=>3075);

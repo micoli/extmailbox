@@ -11,6 +11,9 @@
 .calendarToday {
 	background-image: url("images/calendar-insert-icon.png") !important;
 }
+.calendarSelectListIcon {
+	background-image: url("images/calendar-task-icon.png") !important;
+}
 .calendarSelectMonthIcon {
 	background-image: url("images/calendar-select-month-icon.png") !important;
 }
