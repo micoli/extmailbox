@@ -1,5 +1,5 @@
 Ext.ns('Ext.eu.sm.CalendarViewer');
-
+// list view
 // slide month to month
 
 /*
@@ -24,7 +24,7 @@ Ext.eu.sm.CalendarViewer.View
 */
 
 Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
-	clsAutoRequired			: [
+	clsRequire			: [
 		'Ext.eu.sm.CalendarViewer.Weeks',
 		'Ext.eu.sm.CalendarViewer.Views.Day',
 		'Ext.eu.sm.CalendarViewer.Views.Month',
@@ -40,6 +40,7 @@ Ext.eu.sm.CalendarViewer = Ext.extend(Ext.Panel, {
 		'week'				: true,
 		'twoweek'			: true,
 		'month'				: true,
+		'list'				: true
 	},
 	showViewsLabel		: true,
 	showRefresh			: true,
