@@ -246,6 +246,20 @@ Ext.onReady(function(){
 			}]
 		},
 	});
-	win2.show();
+	//win2.show();
+	var winPdf = new Ext.Window({
+		modalContainer		: viewport,
+		title				: 'test Inline PDF Viewer',
+		resizable			: true,
+		width				: 700,
+		height				: 400,
+		layout				: 'fit',
+		items				: {
+			xtype 				: 'sm.pdf',
+			url		: "http://cdn.mozilla.net/pdfjs/tracemonkey.pdf"
+//			url		: "proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
+		},
+	});
+	winPdf.show();
 
 });

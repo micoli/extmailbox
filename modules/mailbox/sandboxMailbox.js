@@ -56,11 +56,9 @@ Ext.onReady(function(){
 								alert('client '+ container.record.get('user_data_01'));
 							}
 						});
-						console.log('here');
 					}
 				}
 			}
 		}]
 	});
-
 });
