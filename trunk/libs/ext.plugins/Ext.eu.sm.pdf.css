@@ -1,0 +1,11 @@
+/* http://www.picol.org/icon_generator.php */
+
+.pdfViewerPageFull {
+	background-image: url("Ext.eu.sm.pdf.size_both.png") !important;
+}
+.pdfViewerPageHeight {
+	background-image: url("Ext.eu.sm.pdf.size_height.png") !important;
+}
+.pdfViewerPageWidth {
+	background-image: url("Ext.eu.sm.pdf.size_width.png") !important;
+}
