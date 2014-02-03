@@ -1,6 +1,7 @@
 Ext.ns('Ext.eu.sm');
-//http://www.worldwidewhat.net/2011/08/render-pdf-files-with-html5/
 
+// http://www.worldwidewhat.net/2011/08/render-pdf-files-with-html5/
+// http://www.sencha.com/forum/showthread.php?237361-A-PDF-Viewer-Panel-No-Browser-Plugin-required-pure-JavaScript
 Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 	url			: null,
 	pdfDocument	: null,
@@ -11,6 +12,9 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 	pageInterval: 1,
 	numPages	: 0,
 	scale		: 1,
+	lock		: false,
+	defaultScale: 1,
+	withControls: true,
 
 	load : function (url) {
 		var that = this;
@@ -19,15 +23,9 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 			that.pageCount		= that.pdfDocument.numPages;
 			that.pageNum		= 1;
 			Ext.getCmp(that.pageCountId).setText(" / "+that.pageCount);
-			that.displayPage();
+			Ext.getCmp(that.pageNumFieldId).maxValue = that.pageCount;
+			that.setScale(that.defaultScale);
 		});
-	},
-
-	setScale	: function (scale){
-		var that = this;
-		that.scale = scale;
-		that.displayPage();
-		Ext.getCmp(that.zoomLabelId).setText(''+scale*100+' %')
 	},
 
 	goToPage	: function(p){
@@ -48,18 +46,50 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 		that.goToPage(that.pageNum+1);
 	},
 
-	changeZoom	: function(z){
-
+	setScale	: function (scale){
+		var that = this;
+		that.pdfDocument.getPage(that.pageNum).then(function(page){
+			var viewport = page.getViewport(1);
+			var scaleW = that.el.getWidth()	/ viewport.width;
+			var scaleH = that.el.getHeight()/ viewport.height;
+			switch (scale){
+				case -1:
+					that.scale	= scaleW;
+				break
+				case -2:
+					that.scale	= scaleH;
+				break;
+				case -3:
+					that.scale = Math.min(scaleH,scaleW);
+				break;
+				default:
+					that.scale = scale;
+				break;
+			}
+			that.scale = parseInt(that.scale*100)/100;
+			console.log('calculated scale',that.scale);
+			that.displayPage();
+			Ext.getCmp(that.zoomSliderId).setValue(that.scale*100);
+			Ext.getCmp(that.zoomLabelId).setText((that.scale*100)+'%');
+			Ext.getCmp(that.pageNumFieldId).setValue(that.pageNum);
+		});
 	},
+
 
 	displayPage : function(){
 		var that = this;
 		if(!that.pdfDocument){
 			return;
 		}
-		Ext.getCmp(that.pageNumFieldId).setValue(that.pageNum);
+		if(that.lock){
+			return;
+		}
+		that.lock=true;
+
 		that.pdfDocument.getPage(that.pageNum).then(function(page) {
 			var viewport = page.getViewport(that.scale);
+			Ext.getCmp(that.pageNumFieldId).setValue(that.pageNum);
+			console.log('scale',that.scale);
 			that.canvas.height	= viewport.height;
 			that.canvas.width	= viewport.width;
 			that.context.save();
@@ -71,6 +101,7 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 				canvasContext	: that.context,
 				viewport		: viewport
 			});
+			that.lock=false;
 		});
 	},
 
@@ -80,21 +111,32 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 		that.pageNumFieldId	= Ext.id();
 		that.pageCountId	= Ext.id();
 		that.zoomComboId	= Ext.id();
+		that.zoomSliderId	= Ext.id();
 		that.zoomLabelId	= Ext.id();
 		Ext.apply(that,{
-			bbar:[{
+			bbar : [{
 				xtype		: 'button',
 				iconCls		: 'x-tbar-page-prev',
 				handler		: function(){
 					that.goPrev();
 				}
 			},{
-				xtype		: 'textfield',
-				id			: that.pageNumFieldId,
-				style		: {
+				xtype			: 'numberfield',
+				id				: that.pageNumFieldId,
+				minValue		: 1,
+				maxValue		: 1,
+				enableKeyEvents	: true,
+				style			: {
 					'text-align' : 'right',
 				},
-				width		: 30
+				listeners		: {
+					specialkey		: function(f,e){
+						if(e.getKey()==e.ENTER){
+							that.goToPage(f.getValue());
+						}
+					}
+				},
+				width			: 30
 			},{
 				xtype		: 'label',
 				id			: that.pageCountId,
@@ -105,44 +147,72 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 				handler		: function(){
 					that.goNext();
 				}
-			},'->',/*{
+			},'->',{
+				text		: '-',
+				handler		: function(){
+
+				}
+			},{
+				xtype		: 'slider',
+				id			: that.zoomSliderId,
+				width		: 150,
+				value		: that.scale*100,
+				increment	: 25,
+				minValue	: 25,
+				maxValue	: 200,
+				listeners	:{
+					change		: function(slider,value){
+						that.setScale(value/100);;
+					}
+				}
+			}/*,{
 				width		: 150,
 				id			: that.zoomComboId,
 				xtype		: 'combo',
 				triggerAction: 'all',
 				mode		: 'local',
 				store		: new Ext.data.SimpleStore({
-					fields:['scale', 'zoom'],
-					data	:[[0.2,20],[0.4,40],[0.5,50],[0.6,60],[0.8,80],[1,100],[1.2,120],[1.4,140],[1.6,160]]
+					fields	:['scale', 'zoom'],
+					data	:[[0.25,25],[0.5,50],[0.75,75],[1,100],[1.25,125],[1.5,150],[1.75,175],[2,200],[-1,"Page width"],[-2,"Page height"]]
 				}),
 				listeners	:{
 					change		: function(combo,value){
-						that.scale = value;
+						that.setScale(value,'combo');
 						that.displayPage();
 					}
 				},
 				displayField: 'zoom',
 				valueField	: 'scale'
-			},*/{
-				xtype		: 'slider',
-				width		: 150,
-				increment	: 20,
-				value		: that.scale*100,
-				minValue	: 20,
-				maxValue	: 200,
-				listeners	:{
-					change		: function(combo,value){
-						that.setScale(value/100)
-					}
+			}*/,{
+				xtype		: 'button',
+				iconCls		: 'pdfViewerPageFull',
+				handler		: function(){
+					that.setScale(-3);
+				}
+			},{
+				xtype		: 'button',
+				iconCls		: 'pdfViewerPageHeight',
+				handler		: function(){
+					that.setScale(-2);
+				}
+			},{
+				xtype		: 'button',
+				iconCls		: 'pdfViewerPageWidth',
+				handler		: function(){
+					that.setScale(-1);
 				}
 			},{
 				xtype		: 'label',
 				width		: 30,
 				id			: that.zoomLabelId,
-				text		: ""+that.scale*100+'%'
+				text		: ""+(that.scale*100)+'%'
 			}],
-			autoScroll:true,
-			html: '<canvas class="pdfjs-canvas" id="'+that.pdfCanvasId+'">aa</canvas>'
+			autoScroll		: true,
+			bodyStyle		: {
+				'background-color'	:'#686868'
+			},
+			html			: '<canvas class="pdfjs-canvas" id="'+that.pdfCanvasId+'">aa</canvas>'
+
 		});
 
 		Ext.eu.sm.pdf.superclass.initComponent.call(this);
@@ -158,7 +228,13 @@ Ext.eu.sm.pdf = Ext.extend(Ext.Panel,{
 		if(that.url){
 			that.load(that.url);
 		}
+		if(!that.withControls){
+			that.bbar.setVisibilityMode(Ext.Element.DISPLAY);
+			that.bbar.hide();
+			that.syncSize();
+		}
 	}
+
 });
 
 Ext.reg('sm.pdf',Ext.eu.sm.pdf)

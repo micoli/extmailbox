@@ -159,7 +159,7 @@ Ext.eu.sm.inlineViewerAddons.img = Ext.extend(Ext.Panel, {
 	}
 });
 
-Ext.eu.sm.inlineViewerAddons.pdf = Ext.extend(Ext.Panel, {
+Ext.eu.sm.inlineViewerAddons.pdfold = Ext.extend(Ext.Panel, {
 	debug			: false,
 	frame			: true,
 	initComponent	: function (){
