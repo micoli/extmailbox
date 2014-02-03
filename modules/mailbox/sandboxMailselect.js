@@ -226,7 +226,8 @@ Ext.onReady(function(){
 				idx		: 0,
 				name	: 'pdf 1',
 				type	: 'pdf',
-				url		: "proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
+				url		: "http://cdn.mozilla.net/pdfjs/tracemonkey.pdf",
+					//"proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
 					//'http://fc01.deviantart.net/fs70/f/2012/124/c/8/papercraft_charr_pdf_by_riot_inducer-d4yishn.pdf'
 			},{
 				idx		: 1,
@@ -250,16 +251,51 @@ Ext.onReady(function(){
 	var winPdf = new Ext.Window({
 		modalContainer		: viewport,
 		title				: 'test Inline PDF Viewer',
+		maximizable			: true,
 		resizable			: true,
 		width				: 700,
 		height				: 400,
 		layout				: 'fit',
 		items				: {
-			xtype 				: 'sm.pdf',
-			url		: "http://cdn.mozilla.net/pdfjs/tracemonkey.pdf"
-//			url		: "proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
+			xtype				: 'sm.pdf',
+			url					: "http://cdn.mozilla.net/pdfjs/tracemonkey.pdf"
+			//url				: "proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=micoli@ms&folder=SU5CT1g=&message_no=25&partno=2"
 		},
 	});
-	winPdf.show();
+	//winPdf.show();
+
+	var winOpenLayers = new Ext.Window({
+		modalContainer		: viewport,
+		title				: 'test openLayers Viewer',
+		maximizable			: true,
+		resizable			: true,
+		width				: 700,
+		height				: 400,
+		layout				: 'fit',
+		items				: [{
+			xtype 				: 'sm.openLayers',
+			mapConfig			: {
+				urlMarkerDefault	: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
+				urlMarker			: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
+				lon					: 5.4474738,
+				lat					: 43.5298424,
+				markers				: [{
+					label:"ELITE ARBORISTS10",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
+				},{
+					label:"ELITE ARBORISTS11",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
+				},{
+					label:"ELITE ARBORISTS2",coordinates	: {"lon":0.85985435635402,"lat":51.942083261486}
+				},{
+					label:"ELITE ARBORISTS3",coordinates	: {"lon":0.65985435635402,"lat":51.042083261486}
+				}],
+					/*layers: [new OpenLayers.Layer.WMS(
+				"Global Imagery",
+				"http://maps.opengeo.org/geowebcache/service/wms",
+				{layers: "bluemarble"}
+				)],*/
+			}
+		}]
+	});
+	winOpenLayers.show();
 
 });
