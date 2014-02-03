@@ -565,7 +565,6 @@ class svcMailboxImap{
 		$rtn ['type'		]= $type;
 		$rtn ['body'		]= $body;
 		$rtn ['attachments'	]= $attachments;
-		//print_r($rtn);
 		return $rtn;
 	}
 
