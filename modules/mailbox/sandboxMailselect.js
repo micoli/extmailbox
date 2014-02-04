@@ -275,19 +275,38 @@ Ext.onReady(function(){
 		items				: [{
 			xtype 				: 'sm.openLayers',
 			mapConfig			: {
-				urlMarkerDefault	: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
 				urlMarker			: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
 				lon					: 5.4474738,
 				lat					: 43.5298424,
-				markers				: [{
-					label:"ELITE ARBORISTS10",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
+				vectors				: [{
+					name		: 'over1',
+					eventMode	: {
+						type		: 'events'
+					},
+					items		: [{
+						label:"TEST 10",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
+					},{
+						label:"TEST 11",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
+					},{
+						label:"TEST 20",coordinates	: {"lon":0.85985435635402,"lat":51.942083261486}
+					},{
+						label:"TEST 30",coordinates	: {"lon":0.65985435635402,"lat":51.042083261486}
+					}]
 				},{
-					label:"ELITE ARBORISTS11",coordinates	: {"lon":0.75985435635402,"lat":51.342083261486}
-				},{
-					label:"ELITE ARBORISTS2",coordinates	: {"lon":0.85985435635402,"lat":51.942083261486}
-				},{
-					label:"ELITE ARBORISTS3",coordinates	: {"lon":0.65985435635402,"lat":51.042083261486}
-				}],
+					name		: 'over2',
+					eventMode	: {
+						type		: 'bubble'
+					},
+					items		: [{
+						label:"TEST 10",coordinates	: {"lon":0.76985435635402,"lat":51.242083261486}
+					},{
+						label:"TEST 11",coordinates	: {"lon":0.76985435635402,"lat":51.242083261486}
+					},{
+						label:"TEST 20",coordinates	: {"lon":0.86985435635402,"lat":51.842083261486}
+					},{
+						label:"TEST 30",coordinates	: {"lon":0.65985435635402,"lat":51.042083261486}
+					}]
+				}]
 					/*layers: [new OpenLayers.Layer.WMS(
 				"Global Imagery",
 				"http://maps.opengeo.org/geowebcache/service/wms",

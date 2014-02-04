@@ -21,12 +21,14 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 	zoom					: 14,
 	maxZoom					: 15,
 
-	markers					: null,
-
 	dispersRadius			: 0.0025,
+	vectorLayers			: [],
 
 	initComponent	: function (){
 		var that = this;
+		if(!OpenLayers.ImgPath){
+			OpenLayers.ImgPath = "http://www.openlayers.org/api/img/";
+		}
 		that.mapPanelId		= Ext.id();
 		that.zoomSliderId	= Ext.id();
 		that.zoomTextId		= Ext.id();
@@ -137,32 +139,18 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 
 	generateOpenStreetMap 	: function (config){
 		var that = this;
-		that.lon							= config.lon?config.lon:0;
-		that.lat							= config.lat?config.lat:0;
-		that.openMap						= new OpenLayers.Map(that.body.id,{
+		that.mapConfig			= config.mapConfig;
+		that.lon				= config.lon?config.lon:0;
+		that.lat				= config.lat?config.lat:0;
+		that.openMap			= new OpenLayers.Map(that.body.id,{
 			controls: [new OpenLayers.Control.Navigation()]
 		});
-		that.mapnik							= new OpenLayers.Layer.OSM();
-		that.vectorLayer					= new OpenLayers.Layer.Vector("Overlay",{
-			eventListeners: {
-				featurehover: function(e) {
-					console.log(e.object.name + " says: " + e.feature.id + " hovered.",e);
-					return false;
-				},
-				featureclick: function(e) {
-					console.log(e.object.name + " says: " + e.feature.id + " clicked.",e);
-					return false;
-				},
-				nofeatureclick: function(e) {
-					console.log(e.object.name + " says: No feature clicked.",e);
-				}
-			}
-		});
+		that.mapnik				= new OpenLayers.Layer.OSM();
 		that.fromProjection					= new OpenLayers.Projection(that.fromProjectionText);
 		that.toProjection					= new OpenLayers.Projection(that.toProjectionText);
 		that.position 						= new OpenLayers.LonLat(that.lon,that.lat).transform(that.fromProjection,that.toProjection);
 
-		that.markers						= config.markers;
+		that.vectors						= config.vectors;
 
 		that.openMap.events.register('zoomend', this, function (event) {
 			that.zoom = that.openMap.getZoom();
@@ -182,8 +170,142 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 
 		that.openMap.addLayer(that.mapnik);
 		that.openMap.setCenter(that.position, that.zoom);
-		that.openMap.addLayer(that.vectorLayer);
-		that.initMarkers(that.markers);
+
+		Ext.each(config.vectors,function(vector){
+			that.vectorLayers[vector.name]	= new OpenLayers.Layer.Vector("Overlay_"+vector.name,{
+			});
+			var vectorLayer=that.vectorLayers[vector.name];
+			that.openMap.addLayer(vectorLayer);
+			that.clearVectors(vectorLayer);
+			that.initVectors(vectorLayer,vector);
+			if(vector.eventMode){
+				switch (vector.eventMode.type){
+					case 'bubble':
+						that.initMapBubble(vectorLayer);
+					break;
+					case 'events':
+						vectorLayer.events.register('featurehover',vectorLayer, function(e) {
+							console.log(e.object.name + " says: " + e.feature.id + " hovered.",e);
+							return false;
+						});
+						vectorLayer.events.register('featureclick',vectorLayer, function(e) {
+							console.log(e.object.name + " says: " + e.feature.id + " clicked.",e);
+							return false;
+						});
+						vectorLayer.events.register('nofeatureclick',vectorLayer, function(e) {
+							console.log(e.object.name + " says: No feature clicked.",e);
+							return false;
+						});
+					break;
+
+				}
+			}
+			that.openMap.zoomToExtent(vectorLayer.getDataExtent());
+			that.openMap.zoomOut();
+		})
+	},
+
+	clearVectors	: function(vectorLayer){
+		var that = this;
+		vectorLayer.removeAllFeatures();
+	},
+
+	initVectors		: function(vectorLayer,vectors){
+		var that = this;
+		var nbDispers	= 0;
+
+		if(!vectors.items){
+			return;
+		}
+
+		var positions = {}
+		Ext.each(vectors.items,function(marker,k){
+			var key = marker.coordinates.lon+'_'+marker.coordinates.lat;
+			if (positions[key]==undefined){
+				nbDispers++;
+				positions[key]={
+					lon		: marker.coordinates.lon,
+					lat		: marker.coordinates.lat,
+					points	: [k]
+				}
+			}else{
+				positions[key].points.push(k);
+			}
+		});
+
+		for(var k in positions){
+			var point=positions[k];
+			if(point.points.length>1){
+				var angle = 2*Math.PI/(point.points.length);
+				Ext.each(point.points,function(idxInArray,idx){
+					vectors.items[idxInArray].coordinates.lon		= vectors.items[idxInArray].coordinates.lon	+ Math.cos((angle)*parseInt(idx))*that.dispersRadius;
+					vectors.items[idxInArray].coordinates.lat		= vectors.items[idxInArray].coordinates.lat	+ Math.sin((angle)*parseInt(idx))*that.dispersRadius;
+				});
+			}
+		};
+
+		Ext.each(vectors.items,function(marker){
+			that.position = new OpenLayers.LonLat(marker.coordinates.lon, marker.coordinates.lat).transform( that.fromProjection, that.toProjection);
+			vectorLayer.addFeatures(new OpenLayers.Feature.Vector(
+				new OpenLayers.Geometry.Point( marker.coordinates.lon, marker.coordinates.lat).transform(that.fromProjection, that.toProjection),{
+					description		: marker.label,
+					record			: marker
+				},OpenLayers.Util.extend(OpenLayers.Feature.Vector.style['default'],{
+					externalGraphic	: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
+					graphicHeight	: 17,
+					graphicWidth	: 29,
+				})
+			));
+		});
+	},
+
+	initMapBubble	: function (vectorLayer){
+		var that = this;
+		vectorLayer.mapSelector = new OpenLayers.Control.SelectFeature(vectorLayer, {
+			onSelect: function (feature) {
+
+				feature.popup = new OpenLayers.Popup.FramedCloud(
+					"pop",
+					feature.geometry.getBounds().getCenterLonLat(),
+					null,
+					'<div class="markerContent">'+feature.attributes.description+'</div>',
+					{'size':  new OpenLayers.Size(0,0), 'offset': new OpenLayers.Pixel(5, true?-15:15)},
+					true,
+					function() {
+						vectorLayer.mapSelector.unselectAll();
+					}
+				);
+				// Force popin to open on TopRight positition
+				feature.popup.calculateRelativePosition = function () {
+					return 'tr';
+				}
+				//feature.popup.closeOnMove = true;
+				that.openMap.addPopup(feature.popup);
+			}
+			, onUnselect: function (feature) {
+				feature.popup.destroy();
+				feature.popup = null;
+			}
+		});
+
+		that.openMap.addControl(vectorLayer.mapSelector);
+		vectorLayer.mapSelector.activate();
+	},
+
+	getMapDescriptionLabelProperties : function (idxInList,offset){
+		return {
+			label			: ""+(parseInt(idxInList)+1+offset) ,
+			labelYOffset	: -15,
+			labelXOffset	: parseInt(idxInList)>9?-6:-2,
+			fontColor		: "#FFF",
+			fontSize		: "10px",
+			fontFamily		: "Verdana, Geneva, sans-serif",
+			fontWeight		: "bold",
+			graphicHeight	: 17,
+			graphicWidth	: 29,
+			graphicXOffset	: -12,
+			graphicYOffset	: 5
+		}
 	},
 
 	nominatimSearch	: function(param){
@@ -205,107 +327,6 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 				param.failure(data);
 			}
 		});
-	},
-
-	initMarkers		: function(markers){
-		var that = this;
-		var nbDispers	= 0;
-
-		if(!markers){
-			return;
-		}
-
-		var positions = {}
-		Ext.each(markers,function(marker,k){
-			var key = marker.coordinates.lon+'_'+marker.coordinates.lat;
-			if (positions[key]==undefined){
-				nbDispers++;
-				positions[key]={
-					lon		: marker.coordinates.lon,
-					lat		: marker.coordinates.lat,
-					points	: [k]
-				}
-			}else{
-				positions[key].points.push(k);
-			}
-		});
-
-		for(var k in positions){
-			var point=positions[k];
-			if(point.points.length>1){
-				var angle = 2*Math.PI/(point.points.length);
-				Ext.each(point.points,function(idxInArray,idx){
-					markers[idxInArray].coordinates.lon		= markers[idxInArray].coordinates.lon	+ Math.cos((angle)*parseInt(idx))*that.dispersRadius;
-					markers[idxInArray].coordinates.lat		= markers[idxInArray].coordinates.lat	+ Math.sin((angle)*parseInt(idx))*that.dispersRadius;
-				});
-			}
-		};
-
-		Ext.each(markers,function(marker){
-			that.position = new OpenLayers.LonLat(marker.coordinates.lon, marker.coordinates.lat).transform( that.fromProjection, that.toProjection);
-			that.vectorLayer.addFeatures(new OpenLayers.Feature.Vector(
-				new OpenLayers.Geometry.Point( marker.coordinates.lon, marker.coordinates.lat).transform(that.fromProjection, that.toProjection),{
-					description		: marker.label,
-					data			: marker
-				},OpenLayers.Util.extend(OpenLayers.Feature.Vector.style['default'],{
-					externalGraphic	: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png'
-				})
-			));
-		});
-
-		that.openMap.zoomToExtent(that.vectorLayer.getDataExtent());
-		that.openMap.zoomOut();
-
-	},
-
-	initMapSelector	: function (){
-		var that = this;
-		that.mapSelector = new OpenLayers.Control.SelectFeature(that.vectorLayer, {
-			onSelect: function (feature) {
-
-				feature.popup = new OpenLayers.Popup.FramedCloud(
-					"pop",
-					feature.geometry.getBounds().getCenterLonLat(),
-					null,
-					'<div class="markerContent">'+feature.attributes.description+'</div>',
-					{'size':  new OpenLayers.Size(0,0), 'offset': new OpenLayers.Pixel(5, isSpPage?-15:15)},
-					true,
-					function() {
-						that.mapSelector.unselectAll();
-					}
-				);
-				// Force popin to open on TopRight positition
-				feature.popup.calculateRelativePosition = function () {
-					return 'tr';
-				}
-				//feature.popup.closeOnMove = true;
-				that.openMap.addPopup(feature.popup);
-			}
-			, onUnselect: function (feature) {
-				feature.popup.destroy();
-				feature.popup = null;
-			}
-		});
-
-		that.openMap.addControl(that.mapSelector);
-		that.mapSelector.activate();
-
-	},
-
-	getMapDescriptionLabelProperties : function (idxInList,offset){
-		return {
-			label			: ""+(parseInt(idxInList)+1+offset) ,
-			labelYOffset	: -15,
-			labelXOffset	: parseInt(idxInList)>9?-6:-2,
-			fontColor		: "#FFF",
-			fontSize		: "10px",
-			fontFamily		: "Verdana, Geneva, sans-serif",
-			fontWeight		: "bold",
-			graphicHeight	: 17,
-			graphicWidth	: 29,
-			graphicXOffset	: -12,
-			graphicYOffset	: 5
-		}
 	}
 });
 
