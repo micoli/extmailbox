@@ -10,7 +10,6 @@ that.nominatimSearch({
 	}
 });
 */
-
 Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 	fromProjection			: null,
 	fromProjectionText		: 'EPSG:4326'	, // Transform from WGS 1984
@@ -35,6 +34,7 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 		that.posTextId		= Ext.id();
 
 		that.addEvents('moveend','zoomend');
+		that.layerMenu = new Ext.menu.Menu();
 
 		Ext.apply(that,{
 			bbar : [{
@@ -80,13 +80,7 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 					reader			: new Ext.data.JsonReader({
 						id				: 'osm_id',
 					}, [
-						{name: 'display_name'},
-						{name: 'osm_id'},
-						{name: 'class'},
-						{name: 'type'},
-						{name: 'icon'},
-						{name: 'lon'},
-						{name: 'lat'},
+						'display_name'	,'osm_id','class','type','icon','lon','lat'
 					]),
 					baseParams		: {
 						format			: 'json',
@@ -123,10 +117,22 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 						return true;
 					}
 				}
+			},{
+				text	: 'layers',
+				xtype	: 'button',
+				menu	: that.layerMenu
 			}]
 		});
 
+		that.addEvents('layerschanged');
+
 		Ext.eu.sm.pdf.superclass.initComponent.call(this);
+
+		that.on('bodyresize',function(){
+			if(that.openMap){
+				that.openMap.updateSize();
+			}
+		})
 	},
 
 	afterRender : function (container) {
@@ -139,18 +145,52 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 
 	generateOpenStreetMap 	: function (config){
 		var that = this;
-		that.mapConfig			= config.mapConfig;
+		that.mapConfig			= config;
 		that.lon				= config.lon?config.lon:0;
 		that.lat				= config.lat?config.lat:0;
 		that.openMap			= new OpenLayers.Map(that.body.id,{
-			controls: [new OpenLayers.Control.Navigation()]
-		});
-		that.mapnik				= new OpenLayers.Layer.OSM();
-		that.fromProjection					= new OpenLayers.Projection(that.fromProjectionText);
-		that.toProjection					= new OpenLayers.Projection(that.toProjectionText);
-		that.position 						= new OpenLayers.LonLat(that.lon,that.lat).transform(that.fromProjection,that.toProjection);
+			controls: [new OpenLayers.Control.Navigation()],
+			eventListeners:{
+				addlayer	: function (layer){
+					if (!layer.layer.isBaseLayer){
+						that.layerMenu.add({
+							text			: layer.layer.name,
+							id				: 'chek_'+layer.layer.id,
+							layerInstance	: layer.layer,
+							checked			: true,
+							checkHandler	: function (menuItem,checked){
+								menuItem.layerInstance.setVisibility(checked);
+								return false;
+							}
+						});
+					}
+					that.fireEvent('layerschanged','addlayer',layer)
+				},
 
-		that.vectors						= config.vectors;
+				preremovelayer	: function(layer){
+					that.layerMenu.items.each(function(item,k){
+						if(item.layerInstance.id == layer.layer.id){
+							that.layerMenu.remove(item);
+						}
+					});
+					that.fireEvent('layerschanged','preremovelayer',layer);
+					return true;
+				},
+
+				changelayer	: function(layer){
+					that.fireEvent('layerschanged','changelayer',layer)
+				}
+			}
+		});
+
+		/*movestart,move,moveend,zoomend,updatesize*/
+
+		that.mapnik				= new OpenLayers.Layer.OSM();
+		that.fromProjection		= new OpenLayers.Projection(that.fromProjectionText);
+		that.toProjection		= new OpenLayers.Projection(that.toProjectionText);
+		that.position 			= new OpenLayers.LonLat(that.lon,that.lat).transform(that.fromProjection,that.toProjection);
+
+		that.vectors			= config.vectors;
 
 		that.openMap.events.register('zoomend', this, function (event) {
 			that.zoom = that.openMap.getZoom();
@@ -172,8 +212,7 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 		that.openMap.setCenter(that.position, that.zoom);
 
 		Ext.each(config.vectors,function(vector){
-			that.vectorLayers[vector.name]	= new OpenLayers.Layer.Vector("Overlay_"+vector.name,{
-			});
+			that.vectorLayers[vector.name]	= new OpenLayers.Layer.Vector(vector.name,{});
 			var vectorLayer=that.vectorLayers[vector.name];
 			that.openMap.addLayer(vectorLayer);
 			that.clearVectors(vectorLayer);
@@ -202,7 +241,11 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 			}
 			that.openMap.zoomToExtent(vectorLayer.getDataExtent());
 			that.openMap.zoomOut();
-		})
+		});
+
+		Ext.each(config.layers,function(layer){
+			that.openMap.addLayer(layer);
+		});
 	},
 
 	clearVectors	: function(vectorLayer){
@@ -251,7 +294,7 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 					description		: marker.label,
 					record			: marker
 				},OpenLayers.Util.extend(OpenLayers.Feature.Vector.style['default'],{
-					externalGraphic	: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
+					externalGraphic	: that.mapConfig.urlMarker,
 					graphicHeight	: 17,
 					graphicWidth	: 29,
 				})
@@ -327,7 +370,7 @@ Ext.eu.sm.openLayers = Ext.extend(Ext.Panel,{
 				param.failure(data);
 			}
 		});
-	}
+	},
 });
 
 Ext.reg('sm.openLayers',Ext.eu.sm.openLayers)

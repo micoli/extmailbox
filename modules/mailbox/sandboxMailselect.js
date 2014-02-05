@@ -278,6 +278,23 @@ Ext.onReady(function(){
 				urlMarker			: 'http://front.data.servicemagic.eu/common/common/images/picto_house_map.png',
 				lon					: 5.4474738,
 				lat					: 43.5298424,
+				layers				:[new OpenLayers.Layer.Vector("KML", {
+					strategies	: [new OpenLayers.Strategy.Fixed()],
+					protocol	: new OpenLayers.Protocol.HTTP({
+						url			: "http://dev-fr.webtools.servicemagic.eu/users/Olivier/openlayers/act_kml.php?act_id=50&date_1=2014-01-06&date_2=2014-01-13&source=&affiliate=&country=fr&fmt=.kml",
+						format		: new OpenLayers.Format.KML({
+							extractStyles		: true,
+							extractAttributes	: true,
+							maxDepth			: 2,
+							size				: 'medium'
+						})
+					}),
+					eventListeners: {
+						"loadend": function(layer) {
+							console.log ('loadend',layer);
+						}
+					}
+				})],
 				vectors				: [{
 					name		: 'over1',
 					eventMode	: {
