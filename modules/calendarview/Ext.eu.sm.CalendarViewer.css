@@ -1,3 +1,6 @@
+table.x-date-inner {
+width:200px !important; /* original was width : 100% */
+}
 .CalendarViewer .monthView,.weekView,.dayViewContainer{
 	font					: 11px helvetica,arial,sans-serif;
 	border-spacing			: 0px;
