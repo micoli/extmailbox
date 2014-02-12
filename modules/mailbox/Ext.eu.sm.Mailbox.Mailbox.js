@@ -106,10 +106,11 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				record.set(flag,newValue);
 				record.commit();
 				var tabPanel	= Ext.getCmp(that.mailPreviewsId);
+
 				for (var i = tabPanel.items.items.length - 1; i > 0; i--){
 					var tab = tabPanel.items.items[i];
 					if(tab.updateRecord && tab.getXType() == "mailbox.mailview"){
-						if(record.get('account') == tab.account && record.get('uid') == tab.message_no && record.get('folder') == tab.folder){
+						if(tab.record && record.get('account') == tab.record.get('account') && record.get('uid') == tab.message_no && record.get('folder') == tab.record.get('folder')){
 							tab.updateRecord(record);
 						}
 					}

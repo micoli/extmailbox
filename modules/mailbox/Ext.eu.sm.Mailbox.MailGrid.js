@@ -7,6 +7,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 	mailboxContainer: null,
 	pageSize		: 50,
 	gridPlugins		: [],
+	groupColumn		: null,
 
 	setInlineTitle	: function (text){
 		var that = this;
@@ -39,15 +40,20 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		that.txtSearchId		= Ext.id();
 		that.searchFormId		= Ext.id();
 		that.mainGridId			= Ext.id();
+		that.menuGroupId		= Ext.id();
 
 
-		that.mailStore = new Ext.data.JsonStore({
-			fields			: that.mailboxContainer.mailFields,
-			root			: 'data',
-			totalProperty	: 'totalCount',
-			idProperty		: 'message_id',
+		that.mailStore = new Ext.data.GroupingStore({
 			remoteSort		: true,
 			autoLoad		: false,
+			remoteGroup		: false,
+			//groupOnSort		: true,
+			groupField		: that.groupColumn,
+			reader			: new Ext.data.JsonReader({
+				root			: 'data',
+				totalProperty	: 'totalCount',
+				id				: 'message_id',
+			},that.mailboxContainer.mailFields),
 			baseParams		: {
 				'exw_action'	: that.mailboxContainer.svcImapPrefixClass+'getMailListInFolders',
 				'folder'		: 'INBOX'
@@ -121,6 +127,45 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 
 				}
 			}
+		},'-',{
+			text	: 'Group',
+			id		: that.menuGroupId,
+			menu	: {
+				defaults:{
+					group			: 'theme',
+					checked			: false,
+					checkHandler	: function (item,val){
+						if(val){
+							that.groupColumn = item.column;
+							that.menuGroupHandleText();
+							that.mailStore.groupBy(that.groupColumn);
+							Ext.getCmp(that.menuGroupId);
+							console.log(arguments);
+						}
+					}
+				},
+				items: [{
+					text	: '<s>'+Ext.eu.sm.MailBox.i18n._('none')+'</s>',
+					column	: null,
+					checked	: that.groupColumn==null
+				},{
+					text	: Ext.eu.sm.MailBox.i18n._('Date'),
+					column	: 'date',
+					checked	: that.groupColumn=='date'
+				}, {
+					text	: Ext.eu.sm.MailBox.i18n._('From'),
+					column	: 'from',
+					checked	: that.groupColumn=='from'
+				}, {
+					text	: Ext.eu.sm.MailBox.i18n._('Priority'),
+					column	: 'priority',
+					checked	: that.groupColumn=='priority'
+				}, {
+					text	: Ext.eu.sm.MailBox.i18n._('Seen'),
+					column	: 'seen',
+					checked	: that.groupColumn=='seen'
+				}]
+			}
 		},'->',{
 			xtype			: 'button',
 			text			: Ext.eu.sm.MailBox.i18n._('Criterias'),
@@ -133,6 +178,14 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				}
 			}
 		}];
+
+		that.menuGroupHandleText = function() {
+			var tbItem = Ext.getCmp(that.menuGroupId);
+			var selectedItem = tbItem.menu.items.get(tbItem.menu.items.findIndexBy(function(v){
+				return v.column==that.groupColumn;
+			}));
+			tbItem.setText(selectedItem.text);
+		}
 
 		that.querySearch = function(query){
 			that.mailStore.baseParams.query			= query;
@@ -150,6 +203,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			singleSelect	: false,
 			hidden			: true
 		});
+
 		that.gridColumnModel = [
 			that.gridSelectionModel,
 			{header: Ext.eu.sm.MailBox.i18n._("Subject")	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
@@ -165,7 +219,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				return (v==1)?".":"<b>*</b>"
 			}},
 			{header: Ext.eu.sm.MailBox.i18n._("Date")		, width: 130, sortable: true, fixed: true,dataIndex: 'date'		,renderer: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))},
-			{header: Ext.eu.sm.MailBox.i18n._("Size")		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize},
+			{header: Ext.eu.sm.MailBox.i18n._("Size")		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize,align:"right"},
 			{header: Ext.eu.sm.MailBox.i18n._("Priority")	, width:  80, sortable: true, fixed: true,dataIndex: 'priority'	}
 		];
 
@@ -193,17 +247,44 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				enableDragDrop		: true,
 				selectionModel		: that.gridSelectionModel,
 				cm					: new Ext.grid.ColumnModel(that.gridColumnModel),
-				viewConfig			: {
-					//forceFit		: true,
-					enableRowBody	: true,
-					showPreview		: true,
-					getRowClass 	: function(record, rowIndex, p, store){
+				view				: new Ext.grid.GroupingView({
+					forceFit			: true,
+					showGroupName		: true,
+					enableNoGroups		: false,
+					enableGroupingMenu	: false,
+					startCollapsed		: false,
+					autoFill			: true,
+					groupMode			: 'display',
+					hideGroupedColumn	: false,
+					groupTextTpl		: ' {text} ({[values.rs.length]})',
+					enableRowBody		: true,
+					showPreview			: true,
+					getRowClass 		: function(record, rowIndex, p, store){
 						if(record.get('seen')==0){
 							return 'x-grid3-row-collapsed mailUnseen';
 						}
 						return 'x-grid3-row-collapsed';
+					},
+					listeners			: {
+						beforerefresh		: function(view){
+							that.groupColType = view.getGroupField()?view.ds.fields.get(view.getGroupField()).type:null;
+						}
+					},
+					getGroup			: function(v, r, groupRenderer, rowIndex, colIndex, ds){
+						// colIndex of your date column
+						if (that.groupColType=='date') {
+							// group only by date
+							return v.format('Y-m-d D');
+						}else {
+							// default grouping
+							var g = groupRenderer ? groupRenderer(v, {}, r, rowIndex, colIndex, ds) : String(v);
+							if(g === ''){
+								g = this.cm.config[colIndex].emptyGroupText || this.emptyGroupText;
+							}
+							return g;
+						}
 					}
-				},
+				}),
 				listeners			: {
 					cellclick	: function(grid,rowIndex,columnIndex,event){
 						var record = grid.getStore().getAt(rowIndex);
@@ -222,6 +303,16 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 						var record = that.mailStore.getAt(rowIndex);
 						new Ext.menu.Menu({
 							items			: [{
+								text			: 'move',
+								menu			: Ext.getCmp(that.mailboxContainer.folderTreeId).createFolderMenu({
+									disabledId	: that.folder,
+									listeners	: {
+										'selected' : function (item){
+											console.log('OK to move',item);
+										},
+									}
+								})
+							},'-',{
 								text			: Ext.eu.sm.MailBox.i18n._('Reply'),
 								iconCls			: 'mail_closed_alt',
 								handler			: function(){
@@ -275,6 +366,9 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			}]
 		});
 		Ext.eu.sm.MailBox.MailGrid.superclass.initComponent.call(this);
+		that.on('render',function(){
+			that.menuGroupHandleText();
+		})
 	}
 });
 
