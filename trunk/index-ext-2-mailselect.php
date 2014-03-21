@@ -10,6 +10,7 @@
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/mailselect.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.eu.sm.pdf.css" />
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/openLayers/theme/default/style.css" />
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.eu.sm.form.starField.css" />
 		<script type="text/javascript"			src="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/pdfobject.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.ModalWindow.js"></script>
@@ -17,6 +18,8 @@
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.inlineViewer.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/pdf.js/pdf.compatibility.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/pdf.js/pdf.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.renderedField.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.starField.js"></script>
 		<!-- <script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.cors.js"></script> -->
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.pdf.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/openLayers/openLayers.js"></script>

@@ -1,8 +1,13 @@
+
 Ext.onReady(function(){
 
 	var that = this;
 	that.accountComboId	= Ext.id();
 	that.formId			= Ext.id();
+	that.renderedFieldId= Ext.id();
+	that.starField1Id	= Ext.id();
+	that.starField2Id	= Ext.id();
+
 	var emails = [{
 		personal:"toto1",
 		email	:"titi1@toto.com"
@@ -179,11 +184,11 @@ Ext.onReady(function(){
 						text		:'test',
 						handler		: function(){
 							var win = new Ext.ModalWindow({
-								modalContainer	: Ext.getCmp('test123'),
-								title			: 'eeee',
-								modalContainerBorder	: 20,
-								items		: {
-									html : 'test'
+								modalContainer		: Ext.getCmp('test123'),
+								title				: 'eeee',
+								modalContainerBorder: 20,
+								items				: {
+									html : 'test '+Ext.getCmp(that.renderedFieldId).getValue()
 								},
 							});
 							win.show();
@@ -195,6 +200,23 @@ Ext.onReady(function(){
 						text			: 'subject',
 						value			: 'sujet',
 						anchor			: '100%',
+					},{
+						xtype			: 'eu.sm.form.renderedField',
+						id				: that.renderedFieldId,
+						fieldLabel		: 'Subject2',
+						value			: 'sujet',
+					},{
+						xtype			: 'eu.sm.form.starField',
+						id				: that.starField1Id,
+						fieldLabel		: 'starField 1',
+						mode			: 'byhalf',
+						value			: 3.75,
+					},{
+						xtype			: 'eu.sm.form.starField',
+						id				: that.starField2Id,
+						fieldLabel		: 'starField 2',
+						mode			: 'proportional',
+						value			: 3.75,
 					}]
 				},{
 					xtype		: 'panel',
@@ -332,6 +354,6 @@ Ext.onReady(function(){
 			}
 		}]
 	});
-	winOpenLayers.show();
+	//winOpenLayers.show();
 
 });
