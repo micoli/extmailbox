@@ -292,7 +292,8 @@ Ext.overrideIf(RegExp, {
 
 // Array
 // {{{
-Ext.overrideIf(Array, {
+_Array={};
+Ext.overrideIf(_Array, {
 	// {{{
 	/**
 	 * One dimensional copy. Use {@link Ext.ux.util#clone Ext.ux.util.clone} to deeply clone an Array.
