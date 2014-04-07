@@ -18,6 +18,18 @@
 		<script type="text/javascript"			src="modules/prospectImporter/Ext.eu.sm.prospectImporter.importGridEditor.js"></script>
 		<script type="text/javascript"			src="modules/prospectImporter/sandboxProspect.js"></script>
 		<style>
+		.x-grid3-row.row-marked-back {
+			background-color: #EEEEEE;
+		}
+		.x-grid3-row.row-marked-line {
+			border-top: 1px solid #999999;
+		}
+		.client-grayed {
+			color : #B1B1B1;
+		}
+		.client-dupl {
+			color : #FF8422;
+		}
 		.upload-icon {
 			background: url('/ext-2.2.1/release/examples/shared/icons/fam/image_add.png') no-repeat 0 0 !important;
 		}

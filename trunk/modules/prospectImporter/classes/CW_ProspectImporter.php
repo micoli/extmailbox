@@ -67,7 +67,8 @@ class CW_ProspectImporter{
 			foreach($aDatas['data'] as $v){
 				$v = array_combine(self::$dbImportedColumns,$v);
 				$r = $oIPR->set(array_merge(array(
-						'ipr_ipb_id'	=> $o['ipb_id']
+						'ipr_ipb_id'	=> $o['ipb_id'],
+						'ipr_status'	=> 'RAW'
 				),$v));
 			}
 			return array(
