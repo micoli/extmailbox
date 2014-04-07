@@ -8,14 +8,6 @@ Ext.eu.sm.prospectImporter.main = Ext.extend(Ext.Panel, {
 		that.browseButtonId		= Ext.id();
 		that.filenameLabelId	= Ext.id();
 
-
-/*		ImporterCmp.store.data.each(function(v,k){
-			objToSend.attachments.push(objToSend.message_id + '-' + v.get('fileName'));
-			if(v.get('state')=='queued' || v.get('state')=='uploading'){
-				uploadsOk=false;
-			}
-		});
-*/
 		Ext.apply(that,{
 			layout	: 'border',
 			items	: [{

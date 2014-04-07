@@ -64,7 +64,8 @@ Ext.eu.sm.prospectImporter.batchConfigurationEditor = Ext.extend(Ext.FormPanel, 
 				'ipb_id'			,
 				'ipb_batch_id'		,
 				'ipb_campaign_id'	,
-				'ipb_act_mapping'
+				'ipb_act_mapping'	,
+				'ipb_dedup_options'
 			],
 			root			: 'data',
 			idProperty		: 'ipb_id',
@@ -151,13 +152,24 @@ Ext.eu.sm.prospectImporter.batchConfigurationEditor = Ext.extend(Ext.FormPanel, 
 				listeners			: {
 					rowClick			: function (grid,rowIndex,e){
 						var record = grid.getStore().getAt(rowIndex);
-						Ext.getCmp(that.formEditorId).setDisabled(false);
-						Ext.getCmp(that.formEditorId).getForm().loadRecord(record);
+						var form = Ext.getCmp(that.formEditorId);
+						form.setDisabled(false);
+						form.getForm().loadRecord(record);
 						that.mappingStore.load({
 							params	: {
 								'ipb_id': record.get('ipb_id')
 							}
 						});
+						record.set('ipb_dedup_options',JSON.parse(record.get('ipb_dedup_options')!=''?record.get('ipb_dedup_options'):'{}'));
+						var ipb_dedup_options = record.get('ipb_dedup_options');
+						form.find('name','ipb_dedup_options')[0].items.each(function(v,k){
+							if(ipb_dedup_options.hasOwnProperty(v.name)){
+								v.setValue(ipb_dedup_options[v.name]);
+							}else{
+								ipb_dedup_options[v.name]=false;
+							}
+						})
+
 					}
 				}
 			},{
@@ -191,6 +203,22 @@ Ext.eu.sm.prospectImporter.batchConfigurationEditor = Ext.extend(Ext.FormPanel, 
 					typeAhead		: true,
 					forceSelection	: true,
 					selectOnFocus	: true,
+				},{
+					xtype			: 'checkboxgroup',
+					fieldLabel		: 'Dedup options',
+					name			: 'ipb_dedup_options',
+					width			: 600,
+					items			: [{
+						boxLabel: 'phone'			, name: 'phone'
+					},{
+						boxLabel: 'company name'	, name: 'company_name'
+					},{
+						boxLabel: 'company number'	, name: 'company_number'
+					},{
+						boxLabel: 'email'			, name: 'email'
+					},{
+						boxLabel: 'postcode'		, name: 'postcode'
+					}]
 				},{
 					xtype				: 'tabpanel',
 					activeItem			: 0,
@@ -318,10 +346,16 @@ Ext.eu.sm.prospectImporter.batchConfigurationEditor = Ext.extend(Ext.FormPanel, 
 						if (!form.getForm().isValid()){
 							return;
 						}
-						form.setDisabled(false);
+						var ipb_dedup_options = {};
+						form.find('name','ipb_dedup_options')[0].items.each(function(v,k){
+							ipb_dedup_options[v.name]=v.getValue();
+						});
 						var values = form.getForm().getValues();
-						values.ipb_campaign_id = form.find('name','ipb_campaign_id')[0].getValue();
-						values.ipb_act_mapping =  JSON.stringify(that.getMappingVars())
+						values.ipb_campaign_id		= form.find('name','ipb_campaign_id')[0].getValue();
+						values.ipb_act_mapping		= JSON.stringify(that.getMappingVars());
+						values.ipb_dedup_options	= JSON.stringify(ipb_dedup_options);
+
+						form.setDisabled(false);
 						console.log(values);
 
 						form.setDisabled(true);
