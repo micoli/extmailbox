@@ -163,9 +163,6 @@ Ext.eu.sm.prospectImporter.importGridEditor = Ext.extend(Ext.FormPanel, {
 								var checkbox	= Ext.getCmp(that['checkShowDupl_'	+v+'Id']);
 								var labelCount	= Ext.getCmp(that['labelCountDupl_'	+v+'Id']);
 								var label		= Ext.getCmp(that['labelDupl_'		+v+'Id']);
-								if (that.prospectStore.baseParams.hasOwnProperty('with_ipr_dupl_'+v)){
-									that.prospectStore.baseParams['with_ipr_dupl_'+v]=false;
-								}
 								if (ipb_dedup_options.hasOwnProperty(v) && ipb_dedup_options[v]){
 									that.prospectStore.baseParams['with_ipr_dupl_'+v]=true;
 									checkbox.setDisabled(false);
@@ -174,6 +171,7 @@ Ext.eu.sm.prospectImporter.importGridEditor = Ext.extend(Ext.FormPanel, {
 									labelCount.show		();
 									label.show			();
 								}else{
+									that.prospectStore.baseParams['with_ipr_dupl_'+v]=false;
 									checkbox.setDisabled(true );
 									checkbox.setValue	(false);
 									checkbox.hide		();
