@@ -75,14 +75,23 @@ class svcProspectImporter{
 	 * @return multitype:number multitype:multitype:number string
 	 */
 	function pub_getProspects($o){
+		$oIPR = new IPR_IMPORTED_PROSPECT();
+		$aIPR = $oIPR->get(array(
+			'where'		=>array(
+				'ipr_ipb_id'	=> $o['ipb_id']
+			),
+			'start'		=> $o['start'],
+			'limit'		=> $o['limit'],
+		));
+		$aIPRCnt = $oIPR->get(array(
+			'cols'		=> array('count(*) as cnt'),
+			'where'		=> array(
+				'ipr_ipb_id'	=> $o['ipb_id']
+			),
+		));
 		return array(
-			'total'	=> 4,
-			'data'	=> array(
-					array('id'=>1,'name'=>'hjfsdhdfjk hfkdshsdk'),
-					array('id'=>2,'name'=>'dqsdqs dhjfsdhdfjk hfkdshsdk'),
-					array('id'=>3,'name'=>'hjfsd dqsd qsddhdfjk hfkdshsdk'),
-					array('id'=>4,'name'=>'hjfqqqdsd dsdsqsdhdfjk hfkqdshsdk')
-			)
+			'data'	=> $aIPR,
+			'total'	=> $aIPRCnt[0]['cnt']
 		);
 	}
 
@@ -108,7 +117,9 @@ class svcProspectImporter{
 	function pub_getBatchMapping($o){
 		$oIPB = new IPB_IMPORTED_PROSPECT_BATCH();
 		$aIPB = $oIPB->get(array(
-			'ipb_id'	=> $o['ipb_id']
+			'where'		=> array(
+				'ipb_id'	=> $o['ipb_id']
+			)
 		));
 		if(is_array($aIPB) && count($aIPB)==1){
 			$aIPB = array_pop($aIPB);
@@ -177,7 +188,9 @@ class svcProspectImporter{
 	function pub_getGrpActivities($o){
 		$oGRP = new GRP_ACTIVITY();
 		$aGRP = $oGRP->get(array(
-			'grp_key'	=> 'KEY_TRADE'
+			'where'		=> array(
+				'grp_key'	=> 'KEY_TRADE'
+			)
 		));
 		return array(
 			'data'	=> $aGRP,

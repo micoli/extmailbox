@@ -20,7 +20,7 @@ Ext.eu.sm.prospectImporter.main = Ext.extend(Ext.Panel, {
 			layout	: 'border',
 			items	: [{
 				xtype			: 'tabpanel',
-				activeItem		: 0,
+				activeItem		: 2,
 				region			: 'center',
 				split			: true,
 				frame			: true,
