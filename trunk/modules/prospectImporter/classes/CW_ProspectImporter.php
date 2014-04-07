@@ -10,7 +10,7 @@ class CW_ProspectImporter{
 		$aIPB = $oIPB->get(array(
 			'cols'	=> array('IPB_ACT_MAPPING'),
 			'where'	=> array(
-				'IPB_ID'	=> $o['ipb_id']
+				'ipb_id'	=> $o['ipb_id']
 			)
 		));
 		$aMappingTmp	= $aIPB[0]['ipb_act_mapping'];
