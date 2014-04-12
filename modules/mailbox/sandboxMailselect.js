@@ -1,4 +1,3 @@
-
 Ext.onReady(function(){
 
 	var that = this;
@@ -9,13 +8,13 @@ Ext.onReady(function(){
 	that.starField2Id	= Ext.id();
 
 	var emails = [{
-		personal:"toto1",
+		name	:"toto1",
 		email	:"titi1@toto.com"
 	},{
-		personal:"toto2",
+		name	:"toto2",
 		email	:"titi2@toto.com"
 	},{
-		personal:"toto3",
+		name	:"toto3",
 		email	:"titi3@toto.com"
 	}];
 
@@ -27,7 +26,7 @@ Ext.onReady(function(){
 		root			: 'data',
 		idProperty		: 'account',
 		remoteSort		: true,
-		autoLoad		: true,
+		autoLoad		: false,
 		baseParams		: {
 			'exw_action'	: 'local.MailboxImap.getAccounts'
 		},
@@ -43,7 +42,7 @@ Ext.onReady(function(){
 		],
 		root			: 'data',
 		idProperty		: 'name',
-		autoLoad		: true,
+		autoLoad		: false,
 		baseParams		: {
 			'exw_action'	: 'local.MailboxImap.getTemplates'
 		},
@@ -58,7 +57,7 @@ Ext.onReady(function(){
 		totalProperty	:'totalCount',
 		fields:[
 			{name:'email'		, type:'string'},
-			{name:'personal'	, type:'string'},
+			{name:'name'		, type:'string'},
 		],
 		url			:'proxy.php',
 		baseParams	: {
@@ -66,177 +65,6 @@ Ext.onReady(function(){
 		}
 	});
 
-	var viewport = new Ext.Viewport({
-		layout	: 'border',
-		items	: [{
-			region		: 'center',
-			xtype		: 'form',
-			labelWidth	: 100,
-			frame		: true,
-			tbar		:[{
-				xtype		: 'button',
-				text		: 'test template',
-				handler		: function(){
-					var cmp = this;
-					cmp.attachedCmp = new Ext.eu.attachedWindow({
-						resizeTriggerCmp: this,
-						stickCmp		: this,
-						width			: 450,
-						height			: 350,
-						layout			: 'fit',
-						items			: [{
-							xtype			: 'dataTemplateSelector',
-							store			: that.templateStore,
-							itemSelector	: 'div.template-combo-display-wrap',
-							cls				: 'template-combo-display',
-							emptyText		: 'No templates to display',
-							thumbTpl		: new Ext.XTemplate(
-												'<tpl for=".">'+
-													'<div class="template-combo-display-wrap">'+
-														'<div class="name">{name}</div>'+
-														'<div class="body">{body}</div>'+
-													'</div>'+
-												'</tpl>'+
-												'<div class="x-clear"></div>'),
-							detailTpl		: new Ext.XTemplate(
-												'<tpl for=".">'+
-													'<div class="template-combo-display-detail">'+
-														'<div class="name">{name}</div>'+
-														'<div class="body">{body}</div>'+
-													'</div>'+
-												'</tpl>'+
-												'<div class="x-clear"></div>'),
-							listeners		: {
-								selected	: function(record,index){
-									if(record){
-										console.log('OK to move',record,index);
-									}
-									cmp.attachedCmp.destroy();
-								},
-								cancel	: function(selected){
-									console.log('cancel');
-									cmp.attachedCmp.destroy();
-								}
-							}
-						}]
-					});
-					cmp.attachedCmp.show();
-				}
-			}],
-			items		: [{
-				fieldLabel		: 'From',
-				xtype			: 'combo',
-				name			: 'from',
-				store			: that.accountStore,
-				id				: that.accountComboId,
-				anchor			: '-10',
-				displayField	: 'email',
-				valueField		: 'email',
-				emptyText		: 'Select an account...',
-				mode			: 'local',
-				triggerAction	: 'all',
-				typeAhead		: true,
-				forceSelection	: true,
-				selectOnFocus	: true,
-			},{
-				fieldLabel		: 'Subject',
-				xtype			: 'textfield',
-				text			: 'subject',
-				value			: 'sujet',
-				anchor			: '-10',
-			},{
-				fieldLabel				: 'To',
-				xtype					: 'mailselect',
-				name					: 'to',
-				anchor					: '-30',
-				value					: emails,
-				store					: that.recipientSearchStore,
-				addEmailTrigger			: true,
-				tpl						:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{personal}</i></div></tpl>',
-			},{
-				xtype			: 'mailselect',
-				fieldLabel		: 'Cc',
-				name			: 'cc',
-				anchor			: '-30',
-				value			: emails,
-				store			: that.recipientSearchStore,
-				tpl				:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{personal}</i></div></tpl>',
-			}]
-		},{
-			xtype	: 'panel',
-			region	: 'east',
-			split	: true,
-			width	: 550,
-			layout	: 'border',
-			items : [{
-				region		: 'north',
-				xtype		: 'tabpanel',
-				height		: 400,
-				activeTab	: 0,
-				items		: [{
-					xtype		: 'panel',
-					id			: 'test123',
-					title		: 'aa1',
-					frame		: true,
-					layout		: 'form',
-					maskDisabled:false,
-					buttons		: [{
-						text		:'test',
-						handler		: function(){
-							var win = new Ext.ModalWindow({
-								modalContainer		: Ext.getCmp('test123'),
-								title				: 'eeee',
-								modalContainerBorder: 20,
-								items				: {
-									html : 'test '+Ext.getCmp(that.renderedFieldId).getValue()
-								},
-							});
-							win.show();
-						}
-					}],
-					items		: [{
-						fieldLabel		: 'Subject1',
-						xtype			: 'textfield',
-						text			: 'subject',
-						value			: 'sujet',
-						anchor			: '100%',
-					},{
-						xtype			: 'eu.sm.form.renderedField',
-						id				: that.renderedFieldId,
-						fieldLabel		: 'Subject2',
-						value			: 'sujet',
-					},{
-						xtype			: 'eu.sm.form.starField',
-						id				: that.starField1Id,
-						fieldLabel		: 'starField 1',
-						mode			: 'byhalf',
-						value			: 3.75,
-					},{
-						xtype			: 'eu.sm.form.starField',
-						id				: that.starField2Id,
-						fieldLabel		: 'starField 2',
-						mode			: 'proportional',
-						value			: 3.75,
-					}]
-				},{
-					xtype		: 'panel',
-					title		: 'aa2',
-					layout		: 'form',
-					items		: [{
-						fieldLabel		: 'Subject2',
-						xtype			: 'textfield',
-						text			: 'subject',
-						value			: 'sujet',
-						anchor			: '100%',
-					}]
-				}]
-			},{
-				html	: 'attachments',
-				region	: 'center'
-			}]
-
-		}]
-	});
 
 	var win2 = new Ext.ModalWindow({
 		modalContainer		: viewport,
@@ -356,4 +184,341 @@ Ext.onReady(function(){
 	});
 	//winOpenLayers.show();
 
+	that.youtubePlayer1Id = Ext.id();
+	var winYoutube1 = new Ext.Window({
+		modalContainer		: viewport,
+		title				: 'test eu.sm.youtube',
+		maximizable			: true,
+		resizable			: true,
+		width				: 700,
+		height				: 400,
+		layout				: 'fit',
+		tbar				: [{
+			xtype				: 'button',
+			text				: 'load',
+			handler				: function(){
+				Ext.getCmp(that.youtubePlayer1Id).loadVideo('XhMN0wlITLk');
+			}
+		}],
+		items				: [{
+			xtype 				: 'eu.sm.youtube',
+			youtubeId			: 'hgd4LpfJQxs',
+			id					: that.youtubePlayer1Id
+		}]
+	});
+	//winYoutube1.show();
+
+	/*
+	that.youtubePlayer2Id = Ext.id();
+	//winOpenLayers.show();
+	var winYoutube2 = new Ext.Window({
+		modalContainer		: viewport,
+		title				: 'test eu.sm.youtube',
+		maximizable			: true,
+		resizable			: true,
+		width				: 700,
+		height				: 400,
+		layout				: 'fit',
+		tbar				: [{
+			xtype				: 'button',
+			text				: 'load',
+			handler				: function(){
+				Ext.getCmp(that.youtubePlayer2Id).loadVideo('XhMN0wlITLk');
+			}
+		}],
+		items				: [{
+			xtype 				: 'eu.sm.youtube',
+			youtubeId			: 'hgd4LpfJQxs',
+			id					: that.youtubePlayer2Id
+		}]
+	});
+	winYoutube2.show();
+	*/
+
+	that.pivotStore = new Ext.data.JsonStore({
+		fields			: [
+			'key',
+			'col1',
+			'subkey',
+			'value'
+		],
+		root			: 'data',
+		idProperty		: 'name',
+		autoLoad		: true,
+		baseParams		: {
+			'exw_action'	: 'local.test.getPivotData'
+		},
+		proxy			: new Ext.data.HttpProxy({
+			url				: 'proxy.php',
+		}),
+	});
+
+	that.pivotStore = new Ext.data.GroupingStore({
+		reader			: new Ext.data.JsonReader({
+			root			: "data",
+			id				: "name"
+		},new Ext.data.Record.create([
+			'key',
+			'col1',
+			'subkey',
+			'value'
+		])),
+		baseParams		: {
+			'exw_action'	: 'local.test.getPivotData'
+		},
+		autoLoad		: true,
+		proxy			: new Ext.data.HttpProxy({
+			url				: 'proxy.php',
+		}),
+		groupField		: 'col1',
+		sortInfo		: {
+			field			: 'col1',
+			direction		: 'ASC'
+		}
+	});
+
+	that.pivotEditorGridPanelId = Ext.id();
+
+	var viewport = new Ext.Viewport({
+		layout	: 'border',
+		items	: [{
+			xtype		: 'tabpanel',
+			region		: 'center',
+			activeItem	: 0,
+			items		:[{
+				xtype		: 'eu.sm.pivoteditorgridpanel',
+				id			: that.pivotEditorGridPanelId,
+				title		: 'grid',
+				tbar		: [{
+					xtype		: 'button',
+					text		: 'save',
+					handler		: function(){
+						var grid = Ext.getCmp(that.pivotEditorGridPanelId);
+						var modifieds = [];
+						Ext.each(grid.store.getModifiedRecords(),function(v,k){
+							var obj = v.getChanges();
+							obj[grid.pivot.groupBy]=v.id;
+							modifieds.push(obj);
+						})
+						console.log(modifieds);
+					}
+				}],
+				pivot		: {
+					store			: that.pivotStore,
+					groupBy			: 'key',
+					value			: 'value',
+					column			: 'subkey',
+					headerRenderer	: function(pivotValue,idx){
+						return '['+pivotValue+']';
+					},
+					columnModel		: {
+						header: 'xxxx'	, width: 60, sortable: true, fixed:false,dataIndex: 'value',
+						editorGenerator	: function(pivotValue,idx){
+							return new Ext.form.TextField();
+						}
+					},
+				},
+				view			: new Ext.grid.GroupingView({
+					forceFit		: true,
+					groupTextTpl	: '{text}'
+				}),
+				forceFit: true,
+				autoExpandColumn	:'col1',
+				columns				: [{
+					header: 'key'	, width: 100, sortable: true, fixed:false,dataIndex: 'key'	,
+				},{
+					header: 'col1'	, width: 200, sortable: true, fixed:false,dataIndex: 'col1'	,id : 'col1',
+				}]
+			},{
+				title		: 'form',
+				xtype		: 'form',
+				labelWidth	: 100,
+				frame		: true,
+				tbar		:[{
+					xtype		: 'button',
+					text		: 'multiple ajax',
+					handler		: function(){
+						var rnd=Math.floor((Math.random()*3)+1);
+						Ext.Ajax.request({
+							url		: 'proxy.php?'+rnd,
+							params	: {
+								exw_action	: 'local.mailboxImap.test',
+								sleep		: rnd
+							},
+							success	: function(data){
+								var result = JSON.parse(data.responseText);
+								console.log(result);
+							},
+							failure	: function(data){
+								console.log(data);
+								alert(Ext.eu.sm.MailBox.i18n._('failure on moving mail'));
+							}
+						});
+
+					}
+				},{
+					xtype		: 'button',
+					text		: 'test template',
+					handler		: function(){
+						var cmp = this;
+						cmp.attachedCmp = new Ext.eu.attachedWindow({
+							resizeTriggerCmp: this,
+							stickCmp		: this,
+							width			: 450,
+							height			: 350,
+							layout			: 'fit',
+							items			: [{
+								xtype			: 'dataTemplateSelector',
+								store			: that.templateStore,
+								itemSelector	: 'div.template-combo-display-wrap',
+								cls				: 'template-combo-display',
+								emptyText		: 'No templates to display',
+								thumbTpl		: new Ext.XTemplate(
+													'<tpl for=".">'+
+														'<div class="template-combo-display-wrap">'+
+															'<div class="name">{name}</div>'+
+															'<div class="body">{body}</div>'+
+														'</div>'+
+													'</tpl>'+
+													'<div class="x-clear"></div>'),
+								detailTpl		: new Ext.XTemplate(
+													'<tpl for=".">'+
+														'<div class="template-combo-display-detail">'+
+															'<div class="name">{name}</div>'+
+															'<div class="body">{body}</div>'+
+														'</div>'+
+													'</tpl>'+
+													'<div class="x-clear"></div>'),
+								listeners		: {
+									selected	: function(record,index){
+										if(record){
+											console.log('OK to move',record,index);
+										}
+										cmp.attachedCmp.destroy();
+									},
+									cancel	: function(selected){
+										console.log('cancel');
+										cmp.attachedCmp.destroy();
+									}
+								}
+							}]
+						});
+						cmp.attachedCmp.show();
+					}
+				}],
+				items		: [{
+					fieldLabel		: 'From',
+					xtype			: 'combo',
+					name			: 'from',
+					store			: that.accountStore,
+					id				: that.accountComboId,
+					anchor			: '-10',
+					displayField	: 'email',
+					valueField		: 'email',
+					emptyText		: 'Select an account...',
+					mode			: 'local',
+					triggerAction	: 'all',
+					typeAhead		: true,
+					forceSelection	: true,
+					selectOnFocus	: true,
+				},{
+					fieldLabel		: 'Subject',
+					xtype			: 'textfield',
+					text			: 'subject',
+					value			: 'sujet',
+					anchor			: '-10',
+				},{
+					fieldLabel				: 'To',
+					xtype					: 'mailselect',
+					name					: 'to',
+					anchor					: '-30',
+					value					: emails,
+					store					: that.recipientSearchStore,
+					addEmailTrigger			: true,
+					tpl						:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{name}</i></div></tpl>',
+				},{
+					xtype			: 'mailselect',
+					fieldLabel		: 'Cc',
+					name			: 'cc',
+					anchor			: '-30',
+					value			: emails,
+					store			: that.recipientSearchStore,
+					tpl				:'<tpl for="."><div class="x-combo-list-item">{email}, <i>{name}</i></div></tpl>',
+				}]
+			}]
+		},{
+			xtype	: 'panel',
+			region	: 'east',
+			split	: true,
+			width	: 550,
+			layout	: 'border',
+			items : [{
+				region		: 'north',
+				xtype		: 'tabpanel',
+				height		: 400,
+				activeTab	: 0,
+				items		: [{
+					xtype		: 'panel',
+					id			: 'test123',
+					title		: 'aa1',
+					frame		: true,
+					border		: false,
+					layout		: 'form',
+					maskDisabled:false,
+					buttons		: [{
+						text		:'test',
+						handler		: function(){
+							var win = new Ext.ModalWindow({
+								modalContainer		: Ext.getCmp('test123'),
+								title				: 'eeee',
+								modalContainerBorder: 20,
+								items				: {
+									html : 'test '+Ext.getCmp(that.renderedFieldId).getValue()
+								},
+							});
+							win.show();
+						}
+					}],
+					items		: [{
+						fieldLabel		: 'Subject1',
+						xtype			: 'textfield',
+						text			: 'subject',
+						value			: 'sujet',
+						anchor			: '100%',
+					},{
+						xtype			: 'eu.sm.form.renderedField',
+						id				: that.renderedFieldId,
+						fieldLabel		: 'Subject2',
+						value			: 'sujet',
+					},{
+						xtype			: 'eu.sm.form.starField',
+						id				: that.starField1Id,
+						fieldLabel		: 'starField 1',
+						mode			: 'byhalf',
+						value			: 3.75,
+					},{
+						xtype			: 'eu.sm.form.starField',
+						id				: that.starField2Id,
+						fieldLabel		: 'starField 2',
+						mode			: 'proportional',
+						value			: 3.75,
+					}]
+				},{
+					xtype		: 'panel',
+					title		: 'aa2',
+					layout		: 'form',
+					items		: [{
+						fieldLabel		: 'Subject2',
+						xtype			: 'textfield',
+						text			: 'subject',
+						value			: 'sujet',
+						anchor			: '100%',
+					}]
+				}]
+			},{
+				html	: 'attachments',
+				region	: 'center'
+			}]
+		}]
+	});
 });

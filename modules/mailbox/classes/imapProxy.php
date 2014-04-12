@@ -6,12 +6,12 @@ class imapProxy{
 	var $accounts		= array();
 	var $cacheEnabled	= true;
 
-	var $imap_order =array(
-			'date'		=> SORTDATE,
-			'arrival'	=> SORTARRIVAL,
-			'from'		=> SORTFROM,
-			'subject'	=> SORTSUBJECT,
-			'size'		=> SORTSIZE
+	var $imap_order		= array(
+		'date'		=> SORTDATE,
+		'arrival'	=> SORTARRIVAL,
+		'from'		=> SORTFROM,
+		'subject'	=> SORTSUBJECT,
+		'size'		=> SORTSIZE
 	);
 
 	function __construct ($accounts){
@@ -174,5 +174,9 @@ class imapProxy{
 
 	function mail_move($sequence,$dest){
 		return imap_mail_move($this->imapStream,$sequence,$dest,CP_UID);
+	}
+
+	function append($folder, $mail_string,$flag){
+		return imap_append($this->imapStream, $this->accounts[$this->account]['cnx'].$folder, $mail_string, $flag);
 	}
 }

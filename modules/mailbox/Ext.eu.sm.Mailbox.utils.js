@@ -11,8 +11,8 @@ Ext.eu.sm.MailBox.utils={
 		var str = '';
 		var sepa = '';
 		Ext.each(recipients,function(v,k){
-			if(v.personal){
-				str = str + sepa + before+v.personal+ ' ('+v.email+')'+after;
+			if(v.name){
+				str = str + sepa + before+v.name+ ' ('+v.email+')'+after;
 			}else{
 				str = str + sepa + before+v.email+after;
 			}

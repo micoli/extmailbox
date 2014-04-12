@@ -232,6 +232,33 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		that.accountComboId	= Ext.id();
 		that.folderTreeId	= Ext.id();
 
+
+		//var ws = new WebSocket('ws://' + window.location.hostname + ':61614/stomp');
+		//ws.reconnectInterval = 3000;
+		//var client = Stomp.over(ws);
+		var client = Stomp.client( "ws://localhost:61614/",['v10.stomp']);
+		console.log(client);
+
+		client.heartbeat.outgoing = 0;
+		client.heartbeat.incoming = 0;
+		client.debug = false;
+
+		var on_connect = function(x) {
+			console.log('rerer');
+			var id = client.subscribe("/topic/imapNotifierOnMessage/micoliAccount", function(d) {
+				console.log(d.body);
+				/*that.logStore.add({
+					log	: d.body
+				})*/
+			});
+		};
+		var on_error =  function(msg) {
+				console.log('error ' + msg);
+		};
+
+		var tt = client.connect('guest', 'guest', on_connect, on_error, '/');
+		console.log(tt);
+
 		that.accountStore = new Ext.data.JsonStore({
 			fields			: [
 				'account',

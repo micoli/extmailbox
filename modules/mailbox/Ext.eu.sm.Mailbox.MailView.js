@@ -36,7 +36,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		that.recipientToStore = new Ext.data.JsonStore({
 			fields	: [
 				'email',
-				'personal'
+				'name'
 			],
 			data	: [],
 			sortInfo: {field: 'email', direction: 'ASC'},

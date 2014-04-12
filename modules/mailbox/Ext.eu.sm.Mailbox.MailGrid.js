@@ -1,3 +1,4 @@
+
 Ext.ns('Ext.eu.sm.MailBox');
 //mailbox.mailsearchform
 Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
@@ -41,7 +42,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		that.searchFormId		= Ext.id();
 		that.mainGridId			= Ext.id();
 		that.menuGroupId		= Ext.id();
-
+		that.dateInit = Date.now();
 
 		that.mailStore = new Ext.data.GroupingStore({
 			remoteSort		: true,
@@ -54,6 +55,11 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				totalProperty	: 'totalCount',
 				id				: 'message_id',
 			},that.mailboxContainer.mailFields),
+			listeners	:{
+				load : function(){
+					console.log('eee');
+				}
+			},
 			baseParams		: {
 				'exw_action'	: that.mailboxContainer.svcImapPrefixClass+'getMailListInFolders',
 				'folder'		: 'INBOX'
@@ -64,6 +70,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			},
 			proxy			: new Ext.data.HttpProxy({
 				url				: 'proxy.php',
+				//url				: '/test.json?r=1',
 			})
 		});
 
@@ -132,7 +139,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			id		: that.menuGroupId,
 			menu	: {
 				defaults:{
-					group			: 'theme',
+					group			: 'radioGroupingColumn',
 					checked			: false,
 					checkHandler	: function (item,val){
 						if(val){
@@ -266,6 +273,9 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 						return 'x-grid3-row-collapsed';
 					},
 					listeners			: {
+						refresh:function(){
+							console.log(Date.now()-that.dateInit);
+						},
 						beforerefresh		: function(view){
 							that.groupColType = view.getGroupField()?view.ds.fields.get(view.getGroupField()).type:null;
 						}

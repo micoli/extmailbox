@@ -1,8 +1,12 @@
 Ext.ns('Ext.eu.sm.MailBox');
+Ext.form.VTypes.emailExt = function(v){
+	var email = /^([\w]+)(\.[\w]+)*@([\w\-]+\.){1,5}([A-Za-z]){2,5}$/;
+	return email.test(v);
+}
 
 Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
-	displayField	: 'personal',
-	displayFieldTpl	: '{personal} ({email})',
+	displayField	: 'name',
+	displayFieldTpl	: '{name} ({email})',
 	valueField		: 'email',
 	mode			: 'remoteInitialLocal',
 	addUniqueValues	: false,
@@ -24,7 +28,7 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 
 	getEmailsValues:function(emails){
 		return new Ext.data.JsonStore({
-			fields:['personal','email']
+			fields:['name','email']
 		}).reader.readRecords(emails).records;
 	},
 
@@ -35,8 +39,8 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 			if(v){
 				var idx=that.store.find('email',v);
 				res.push({
-					email		: v,
-					personnal	: (idx>=0)?that.store.getAt(idx).get('personal'):''
+					email	: v,
+					name	: (idx>=0)?that.store.getAt(idx).get('name'):''
 				});
 			}
 		})
@@ -73,7 +77,7 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 			}else if(this.mode == 'remoteInitialLocal'){
 				this.store.add(new Ext.data.JsonStore({
 					fields:[
-						'personal',
+						'name',
 						'email'
 					]
 				}).reader.readRecords(value).records);
@@ -113,12 +117,12 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 			var aVal = (''+this.el.dom.value).replace(/[\ \,\;]/g,',').split(',');
 			for(i in aVal){
 				var val = aVal[i];
-				if(Ext.form.VTypes.email(val)){
+				if(Ext.form.VTypes.emailExt(val)){
 					//console.log('test');
 					/*if (that.store.find('email',val)==-1){
 						//console.log('add');
 						that.store.add([new that.store.recordType({
-							personal	: '',
+							name	: '',
 							email		: val
 						})]);
 					}*/
@@ -235,7 +239,7 @@ Ext.eu.sm.MailBox.MailSelect = Ext.extend(Ext.ux.BoxSelect, {
 							that.onSelect({
 								data:{
 									email	: selected.get('email'),
-									personal: selected.get('personal')
+									name	: selected.get('name')
 								}
 							},'email');
 						}

@@ -19,6 +19,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		var that = this;
 		that.el.mask('Sending','x-mask-loading');
 		objToSend.exw_action	= that.mailboxContainer.svcSmtpPrefixClass+'sendMail';
+		objToSend.account		= Ext.getCmp(that.accountComboId).getValue();
 		objToSend.attachments	= JSON.stringify(objToSend.attachments);
 		objToSend.to			= JSON.stringify(objToSend.to);
 		objToSend.cc			= JSON.stringify(objToSend.cc);
@@ -30,7 +31,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				that.el.unmask();
 				try{
 					var result = JSON.parse(data.responseText);
-					if(result.ok){
+					if(result.success){
 						if(that.ownerCt && that.ownerCt.xtype=='tabpanel'){
 							that.ownerCt.fireEvent('messagessent',that);
 						}
@@ -73,7 +74,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		};
 
 		uploaderCmp.store.data.each(function(v,k){
-			objToSend.attachments.push(v.get('fileName'));
+			objToSend.attachments.push(objToSend.message_id + '-' + v.get('fileName'));
 			if(v.get('state')=='queued' || v.get('state')=='uploading'){
 				uploadsOk=false;
 			}
@@ -168,7 +169,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			totalProperty	:'totalCount',
 			fields:[
 				{name:'email'		, type:'string'},
-				{name:'personal'	, type:'string'},
+				{name:'name'		, type:'string'},
 			],
 			url			:'proxy.php',
 			baseParams	: {
@@ -176,7 +177,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			}
 		});
 
-		that.recipientTpl			= '<tpl for="."><div class="x-combo-list-item">{email}, <i>{personal}</i></div></tpl>';
+		that.recipientTpl			= '<tpl for="."><div class="x-combo-list-item">{email}, <i>{name}</i></div></tpl>';
 		that.recipientContextMenu	= function(value){
 			return new Ext.menu.Menu({
 				items			: [{

@@ -3,7 +3,7 @@ Ext.ns('Ext.eu.sm.MailBox.MailSelect');
 Ext.eu.sm.MailBox.MailSelect.ContactWindow = Ext.extend(Ext.grid.GridPanel, {
 	initComponent	: function (){
 		var that			= this;
-		that.txtPersonalId	= Ext.id();
+		that.txtNameId		= Ext.id();
 		that.txtEmailId		= Ext.id();
 
 		this.addEvents('selected');
@@ -17,9 +17,9 @@ Ext.eu.sm.MailBox.MailSelect.ContactWindow = Ext.extend(Ext.grid.GridPanel, {
 				options.params['email']=txt;
 				ok2load=true;
 			}
-			txt=Ext.getCmp(that.txtPersonalId).getValue();
+			txt=Ext.getCmp(that.txtNameId).getValue();
 			if (txt){
-				options.params['personal']=txt;
+				options.params['name']=txt;
 				ok2load=true;
 			}
 			if(ok2load){
@@ -33,7 +33,7 @@ Ext.eu.sm.MailBox.MailSelect.ContactWindow = Ext.extend(Ext.grid.GridPanel, {
 			tbar				:[Ext.eu.sm.MailBox.i18n._('Name'),{
 				xtype				: 'textfield',
 				width				: 140,
-				id					: that.txtPersonalId,
+				id					: that.txtNameId,
 				enableKeyEvents		: true,
 				listeners			: {
 					keyup:function(field,e){
@@ -65,13 +65,13 @@ Ext.eu.sm.MailBox.MailSelect.ContactWindow = Ext.extend(Ext.grid.GridPanel, {
 					}
 				}
 			}],
-			autoExpandColumn	: 'personal',
+			autoExpandColumn	: 'name',
 			selModel			: new Ext.grid.RowSelectionModel({
 				singleSelect		: true
 			}),
 			columns				: [{
-				dataIndex	: 'personal',
-				id			: 'personal',
+				dataIndex	: 'name',
+				id			: 'name',
 				fixed		: false,
 				width		: 200
 			},{
@@ -90,7 +90,7 @@ Ext.eu.sm.MailBox.MailSelect.ContactWindow = Ext.extend(Ext.grid.GridPanel, {
 
 		this.on('render'	, function(e) {
 			window.setTimeout(function(){
-				Ext.getCmp(that.txtPersonalId).focus();
+				Ext.getCmp(that.txtNameId).focus();
 			},150);
 		});
 	}
