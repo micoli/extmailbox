@@ -181,6 +181,8 @@ Ext.ux.util.MD5 = function(s) {
  * @return {Object/Array} Deep clone of an object or an array
  * @author Ing. Jozef Sak��lo��
  */
+
+/*
 Ext.ux.util.clone = function(o) {
 	if(!o || 'object' !== typeof o) {
 		return o;
@@ -203,6 +205,7 @@ Ext.ux.util.clone = function(o) {
 	}
 	return c;
 }; // eo function clone
+*/
 // }}}
 // {{{
 /**
@@ -228,6 +231,7 @@ Ext.ux.util.clone = function(o) {
  * </pre>
  * @return {Object} Original passed target object with properties updated from source
  */
+/*
 Ext.ux.util.applyMatching = function(t, s) {
 	var s = s || this;
 	for(var p in t) {
@@ -237,6 +241,7 @@ Ext.ux.util.applyMatching = function(t, s) {
 	}
 	return t;
 }; // eo function applyMatching
+*/
 // }}}
 
 // conditional override
@@ -247,6 +252,7 @@ Ext.ux.util.applyMatching = function(t, s) {
  * @param {Object} origclass
  * @param {Object} overrides
  */
+/*
 Ext.overrideIf = 'function' === typeof Ext.overrideIf ? Ext.overrideIf : function(origclass, overrides) {
 	if(overrides) {
 		var p = origclass.prototype;
@@ -258,12 +264,13 @@ Ext.overrideIf = 'function' === typeof Ext.overrideIf ? Ext.overrideIf : functio
 	}
 };
 // }}}
-
+*/
 // RegExp
 // {{{
 /**
  * @class RegExp
  */
+
 if('function' !== typeof RegExp.escape) {
 	/**
 	 * Escapes regular expression
@@ -278,28 +285,21 @@ if('function' !== typeof RegExp.escape) {
 		return s.replace(/([.*+?\^=!:${}()|\[\]\/\\])/g, '\\$1');
 	};
 }
+/*
 Ext.overrideIf(RegExp, {
 
-	/**
-	 * Clones RegExp object
-	 * @return {RegExp} Clone of this RegExp
-	 */
 	clone:function() {
 		return new RegExp(this);
 	} // eo function clone
-});
+});*/
 // }}}
 
 // Array
 // {{{
+/*
 _Array={};
 Ext.overrideIf(_Array, {
 	// {{{
-	/**
-	 * One dimensional copy. Use {@link Ext.ux.util#clone Ext.ux.util.clone} to deeply clone an Array.
-	 * @member Array
-	 * @return {Array} New Array that is copy of this
-	 */
 	copy:function() {
 		var a = [];
 		for(var i = 0, l = this.length; i < l; i++) {
@@ -309,13 +309,6 @@ Ext.overrideIf(_Array, {
 	} // eo function copy
 	// }}}
 	// {{{
-	/**
-	 * Not used anyway as Ext has its own indexOf
-	 * @member Array
-	 * @return {Integer} Index of v or -1 if not found
-	 * @param {Mixed} v Value to find indexOf
-	 * @param {Integer} b Starting index
-	 */
 	,indexOf:function(v, b) {
 		for(var i = +b || 0, l = this.length; i < l; i++) {
 			if(this[i] === v) {
@@ -326,14 +319,6 @@ Ext.overrideIf(_Array, {
 	} // eo function indexOf
 	// }}}
 	// {{{
-	/**
-	 * Returns intersection of this Array and passed arguments
-	 * @member Array
-	 * @return {Array} Intersection of this and passed arguments
-	 * @param {Mixed} arg1 (optional)
-	 * @param {Mixed} arg2 (optional)
-	 * @param {Mixed} etc. (optional)
-	 */
 	,intersect:function() {
 		if(!arguments.length) {
 			return [];
@@ -353,13 +338,6 @@ Ext.overrideIf(_Array, {
 	} // eo function intesect
 	// }}}
 	// {{{
-	/**
-	 * Returns last index of passed argument
-	 * @member Array
-	 * @return {Integer} Index of v or -1 if not found
-	 * @param {Mixed} v Value to find indexOf
-	 * @param {Integer} b Starting index
-	 */
 	,lastIndexOf:function(v, b) {
 		b = +b || 0;
 		var i = this.length;
@@ -372,13 +350,6 @@ Ext.overrideIf(_Array, {
 	} // eof function lastIndexOf
 	// }}}
 	// {{{
-	/**
-	 * @member Array
-	 * @return {Array} New Array that is union of this and passed arguments
-	 * @param {Mixed} arg1 (optional)
-	 * @param {Mixed} arg2 (optional)
-	 * @param {Mixed} etc. (optional)
-	 */
 	,union:function() {
 		var a = this.copy(), a1;
 		for(var k = 0, ac = arguments.length; k < ac; k++) {
@@ -391,11 +362,6 @@ Ext.overrideIf(_Array, {
 	} // eo function union
 	// }}}
 	// {{{
-	/**
-	 * Removes duplicates from array
-	 * @member Array
-	 * @return {Array} New Array with duplicates removed
-	 */
 	,unique:function() {
 		var a = [], i, l = this.length;
 		for(i = 0; i < l; i++) {
@@ -408,6 +374,7 @@ Ext.overrideIf(_Array, {
 	// }}}
 
 });
+*/
 // }}}
 
 // eof
