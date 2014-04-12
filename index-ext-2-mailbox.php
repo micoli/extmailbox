@@ -11,9 +11,13 @@
 
 		<script type="text/javascript"			src ="libs/ext.plugins/rowExpander/RowExpander.js"></script>
 
+		<script type="text/javascript"			src ="libs/ext.plugins/operative.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.util.md5.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.util.base64.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/utils/ext.data.ArrayStore.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/stomp/stomp.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/stomp/ReconnectingWebSocket.js"></script>
+		<!-- script type="text/javascript"			src ="libs/ext.plugins/Ext.JsonReaderOverride.js"></script -->
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/boxselect/boxselect.css" />
 		<script type="text/javascript" 			src ="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
