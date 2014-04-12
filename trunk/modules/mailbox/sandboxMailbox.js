@@ -16,9 +16,9 @@ Ext.onReady(function(){
 			mailLayout		: 'threePane',
 			svcImapClass	: 'MailboxImapExt',
 			svcSmtpClass	: 'MailboxSmtpExt',
-			mailLayout		: 'gridOnNorth',
+			mailLayout		: 'gridOnNorth',//threePane || gridOnNorth
 			gridConfig		: {
-				pageSize		: 25,
+				pageSize		: 10,
 				gridPlugins		: [mailGridCellActions],
 				customListeners		:{
 					postInit		: function(container){

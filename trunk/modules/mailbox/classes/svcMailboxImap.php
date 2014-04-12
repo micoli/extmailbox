@@ -19,6 +19,105 @@ class svcMailboxImap{
 		$this->imapProxy->setCache($GLOBALS['conf']['imapMailBox']['tmp']);
 	}
 
+
+	public function pub_test($o){
+		$sleep=0+$o['sleep'];
+		sleep($sleep);
+		return array('sleep'=>$sleep);
+	}
+
+	public function pub_todo_getMailThreadsInFolders($o){
+		$t1 = microtime(true);
+		$res = array();
+		$folder=base64_decode($o['folder']);
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open($folder);
+		if(!$this->imapProxy->isConnected()){
+			return $res;
+		}
+
+		//db(imap_thread($this->imapProxy->imapStream));
+		header('content-type: text/html; charset=utf-8');
+		//$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
+		//$num	= $this->imapProxy->num_msg();
+
+
+		$threads = $rootValues = array();
+		$thread = $this->imapProxy->thread();
+		$root = 0;
+		//first we find the root (or parent) value for each email in the thread
+		//we ignore emails that have no root value except those that are infact
+		//the root of a thread
+
+		//we want to gather the message IDs in a way where we can get the details of
+		//all emails on one call rather than individual calls ( for performance )
+
+		//foreach thread
+		foreach ($thread as $i => $messageId) {
+			//get sequence and type
+			list($sequence, $type) = explode('.', $i);
+
+			//if type is not num or messageId is 0 or (start of a new thread and no next) or is already set
+			if($type != 'num' || $messageId == 0
+					|| ($root == 0 && $thread[$sequence.'.next'] == 0)
+					|| isset($rootValues[$messageId])) {
+				//ignore it
+				continue;
+			}
+
+			//if this is the start of a new thread
+			if($root == 0) {
+				//set root
+				$root = $messageId;
+			}
+
+			//at this point this will be part of a thread
+			//let's remember the root for this email
+			$rootValues[$messageId] = $root;
+
+			//if there is no next
+			if($thread[$sequence.'.next'] == 0) {
+			//reset root
+				$root = 0;
+			}
+		}
+
+		//now get all the emails details in rootValues in one call
+		//because one call for 1000 rows to a server is better
+		//than calling the server 1000 times
+		$emails = imap_fetch_overview($imap, implode(',', array_keys($rootValues)));
+
+
+
+		if($num==0 || !$aID){
+			return array('data'=>array(),'totalCount'=>0);
+		}
+
+
+		//there is no need to sort, the threads will automagically in chronological order
+		echo '<pre>'.print_r($threads, true).'</pre>';
+
+		foreach ($emails as $msg) {
+			if($msg->message_id){
+				$aMID = array();
+				$msg->msgid				= $folder.'/'.$msg->uid;
+				$aMID[]					= $msg->msgid;
+				$msg->date				= date('Y-m-d H:i:s',strtotime($msg->date));
+				$msg->account			= $o['account'];
+				$msg->folder			= $o['folder'];
+				$aMMGCache = $this->getMMGCache($aMID);
+				$this->getMsgWithCacheSupport($aMMGCache,$msg);
+			}
+			$root = $rootValues[$msg->msgno];
+			$threads[$root][] = $msg;
+		}
+		db($threads);
+		//$aMsgs	= $this->imapProxy->fetch_overview(implode(',',array_keys($rootValues)));
+		//print (microtime(true)-$t1);
+		$a= array('data'=>array_values($threads),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
+		return $a;
+	}
+
 	/**
 	 *
 	 * @param array $o
@@ -78,11 +177,11 @@ class svcMailboxImap{
 	function pub_searchContact($o){
 		$QDDb = new QDDB();
 		if(array_key_exists('query',$o)){
-			$arr = $QDDb->query2Array(sprintf('select * from imail.PRS_PERSONAL where email like "%%%s%%" or personal like "%%%s%%"  ',$o['query'],$o['query']));
+			$arr = $QDDb->query2Array(sprintf('select p.*,personal as name from imail.PRS_PERSONAL p where email like "%%%s%%" or personal like "%%%s%%"  ',$o['query'],$o['query']));
 		}else{
 			$sql = 'select * from imail.PRS_PERSONAL where true ';
-			if(array_key_exists('personal',$o)){
-				$sql.=sprintf(' and personal like "%%%s%%"',$o['personal']);
+			if(array_key_exists('name',$o)){
+				$sql.=sprintf(' and personal like "%%%s%%"',$o['name']);
 			}
 			if(array_key_exists('email',$o)){
 				$sql.=sprintf(' and email like "%%%s%%"',$o['email']);
@@ -218,13 +317,17 @@ class svcMailboxImap{
 		//db(imap_thread($this->imapProxy->imapStream));
 		header('content-type: text/html; charset=utf-8');
 		$query = array_key_exists_assign_default('query',$o,false);
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 		if($query){
 			//$query	= sprintf('TEXT "%s"',addslashes($query));
 			$aID	= $this->imapProxy->search($query);
 			$num	= count($aID);
 		}else{
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 			$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 			$num	= $this->imapProxy->num_msg();
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 		}
 		if($num==0 || !$aID){
 			return array('data'=>array(),'totalCount'=>0);
@@ -234,10 +337,12 @@ class svcMailboxImap{
 		if (($nStart+$nCnt) > $num) {
 			$nCnt = $num-$nStart;
 		}
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 		//$aID	= array_slice($aID,$nStart,($nStart+$nCnt-1));
 		$aID	= array_slice($aID,$nStart,$nCnt);
 		$aMsgs	= $this->imapProxy->fetch_overview(implode(',',$aID));
 		$aRet	= array();
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 		if ($aMsgs) {
 			$aMID = array();
 			foreach ($aMsgs as $msg) {
@@ -257,10 +362,12 @@ class svcMailboxImap{
 				$this->getMsgWithCacheSupport($aMMGCache,$msg);
 			}
 		}
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
 		if(array_key_exists_assign_default('dir', $o, 'DESC')=='DESC'){
 			$aRet = array_reverse($aRet);
 		}
-		//print (microtime(true)-$t1);
+		//print'<br>'. __LINE__.'/'.(microtime(true)-$t1);$t1 = microtime(true);
+		//$a= array('data'=>$pp,'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
 		$a= array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
 		return $a;
 	}
@@ -270,98 +377,6 @@ class svcMailboxImap{
 	 * @param array $o
 	 * @return array
 	 */
-	public function pub_todo_getMailThreadsInFolders($o){
-		$t1 = microtime(true);
-		$res = array();
-		$folder=base64_decode($o['folder']);
-		$this->imapProxy->setAccount($o['account']);
-		$this->imapProxy->open($folder);
-		if(!$this->imapProxy->isConnected()){
-			return $res;
-		}
-
-		//db(imap_thread($this->imapProxy->imapStream));
-		header('content-type: text/html; charset=utf-8');
-		//$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
-		//$num	= $this->imapProxy->num_msg();
-
-
-		$threads = $rootValues = array();
-		$thread = $this->imapProxy->thread();
-		$root = 0;
-		//first we find the root (or parent) value for each email in the thread
-		//we ignore emails that have no root value except those that are infact
-		//the root of a thread
-
-		//we want to gather the message IDs in a way where we can get the details of
-		//all emails on one call rather than individual calls ( for performance )
-
-		//foreach thread
-		foreach ($thread as $i => $messageId) {
-			//get sequence and type
-			list($sequence, $type) = explode('.', $i);
-
-			//if type is not num or messageId is 0 or (start of a new thread and no next) or is already set
-			if($type != 'num' || $messageId == 0
-					|| ($root == 0 && $thread[$sequence.'.next'] == 0)
-					|| isset($rootValues[$messageId])) {
-				//ignore it
-				continue;
-			}
-
-			//if this is the start of a new thread
-			if($root == 0) {
-				//set root
-				$root = $messageId;
-			}
-
-			//at this point this will be part of a thread
-			//let's remember the root for this email
-			$rootValues[$messageId] = $root;
-
-			//if there is no next
-			if($thread[$sequence.'.next'] == 0) {
-			//reset root
-				$root = 0;
-			}
-		}
-
-		//now get all the emails details in rootValues in one call
-		//because one call for 1000 rows to a server is better
-		//than calling the server 1000 times
-		$emails = imap_fetch_overview($imap, implode(',', array_keys($rootValues)));
-
-
-
-		if($num==0 || !$aID){
-			return array('data'=>array(),'totalCount'=>0);
-		}
-
-
-		//there is no need to sort, the threads will automagically in chronological order
-		echo '<pre>'.print_r($threads, true).'</pre>';
-
-		foreach ($emails as $msg) {
-			if($msg->message_id){
-				$aMID = array();
-				$msg->msgid				= $folder.'/'.$msg->uid;
-				$aMID[]					= $msg->msgid;
-				$msg->date				= date('Y-m-d H:i:s',strtotime($msg->date));
-				$msg->account			= $o['account'];
-				$msg->folder			= $o['folder'];
-				$aMMGCache = $this->getMMGCache($aMID);
-				$this->getMsgWithCacheSupport($aMMGCache,$msg);
-			}
-			$root = $rootValues[$msg->msgno];
-			$threads[$root][] = $msg;
-		}
-		db($threads);
-		//$aMsgs	= $this->imapProxy->fetch_overview(implode(',',array_keys($rootValues)));
-		//print (microtime(true)-$t1);
-		$a= array('data'=>array_values($threads),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
-		return $a;
-	}
-
 
 	/**
 	 *
@@ -847,7 +862,7 @@ class svcMailboxImap{
 					foreach($tmp as $k=>$v){
 						$header[$type][]=array(
 							'email'		=> trim(imap_utf8($v->mailbox)).'@'.trim(imap_utf8($v->host)),
-							'personal'	=> trim(trim(trim(imap_utf8(isset($v->personal)?$v->personal:''), "'"), '"'))
+							'name	'	=> trim(trim(trim(imap_utf8(isset($v->name)?$v->name:''), "'"), '"'))
 						);
 					}
 				}
@@ -859,7 +874,7 @@ class svcMailboxImap{
 				foreach($tmp as $k=>$v){
 					array_push($header->$type,array(
 						'email'		=> trim(imap_utf8($v->mailbox)).'@'.trim(imap_utf8($v->host)),
-						'personal'	=> trim(trim(trim(imap_utf8($v->personal), "'"), '"'))
+						'name	'	=> trim(trim(trim(imap_utf8($v->name), "'"), '"'))
 					));
 				}
 			}
