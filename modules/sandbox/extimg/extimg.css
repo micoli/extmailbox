@@ -1,0 +1,22 @@
+.extimg-loading{
+	background-image:url(extimg-loader.gif);
+	background-repeat:no-repeat;
+	background-position:center;
+}
+.slider{
+	height:240px;
+	width:240px;
+	overflow:hidden;
+}
+.slider-window{
+	float:left;
+	height:240px;
+	width:240px;
+	overflow:hidden;
+}
+.subslider{
+	height:240px;
+	width:10000px;
+	position:relative;
+	left:0px;
+}
