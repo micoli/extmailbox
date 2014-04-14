@@ -26,7 +26,11 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 			record[that.pivot.groupBy]=v.id;
 			for(var field in record){
 				if (record.hasOwnProperty(field) && that.pivotMap.hasOwnProperty(field)){
-					pivotValues[that.pivotMap[field]]=record[field];
+					var c = that.pivotMap[field]
+					if(!pivotValues[c.pivotValue]){
+						pivotValues[c.pivotValue]={};
+					}
+					pivotValues[c.pivotValue][c.colName]=record[field];
 					delete record[field];
 				}
 			}
@@ -37,13 +41,13 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 	},
 
 	pivotReconfigure		: function(){
-		var that = this;
-		var pivotValues=[];
-		var columns=[];
-		var fields;
-		var record;
+		var that		= this;
+		var pivotValues	= [];
+		var columns		= [];
+		var fields		;
+		var record		;
+		var newRecord	;
 		var groupByValue;
-		var newRecord;
 
 		columns = this.initColumns.slice(0);
 
@@ -53,26 +57,36 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 				pivotValues.push(val);
 			}
 		});
+
 		pivotValues.sort();
-		that.pivotMap={};
+		that.pivotMap = {};
 		fields = that.templateFields.slice(0);//fast copy
 		for (var i in pivotValues){
 			if(pivotValues.hasOwnProperty(i)){
-				fields.push({
-					name	: that.pivotPrefix+i
-				});
-				that.pivotMap[that.pivotPrefix+i] = pivotValues[i];
-				var columnModel=Ext.applyIf({
-					dataIndex	: that.pivotPrefix+i,
-					id			: that.pivotPrefix+i,
-					header		: that.pivot.headerRenderer?that.pivot.headerRenderer(pivotValues[i],i):(''+ that.pivot.columnModel.header || '')+' '+ i
-				},that.pivot.columnModel);
-				if(columnModel.editorGenerator){
-					columnModel.editor=columnModel.editorGenerator(pivotValues[i],i);
-				}
-				columns.push(columnModel);
+				Ext.each(that.pivot.values,function(pivotColName,pivotFieldIdx){
+					fields.push({
+						name	: that.pivotPrefix+i+'_'+pivotColName
+					});
+					that.pivotMap[that.pivotPrefix+i+'_'+pivotColName] = {
+						pivotValue	: pivotValues[i],
+						colName		: pivotColName
+					}
+					var columnModel=Ext.applyIf({
+						dataIndex	: that.pivotPrefix+i+'_'+pivotColName,
+						id			: that.pivotPrefix+i+'_'+pivotColName,
+						header		: that.pivot.headerRenderer?that.pivot.headerRenderer(pivotValues[i],i,pivotColName,pivotFieldIdx):(''+ that.pivot.columnModel.header || '')+' '+ i
+					},that.pivot.columnModel[pivotFieldIdx]);
+					if(columnModel.editorGenerator){
+						columnModel.editor=columnModel.editorGenerator(pivotValues[i],i);
+					}
+					columns.push(columnModel);
+				})
 			}
 		}
+
+		Ext.each(that.pivot.postColumnModel||[],function(columnModel){
+			columns.push(columnModel);
+		});
 
 		that.createInternalStore({
 			fields		: fields,
@@ -92,7 +106,9 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 				record = new that.store.recordType(record,groupByValue);
 				that.store.addSorted(record);
 			}
-			record.set(that.pivotPrefix+pivotValues.indexOf(v.get(that.pivot.column)),v.get(that.pivot.value));
+			Ext.each(that.pivot.values,function(pivotColName,pivotFieldIdx){
+				record.set(that.pivotPrefix+pivotValues.indexOf(v.get(that.pivot.column))+'_'+pivotColName,v.get(pivotColName));
+			});
 			record.dirty	= false;
 			delete record.modified
 		});
@@ -131,7 +147,7 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 		that.templateFieldsColName = [];
 		Ext.each(that.pivot.store.fields.items,function(v,k){
 			var field = new Ext.data.Field(v);
-			if (field.name!=that.pivot.value && field.name!=that.pivot.column){
+			if (that.pivot.values.indexOf(field.name)==-1 && field.name!=that.pivot.column){
 				that.templateFields.push(field);
 				that.templateFieldsColName.push(field.name);
 			}
@@ -146,6 +162,10 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 		var index;
 
 		that.initStaticFields();
+		that.getView();
+
+		that.pivot.values		=(that.pivot.values			instanceof Array)?that.pivot.values		:[that.pivot.values		];
+		that.pivot.columnModel	=(that.pivot.columnModel	instanceof Array)?that.pivot.columnModel:[that.pivot.columnModel];
 
 		that.createInternalStore({
 			fields	: that.templateFields,
