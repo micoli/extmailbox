@@ -185,7 +185,7 @@ Ext.onReady(function(){
 		}]
 	});
 
-	var winYoutube1 = new Ext.Window({
+	var winYoutube1Cfg = {
 		modalContainer		: viewport,
 		title				: 'test eu.sm.youtube',
 		maximizable			: true,
@@ -205,9 +205,9 @@ Ext.onReady(function(){
 			youtubeId			: 'hgd4LpfJQxs',
 			id					: that.youtubePlayer1Id
 		}]
-	});
+	};
 
-	var winYoutube2 = new Ext.Window({
+	var winYoutube2Cfg = {
 		modalContainer		: viewport,
 		title				: 'test eu.sm.youtube',
 		maximizable			: true,
@@ -227,7 +227,7 @@ Ext.onReady(function(){
 			youtubeId			: 'hgd4LpfJQxs',
 			id					: that.youtubePlayer2Id
 		}]
-	});
+	};
 
 	that.pivotStore = new Ext.data.JsonStore({
 		fields			: [
@@ -281,13 +281,19 @@ Ext.onReady(function(){
 				text	: 'win YouTube 1',
 				xtype	: 'button',
 				handler : function(){
-					winYoutube1.show();
+					if (typeof document.winYoutube1 == 'undefined'){
+						document.winYoutube1 = new Ext.Window(winYoutube1Cfg);
+					}
+					document.winYoutube1.show();
 				}
 			},'-',{
 				text	: 'win YouTube 2',
 				xtype	: 'button',
 				handler : function(){
-					winYoutube2.show();
+					if (typeof document.winYoutube2 == 'undefined'){
+						document.winYoutube2 = new Ext.Window(winYoutube2Cfg);
+					}
+					document.winYoutube2.show();
 				}
 			},'-',{
 				text	: 'win OpenLayers',
@@ -432,13 +438,7 @@ Ext.onReady(function(){
 					text		: 'save',
 					handler		: function(){
 						var grid = Ext.getCmp(that.pivotEditorGridPanelId);
-						var modifieds = [];
-						Ext.each(grid.store.getModifiedRecords(),function(v,k){
-							var obj = v.getChanges();
-							obj[grid.pivot.groupBy]=v.id;
-							modifieds.push(obj);
-						})
-						console.log(modifieds);
+						console.log(grid.pivotGetModifiedRecords());
 					}
 				}],
 				pivot		: {
@@ -472,13 +472,7 @@ Ext.onReady(function(){
 					text		: 'save',
 					handler		: function(){
 						var grid = Ext.getCmp(that.pivotGroupingEditorGridPanelId);
-						var modifieds = [];
-						Ext.each(grid.store.getModifiedRecords(),function(v,k){
-							var obj = v.getChanges();
-							obj[grid.pivot.groupBy]=v.id;
-							modifieds.push(obj);
-						})
-						console.log(modifieds);
+						console.log(grid.pivotGetModifiedRecords());
 					}
 				}],
 				pivot		: {
@@ -505,7 +499,7 @@ Ext.onReady(function(){
 				columns				: [{
 					header: 'key'	, width: 100, sortable: true, fixed:false,dataIndex: 'key'	,
 				},{
-					header: 'col1'	, width: 200, sortable: true, fixed:false,dataIndex: 'col1'	,id : 'col1',
+					header: 'col1'	, width: 200, sortable: true, fixed:false,dataIndex: 'col1'	,id : 'col1',editor : new Ext.form.TextField()
 				}]
 			}]
 		},{
