@@ -11,7 +11,7 @@ Ext.ns('Ext.eu.sm');
 	}
  */
 
-Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
+Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.LockingGridPanel,{
 	pivotPrefix				: 'pivotValue_',
 	pivotMap				: {},
 	templateFields			: [],
@@ -40,50 +40,63 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 		return modifieds;
 	},
 
+	getPivotRecord			: function(record,col){
+		var that = this;
+		var pivotRecord=null;
+		if(record.pivotData.byId['_'+(col-that.initColumns.length)]){
+			pivotRecord=record.pivotData.byId['_'+(col-that.initColumns.length)];
+		}
+		return pivotRecord;
+	},
+
+	getPivotColValue		: function (col){
+		var that = this;
+		return that.pivotValues[col-that.initColumns.length];
+	},
+
 	pivotReconfigure		: function(){
 		var that		= this;
-		var pivotValues	= [];
 		var columns		= [];
 		var fields		;
 		var record		;
 		var newRecord	;
 		var groupByValue;
+		that.pivotValues	= [];
 
 		columns = this.initColumns.slice(0);
 
 		that.pivot.store.each(function(v,k){
 			var val = v.get(that.pivot.column);
-			if(pivotValues.indexOf(val)==-1){
-				pivotValues.push(val);
+			if(that.pivotValues.indexOf(val)==-1){
+				that.pivotValues.push(val);
 			}
 		});
 
-		pivotValues.sort();
+		that.pivotValues.sort();
 		that.pivotMap = {};
 		fields = that.templateFields.slice(0);//fast copy
-		for (var i in pivotValues){
-			if(pivotValues.hasOwnProperty(i)){
-				Ext.each(that.pivot.values,function(pivotColName,pivotFieldIdx){
+		for (var i in that.pivotValues){
+			if(that.pivotValues.hasOwnProperty(i)){
+				Ext.each(that.pivot.values,function (pivotColName,pivotFieldIdx) {
 					fields.push({
 						name	: that.pivotPrefix+i+'_'+pivotColName
 					});
 					that.pivotMap[that.pivotPrefix+i+'_'+pivotColName] = {
-						pivotValue	: pivotValues[i],
+						pivotValue	: that.pivotValues[i],
 						colName		: pivotColName
 					}
 					var columnModel=Ext.applyIf({
 						dataIndex	: that.pivotPrefix+i+'_'+pivotColName,
 						id			: that.pivotPrefix+i+'_'+pivotColName,
-						header		: that.pivot.headerRenderer?that.pivot.headerRenderer(pivotValues[i],i,pivotColName,pivotFieldIdx):(''+ that.pivot.columnModel.header || '')+' '+ i
+						header		: that.pivot.headerRenderer?that.pivot.headerRenderer(that.pivotValues[i],i,pivotColName,pivotFieldIdx):(''+ that.pivot.columnModel.header || '')+' '+ i
 					},that.pivot.columnModel[pivotFieldIdx]);
 					if(columnModel.editorGenerator){
-						columnModel.editor=columnModel.editorGenerator(pivotValues[i],i);
+						columnModel.editor=columnModel.editorGenerator(that.pivotValues[i],i);
 					}
 					columns.push(columnModel);
 				})
 			}
 		}
-
 		Ext.each(that.pivot.postColumnModel||[],function(columnModel){
 			columns.push(columnModel);
 		});
@@ -104,17 +117,28 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 					record[field.name]=(that.templateFieldsColName.indexOf(field.name)>-1)?v.get(field.name):'';
 				})
 				record = new that.store.recordType(record,groupByValue);
+				record.pivotData={byVal:{},byId:{},tagOffset:[]}
 				that.store.addSorted(record);
 			}
 			Ext.each(that.pivot.values,function(pivotColName,pivotFieldIdx){
-				record.set(that.pivotPrefix+pivotValues.indexOf(v.get(that.pivot.column))+'_'+pivotColName,v.get(pivotColName));
+				record.set(that.pivotPrefix+that.pivotValues.indexOf(v.get(that.pivot.column))+'_'+pivotColName,v.get(pivotColName));
+				record.pivotData.byVal['_'+v.get(that.pivot.column)]=v;
+				record.pivotData.byId['_'+that.pivotValues.indexOf(v.get(that.pivot.column))]=v;
 			});
 			record.dirty	= false;
 			delete record.modified
 		});
 		that.store.modified=[];
 		that.store.resumeEvents();
-		that.reconfigure(that.store,new Ext.grid.ColumnModel(columns));
+		that.preReconfigure(that);
+		that.reconfigure(that.store,new Ext.grid.LockingColumnModel(columns));
+		that.postReconfigure(that);
+	},
+
+	preReconfigure : function(){
+	},
+
+	postReconfigure : function(){
 	},
 
 	createInternalStore : function (cfg){
@@ -152,8 +176,6 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 				that.templateFieldsColName.push(field.name);
 			}
 		});
-		//console.log(that.pivot.store);
-		//console.log(that.templateFields,that.templateFieldsColName);
 	},
 
 	initComponent : function(){
@@ -177,7 +199,8 @@ Ext.eu.sm.PivotEditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,{
 		});
 
 		if(Ext.isArray(this.columns)){
-			this.colModel = new Ext.grid.ColumnModel(this.columns);
+			this.colModel = new Ext.grid.LockingColumnModel(this.columns);
+			this.cm = this.colModel;
 			this.initColumns = this.columns;
 			delete this.columns;
 		}

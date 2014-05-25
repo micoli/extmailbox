@@ -13,6 +13,13 @@
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.eu.sm.form.starField.css" />
 		<!-- script type="text/javascript"		src="libs/ext.plugins/Ext.eu.sm.ajaxOverride.js"></script -->
 		<script type="text/javascript"			src="libs/ext.plugins/boxselect/Ext.ux.BoxSelect.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.form.RadioGroup.override.js"></script>
+
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/columnLock.css" />
+		<script type="text/javascript"			src="libs/ext.plugins/columnLock.js"></script>
+
+		<script type="text/javascript"			src ="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.js"></script>
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/cellActions/Ext.ux.grid.CellActions.css" />
 
 		<script type="text/javascript"			src="libs/ext.plugins/utils/ext.util.md5.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.ux.util.js"></script>
@@ -38,6 +45,10 @@
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
+		<script type="text/javascript"			src="modules/test/Ext.eu.sm.repartitionExportLM.js"></script>
+		<script type="text/javascript"			src="modules/test/Ext.eu.sm.tagManagerConfig.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.form.MultiSelectField.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.dynamicForm.js"></script>
 		<script type="text/javascript"			src="modules/sandbox/sandbox.js"></script>
 
 		<!-- <script type="text/javascript"		src="http://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=Fmjtd%7Cluur216and%2C8g%3Do5-90za94"></script>-->
@@ -48,6 +59,21 @@
 		</script>
 		<!-- script type="text/javascript" src="sandbox.js"></script -->
 		<script type="text/javascript">console.log(new Date);</script>
+		<style>
+		.wtf-tag-disabled{
+			text-decoration	: line-through;
+			color			: #FF0000;
+		}
+		.orange{
+			background-color:#FFA500;
+		}
+		.add {
+			background-image: url("/ext-2.2.1/release/examples/shared/icons/fam/add.gif") !important;
+		}
+		.remove {
+			background-image: url("/ext-2.2.1/release/examples/shared/icons/fam/delete.gif") !important;
+		}
+		</style>
 	</head>
 	<body>
 		<div id="mainPanel" style="width:1024x;"></div>
