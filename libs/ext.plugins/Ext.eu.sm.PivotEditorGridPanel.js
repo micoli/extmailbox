@@ -214,8 +214,12 @@ Ext.eu.sm.PivotEditorGridPanelGeneric = function (columnModelClassPrm){
 		}
 	}
 };
-Ext.eu.sm.PivotEditorGridPanel			= Ext.extend(Ext.grid.GridPanel			,Ext.eu.sm.PivotEditorGridPanelGeneric(Ext.grid.ColumnModel			));
-Ext.eu.sm.LockingPivotEditorGridPanel	= Ext.extend(Ext.grid.LockingGridPanel	,Ext.eu.sm.PivotEditorGridPanelGeneric(Ext.grid.LockingColumnModel	));
+if (Ext.grid.ColumnModel		){
+	Ext.eu.sm.PivotEditorGridPanel			= Ext.extend(Ext.grid.GridPanel			,Ext.eu.sm.PivotEditorGridPanelGeneric(Ext.grid.ColumnModel			));
+	Ext.reg('eu.sm.pivoteditorgridpanel'		,Ext.eu.sm.PivotEditorGridPanel			);
+}
 
-Ext.reg('eu.sm.pivoteditorgridpanel'		,Ext.eu.sm.PivotEditorGridPanel			);
-Ext.reg('eu.sm.lockingpivoteditorgridpanel'	,Ext.eu.sm.LockingPivotEditorGridPanel	);
+if (Ext.grid.LockingColumnModel	){
+	Ext.eu.sm.LockingPivotEditorGridPanel	= Ext.extend(Ext.grid.LockingGridPanel	,Ext.eu.sm.PivotEditorGridPanelGeneric(Ext.grid.LockingColumnModel	));
+	Ext.reg('eu.sm.lockingpivoteditorgridpanel'	,Ext.eu.sm.LockingPivotEditorGridPanel	);
+}
