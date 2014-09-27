@@ -58,18 +58,17 @@ Ext.extend(Ext.org.micoli.redmine.service, Ext.util.Observable, {
 	makeComboCfg	: function (data,subKey){
 		var obj={};
 		obj.raw = data[subKey];
-		obj.dynStore = new Ext.data.JsonStore({
-			fields			: [
-				'id',
-				'name'
-			],
-			idProperty		: 'id',
-			data			: obj.raw,
-			proxy			: new Ext.data.MemoryProxy([])
-		});
-		obj.comboCfg = {
+		obj.comboCfg={
 			xtype			: 'combo',
-			store			: obj.dynStore,
+			store			: new Ext.data.JsonStore({
+				fields			: [
+					'id',
+					'name'
+				],
+				idProperty		: 'id',
+				data			: obj.raw,
+				proxy			: new Ext.data.MemoryProxy([])
+			}),
 			displayField	: 'name',
 			valueField		: 'id',
 			emptyText		: 'Select a value...',
@@ -202,7 +201,7 @@ Ext.extend(Ext.org.micoli.redmine.service, Ext.util.Observable, {
 					}
 					currentService.custom_fields[cf.customized_type][cf.name] = cf;
 				});
-				console.log(currentService.custom_fields);
+				console.log(currentService.custom_fields)
 			}
 		},{
 			url		: 'trackers.json',

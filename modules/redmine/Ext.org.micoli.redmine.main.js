@@ -40,17 +40,18 @@ Ext.org.micoli.redmine.main = Ext.extend(Ext.Panel,{
 					subject = subject.substr(0,28)+"...";
 				}
 
-				panel = new Ext.org.micoli.redmine.issueEditor({
+				panel = issueTabPanel.add({
+					xtype			: 'org.micoli.redmine.issueEditor',
 					title			: '#'+record.get('id')+':'+subject,
 					id				: that.id+'-'+record.get('id'),
 					closable		: true,
-					xtype			: '',
 					parentTabPanel	: issueTabPanel,
 					redmineService	: that.redmineService,
 				});
-				issueTabPanel.add(panel);
 			}
-			panel.refresh(record)
+			setTimeout(function(){
+				panel.refresh(record)
+			},300);
 			issueTabPanel.setActiveTab(panel);
 		};
 

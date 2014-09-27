@@ -46,11 +46,16 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 			success	: function(data){
 				eval('var result = '+data.responseText);
 
-				that.issue = that.flattenStruct(result.issue,null,null,['journals','edits','attachments','watchers','relations','changesets','watchers']);
+				that.issue = that.flattenStruct(result.issue,null,null,['journals','edits','attachments','watchers','relations','changesets','watchers','custom_fields']);
+
 				Ext.getCmp(that.mainFormId).getForm().loadRecord({
 					data	: that.issue
 				});
-				/*Ext.getCmp(that.fieldColumnLayoutId).items.items[2].add(new Ext.form.TextField({
+
+				if (that.issue.custom_fields){
+					//that.issue.custom_fields = that.flattenStruct(that.issue.custom_fields);
+				}
+				Ext.getCmp(that.fieldColumnLayoutId).items.items[2].add(new Ext.form.TextField({
 					fieldLabel	: 'azerty1',
 					name		: 'toto1',
 					stateful	: false
@@ -60,9 +65,8 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 					name		: 'toto2',
 					stateful	: false
 				}));
+
 				Ext.getCmp(that.fieldColumnLayoutId).doLayout();
-				console.log(Ext.getCmp(that.fieldColumnLayoutId).items);
-				*/
 
 				that.journalsStore.removeAll();
 				if(that.issue.journals){
@@ -262,12 +266,12 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 							fieldLabel	: 'Start date',
 							dataIndex	: 'start_date',
 							name		: 'start_date',
-						}/*,Ext.apply({
+						},Ext.apply({
 							fieldLabel	: 'Status',
 							dataIndex	: 'status.id',
 							name		: 'status.id',
-						},Ext.org.micoli.redmine.service.enumerations.issue_statuses.comboCfg
-						)*/,Ext.apply({
+							//store		: Ext.org.micoli.redmine.service.enumerations.issue_statuses.store
+						},Ext.org.micoli.redmine.service.enumerations.issue_statuses.comboCfg),Ext.apply({
 							fieldLabel	: 'Author',
 							dataIndex	: 'author.id',
 							name		: 'author.id'

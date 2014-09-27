@@ -7,7 +7,7 @@ Ext.ux.ExtForm = Ext.extend(Ext.FormPanel,{
 Ext.reg('Ext.ux.ExtForm',Ext.ux.ExtForm);
 
 Ext.ux.ExtBasicForm = Ext.extend(Ext.form.BasicForm,{
-	mapById		: {},
+	//mapById		: {},
 	setValues	: function(values){
 		if(Ext.isArray(values)){ // array of objects
 			for(var i = 0, len = values.length; i < len; i++){
@@ -40,27 +40,28 @@ Ext.ux.ExtBasicForm = Ext.extend(Ext.form.BasicForm,{
 		return f.isFormField && (f.dataIndex == id || f.id == id || f.getName() == id || (f.rgGetName && f.rgGetName() == id));
 	},
 
-	findField : function(id,that,form){
+	findField : function(id,form){
 		if(!form){
 			form = this;
 		}
-		if(form.mapById.hasOwnProperty(id)){
-			return form.mapById[id];
+		if(form.mapById == undefined){
+			form.mapById={};
+		}else{
+			if(form.mapById.hasOwnProperty(id)){
+				return form.mapById[id];
+			}
 		}
-		if(!that){
-			that = this;
-		}
-		if(that.items && that.items.get){
-			var field = that.items.get(id);
+		if(this.items && this.items.get){
+			var field = this.items.get(id);
 			if(!field){
-				that.items.each(function(f){
+				this.items.each(function(f){
 					if(form.isThatField(f,id)){
 						field = f;
 						return false;
 					}
 					if(f.items){
-						var fi = that.findField.call(f,id,form);
-						if(fi){
+						var fi = this.findField.call(f,id,form);
+						if (fi) {
 							field=fi;
 							return false;
 						}

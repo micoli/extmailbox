@@ -314,6 +314,7 @@ Ext.org.micoli.redmine.issuesGrid = Ext.extend(Ext.Panel,{
 					listeners	:	{
 						refresh : function(view){
 							that.openIssue(Ext.getCmp(that.mainGridId).getStore().getAt(0));
+							that.openIssue(Ext.getCmp(that.mainGridId).getStore().getAt(1));
 							//Ext.getCmp(that.issuesTabPanelId).refresh(Ext.getCmp(that.mainGridId).getStore().getAt(0));
 						}
 					}
