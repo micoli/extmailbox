@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.grid.GridPanel",
+		"Ext.grid.LockingGridPanel"
+	],
+	"js": [
+		"Ext.eu.sm.PivotEditorGridPanel.js"
+	],
+	"css": [
+	]
+}

@@ -1,0 +1,7 @@
+.holder li.bit-box a.focusbutton { position: absolute; right: 4px; top: 5px; display: block; width: 7px; height: 7px; font-size: 1px; background: url(arobase.gif); }
+.x-form-mailselect-trigger{
+	border-left:1px solid #AAA !important;
+}
+ul.holder.withTrigger{
+	margin-left:20px;
+}

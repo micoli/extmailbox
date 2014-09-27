@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.util.Observable"
+	],
+	"js": [
+		"Ext.ux.grid.CellActions.js"
+	],
+	"css": [
+		"Ext.ux.grid.CellActions.css"
+	]
+}

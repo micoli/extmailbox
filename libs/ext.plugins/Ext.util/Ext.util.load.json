@@ -1,0 +1,14 @@
+{
+	"require": [
+		"Ext.data.ArrayStore"
+	],
+	"js": [
+		"Ext.ux.util.js",
+		"ext.data.ArrayStore.js",
+		"ext.util.base64.js",
+		"ext.util.md5.js"
+	],
+	"css": [
+
+	]
+}

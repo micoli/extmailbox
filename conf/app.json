@@ -1,0 +1,33 @@
+{
+	"mainClass"		: "modules.viewport",
+	"title"			: "RedmineDesktop",
+	"loaderImg"		: "skins/4/resources/125.png",
+	"liburl"		: "/qdlib",
+	"settingPanels"	: [{
+		"path"			: "{{QD_PATH_MODULES}}modules/qd/"	,
+		"search"		: "desk.modules.qd"					,
+		"replace"		: "qd"
+	}],
+	"includes"		: {
+		"dir"			: [
+			"modules/desktop-2/",
+			"libs/ext.plugins/Ext.ModalWindow/",
+			"libs/ext.plugins/Ext.tree.ColumnTree/",
+			"libs/ext.plugins/Ext.eu.sm.form.renderedField/",
+			"libs/ext.plugins/Ext.ux.grid.CellActions/",
+			"libs/ext.plugins/Ext.ux.grid.RowActions/",
+			"libs/ext.plugins/Ext.eu.sm.form.renderedPercentageField/",
+			"libs/ext.plugins/progressBar/",
+			"libs/ext.plugins/Ext.eu.attachedWindow/",
+			"libs/ext.plugins/Ext.ux.ExtForm/",
+			"libs/ext.plugins/Ext.form.RadioGroup.override/",
+			"libs/ext.plugins/Ext.eu.sm.toaster/",
+			"libs/ext.plugins/textile/",
+			"libs/ext.plugins/layout.formflow/",
+			"libs/ext.plugins/Ext.ux.layout.EasyColumnLayout/",
+			"libs/ext.plugins/Ext.ux.TableFormLayout/",
+			"libs/ext.plugins/Q/",
+			"modules/redmine/"
+		]
+	}
+}

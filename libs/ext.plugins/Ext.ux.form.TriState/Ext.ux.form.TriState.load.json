@@ -1,0 +1,16 @@
+{
+	"require": [
+		"Ext.form.Checkbox",
+		"Ext.ux.form.Checkbox",
+		"Ext.form.Field"
+	],
+	"js": [
+		"Ext.ux.form.Checkbox.js",
+		"Ext.ux.form.Radio.js",
+		"Ext.ux.form.TriCheckbox.js",
+		"ext-base-addon.js"
+	],
+	"css": [
+		"checkbox.css"
+	]
+}

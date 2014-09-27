@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.tree.TreePanel"
+	],
+	"js": [
+		"Ext.ux.tree.ArrayTree.js"
+	],
+	"css": [
+
+	]
+}

@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.TriggerField"
+	],
+	"js": [
+		"Ext.eu.sm.form.TriggerTree.js"
+	],
+	"css": [
+
+	]
+}

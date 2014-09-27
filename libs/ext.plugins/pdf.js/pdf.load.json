@@ -1,0 +1,14 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"l10n.js",
+		"pdf.compatibility.js",
+		"pdf.js",
+		"pdf.worker.js"
+	],
+	"css": [
+
+	]
+}

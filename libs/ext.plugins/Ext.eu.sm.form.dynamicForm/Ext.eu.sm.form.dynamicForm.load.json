@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.Panel"
+	],
+	"js": [
+		"Ext.eu.sm.form.dynamicForm.js"
+	],
+	"css": [
+
+	]
+}

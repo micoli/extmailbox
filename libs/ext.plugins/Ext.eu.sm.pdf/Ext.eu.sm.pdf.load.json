@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.Panel"
+	],
+	"js": [
+		"Ext.eu.sm.pdf.js"
+	],
+	"css": [
+		"Ext.eu.sm.pdf.css"
+	]
+}

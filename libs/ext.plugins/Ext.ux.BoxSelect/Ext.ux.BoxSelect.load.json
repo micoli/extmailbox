@@ -1,0 +1,12 @@
+{
+	"require": [
+		"Ext.form.ComboBox",
+		"Ext.Component"
+	],
+	"js": [
+		"Ext.ux.BoxSelect.js"
+	],
+	"css": [
+		"boxselect.css"
+	]
+}

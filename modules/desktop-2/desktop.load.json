@@ -1,0 +1,13 @@
+{
+	"css" : [
+		"css/desktop.css"
+	],
+	"js" : [
+		"js/Ext.ux.StartMenu.js",
+		"js/Ext.ux.TaskBar.js",
+		"js/Ext.Desktop.js",
+		"js/Ext.app.App.js",
+		"js/Ext.app.Modules.js",
+		"js/Ext.app.Module.js"
+	]
+}

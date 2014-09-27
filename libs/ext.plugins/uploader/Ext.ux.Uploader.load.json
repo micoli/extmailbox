@@ -1,0 +1,17 @@
+{
+	"require": [
+		"Ext.util.Observable",
+		"Ext.Panel",
+		"Ext.Button"
+	],
+	"js": [
+		"Ext.ux.FileUploader.js",
+		"Ext.ux.UploadPanel.js",
+		"Ext.ux.form.BrowseButton.js"
+	],
+	"css": [
+		"filetree.css",
+		"filetype.css",
+		"icons.css"
+	]
+}

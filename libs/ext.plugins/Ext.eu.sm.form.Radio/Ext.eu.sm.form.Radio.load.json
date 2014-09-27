@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.Radio"
+	],
+	"js": [
+		"Ext.eu.sm.form.Radio.js"
+	],
+	"css": [
+
+	]
+}

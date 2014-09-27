@@ -1,0 +1,9 @@
+{
+	"js": [
+		"Ext.tree.ColumnTree.js",
+		"Ext.tree.ColumnNodeUI.js"
+	],
+	"css": [
+		"Ext.tree.ColumnTree.css"
+	]
+}

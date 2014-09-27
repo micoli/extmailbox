@@ -1,0 +1,279 @@
+.mailUnseen .x-grid3-cell-inner{
+	font-weight:bold;
+}
+.mail_priority_low{
+	background: url(images/flag_green.png) no-repeat !important;
+}
+.mail_priority_medium{
+	background: url(images/flag_orange.png) no-repeat !important;
+}
+.mail_priority_high{
+	background: url(images/flag_red.png) no-repeat !important;
+}
+
+.x-tree-mail_mail_check_delete_all .x-tree-node-icon,.mail__check_delete_all{
+	background: url(images/mailbox/mail_check_all_delete.png) no-repeat !important;
+}
+.x-tree-mail_check_all .x-tree-node-icon,.mail_check_all{
+	background: url(images/mailbox/mail_check_all.png) no-repeat !important;
+}
+.x-tree-mail_closed_add .x-tree-node-icon,.mail_closed_add{
+	background: url(images/mailbox/mail_closed_add.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_add .x-tree-node-icon,.mail_closed_alt_add{
+	background: url(images/mailbox/mail_closed_alt_add.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_delete .x-tree-node-icon,.mail_closed_alt_delete{
+	background: url(images/mailbox/mail_closed_alt_delete.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_edit .x-tree-node-icon,.mail_closed_alt_edit{
+	background: url(images/mailbox/mail_closed_alt_edit.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_receive .x-tree-node-icon,.mail_closed_alt_receive{
+	background: url(images/mailbox/mail_closed_alt_receive.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt_send .x-tree-node-icon,.mail_closed_alt_send{
+	background: url(images/mailbox/mail_closed_alt_send.png) no-repeat !important;
+}
+.x-tree-mail_closed_alt .x-tree-node-icon,.mail_closed_alt{
+	background: url(images/mailbox/mail_closed_alt.png) no-repeat !important;
+}
+.x-tree-mail_closed_delete .x-tree-node-icon,.mail_closed_delete{
+	background: url(images/mailbox/mail_closed_delete.png) no-repeat !important;
+}
+.x-tree-mail_closed_edit .x-tree-node-icon,.mail_closed_edit{
+	background: url(images/mailbox/mail_closed_edit.png) no-repeat !important;
+}
+.x-tree-mail_closed_receive .x-tree-node-icon,.mail_closed_receive{
+	background: url(images/mailbox/mail_closed_receive.png) no-repeat !important;
+}
+.x-tree-mail_closed_send .x-tree-node-icon,.mail_closed_send{
+	background: url(images/mailbox/mail_closed_send.png) no-repeat !important;
+}
+.x-tree-mail_closed .x-tree-node-icon,.mail_closed{
+	background: url(images/mailbox/mail_closed.png) no-repeat !important;
+}
+.x-tree-mail_closed_replied .x-tree-node-icon,.mail_closed_replied{
+	background: url(images/mailbox/mail_closed_replied.png) no-repeat !important;
+}
+.x-tree-mail_inbox_add .x-tree-node-icon,.mail_inbox_add{
+	background: url(images/mailbox/mail_inbox_add.png) no-repeat !important;
+}
+.x-tree-mail_inbox_delete .x-tree-node-icon,.mail_inbox_delete{
+	background: url(images/mailbox/mail_inbox_delete.png) no-repeat !important;
+}
+.x-tree-mail_inbox_edit .x-tree-node-icon,.mail_inbox_edit{
+	background: url(images/mailbox/mail_inbox_edit.png) no-repeat !important;
+}
+.x-tree-mail_inbox .x-tree-node-icon,.mail_inbox{
+	background: url(images/mailbox/mail_inbox.png) no-repeat !important;
+}
+.x-tree-mail_open_alt .x-tree-node-icon,.mail_open_alt{
+	background: url(images/mailbox/mail_open_alt.png) no-repeat !important;
+}
+.x-tree-mail_open_receive .x-tree-node-icon,.mail_open_receive{
+	background: url(images/mailbox/mail_open_receive.png) no-repeat !important;
+}
+.x-tree-mail_open_send .x-tree-node-icon,.mail_open_send{
+	background: url(images/mailbox/mail_open_send.png) no-repeat !important;
+}
+.x-tree-mail_open .x-tree-node-icon,.mail_open{
+	background: url(images/mailbox/mail_open.png) no-repeat !important;
+}
+.x-tree-mail_open_replied .x-tree-node-icon,.mail_open_replied{
+	background: url(images/mailbox/mail_open_replied.png) no-repeat !important;
+}
+.x-tree-mail_trash .x-tree-node-icon,.mail_trash{
+	background: url(images/mailbox/mail_trash.png) no-repeat !important;
+}
+.x-tree-mail_archive .x-tree-node-icon,.mail_archive{
+	background: url(images/mailbox/mail_archive.png) no-repeat !important;
+}
+.x-tree-mail_attach .x-tree-node-icon,.mail_attach{
+	background: url(images/mailbox/mail_attach.png) no-repeat !important;
+}
+.x-tree-mail_pin_yellow .x-tree-node-icon,.mail_pin_yellow{
+	background: url(images/mailbox/mail_pin_yellow.png) no-repeat !important;
+}
+.x-tree-mail_folder_open .x-tree-node-icon,.mail_folder_open{
+	background: url(images/mailbox/folder-open.gif) no-repeat !important;
+}
+.x-tree-mail_folder_close .x-tree-node-icon,.mail_folder_close{
+	background: url(images/mailbox/folder.gif) no-repeat !important;
+}
+ul.mailview-recipients{
+	display: inline;
+}
+ul.mailview-recipients>li{
+	display: inline;
+	margin: 0;
+	-moz-border-radius: 6px; -webkit-border-radius: 6px; border-radius: 6px;
+	padding: 0px 5px 0px 5px;
+
+	/*border: 1px solid #CAD8F3;
+	background: #DEE7F8;*/
+	border-color: #598BEC;
+	background: #A3BAE9;
+	color: #fff;
+}
+ul.mailview-recipients>li.bit-box-focus {
+	border-color: #598BEC;
+	background	: #598BEC;
+	color		: #fff;
+}
+.x-tree-drop-ok-move .x-dd-drop-icon{
+	background-image: url(images/mailbox/drop-between.gif);
+}
+.attachments-wrap>.attachments-filename,
+.attachments-wrap>.attachments-size
+{
+	font-size:11px;
+	font-weight:bold;
+}
+
+
+pre {
+	outline: 1px solid #ccc;
+	padding: 5px;
+	margin: 5px;
+}
+.string {
+	color: green;
+}
+.number {
+	color: darkorange;
+}
+.boolean {
+	color: blue;
+}
+.null {
+	color: magenta;
+}
+.key {
+	color: red;
+}
+.search-combo-display{
+	font		: 10px tahoma,arial,helvetica,sans-serif;
+	white-space	: pre-wrap;       /* css-3 */
+	white-space	: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space	: -pre-wrap;      /* Opera 4-6 */
+	white-space	: -o-pre-wrap;    /* Opera 7 */
+	word-wrap	: break-word;       /* Internet Explorer 5.5+ */
+}
+.search-combo-display-text{
+
+}
+.search-combo-display-date{
+	font-style	: italic;
+}
+
+.template-combo-display{
+	background:white;
+}
+.template-combo-display .x-view-over{
+	background: scroll right bottom  #EFEFEF;
+	border: 1px solid #DDDDDD;
+	padding: 5px;
+}
+.template-combo-display .x-view-selected{
+	background:  scroll right bottom #EFF5FB;
+	border: 1px solid #99BBE8;
+	padding: 5px;
+}
+.template-combo-display-wrap{
+	float: left;
+	margin: 4px 0 4px 4px;
+	padding: 5px;
+	border: 1px solid #CCCCCC;
+}
+.template-combo-display-wrap .name{
+	font-weight	: bold;
+}
+.template-combo-display-wrap .body{
+	width		: 100px;
+	height		: 120px;
+	font		: 10px tahoma,arial,helvetica,sans-serif;
+	white-space	: pre-wrap;       /* css-3 */
+	white-space	: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space	: -pre-wrap;      /* Opera 4-6 */
+	white-space	: -o-pre-wrap;    /* Opera 7 */
+	word-wrap	: break-word;       /* Internet Explorer 5.5+ */
+	zoom: .5; /* IE */
+	-moz-transform: scale(.5); /* Firefox */
+	-moz-transform-origin: 0 0;
+	-o-transform: scale(.5); /* Opera */
+	-o-transform-origin: 0 0;
+	-webkit-transform: scale(.5); /* Safari And Chrome */
+	-webkit-transform-origin: 0 0;
+}
+.template-combo-display-detail{
+	padding:5px
+}
+.template-combo-display-detail .name{
+	font-weight	: bold;
+}
+
+
+
+
+.inline-viewer-display{
+	background	: white;
+}
+.inline-viewer-display .x-view-over{
+	background: scroll right bottom  #EFEFEF;
+	border: 1px solid #DDDDDD;
+	padding: 4px;
+}
+.inline-viewer-display .x-view-selected{
+	background:  scroll right bottom #EFF5FB;
+	border: 1px solid #99BBE8;
+	padding: 4px;
+}
+
+.inline-viewer-display-wrap{
+	float	: left;
+	margin	: 4px 0 4px 4px;
+	padding	: 5px;
+	height	: 200px;
+	border	: 1px solid #CCCCCC;
+}
+.inline-viewer-display-wrap img {
+	border	: 1px solid #AAAAAA;
+}
+.inline-viewer-display-wrap .name{
+	font-weight	: bold;
+}
+.inline-viewer-display-wrap .body{
+	width		: 120px;
+	height		: 170px;
+	font		: 10px tahoma,arial,helvetica,sans-serif;
+}
+.inline-viewer-display-detail{
+	padding:5px
+}
+.inline-viewer-display-detail .name{
+	font-weight	: bold;
+}
+
+.inline-viewer-addons-img {
+	background-color	: #DFE8F6;
+}
+
+.inline-viewer-addons-icon-rotate-left{
+	background: url(images/viewer/object_rotate_left.png) no-repeat !important;
+}
+.inline-viewer-addons-icon-rotate-right{
+	background: url(images/viewer/object_rotate_right.png) no-repeat !important;
+}
+.inline-viewer-addons-icon-zoom-best-fit{
+	background: url(images/viewer/old_zoom_best_fit.png) no-repeat !important;
+}
+.inline-viewer-addons-icon-zoom-original{
+	background: url(images/viewer/old_zoom_original.png) no-repeat !important;
+}
+.inline-viewer-addons-icon-zoom-in{
+	background: url(images/viewer/old_zoom_in.png) no-repeat !important;
+}
+.inline-viewer-addons-icon-zoom-out{
+	background: url(images/viewer/old_zoom_out.png) no-repeat !important;
+}

@@ -1,0 +1,12 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"OpenLayers.debug.js",
+		"OpenLayers.js"
+	],
+	"css": [
+		"theme/default/style.css"
+	]
+}

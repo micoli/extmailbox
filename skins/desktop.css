@@ -1,0 +1,26 @@
+.icon-app-win-lxcbrowser {
+	background-image:url(./icons/lxc.browser_16.png) !important;
+}
+.icon-app-lxcbrowser {
+	background-image:url(./icons/lxc.browser.png) !important;
+}
+
+
+.terminal {
+	background: none repeat scroll 0 0 #000;
+	border: 5px solid #000;
+	color: #f0f0f0;
+}
+.terminal > div,.terminal>div>span
+{
+	font-family: "DejaVu Sans Mono","Liberation Mono",monospace;
+	border: 0px solid #000;
+	font-size: 11px;
+	white-space : nowrap;
+}
+.terminal-cursor {
+	color: #000;
+	font-family: "DejaVu Sans Mono","Liberation Mono",monospace;
+	background: #f0f0f0;
+	font-size: 11px;
+}

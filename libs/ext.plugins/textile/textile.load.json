@@ -1,0 +1,11 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"textile.js"
+	],
+	"css": [
+		"normalize.textile.css"
+	]
+}

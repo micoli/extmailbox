@@ -1,0 +1,8 @@
+{
+	"js": [
+		"Ext.ux.TableFormLayout.js"
+	],
+	"css": [
+		"Ext.ux.TableFormLayout.css"
+	]
+}

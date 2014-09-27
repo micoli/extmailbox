@@ -1,0 +1,15 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"ReconnectingSockJS.js",
+		"ReconnectingWebSocket.js",
+		"sockjs-0.3.js",
+		"sockjs-0.3.min.js",
+		"stomp.js"
+	],
+	"css": [
+
+	]
+}

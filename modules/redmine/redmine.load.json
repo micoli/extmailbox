@@ -1,0 +1,19 @@
+{
+	"js":[
+		"Ext.org.micoli.redmine.service.js",
+		"maxkir.cursor_position.js",
+		"Ext.org.micoli.completer.js",
+		"Ext.org.micoli.redmine.noteEditor.js",
+		"Ext.org.micoli.redmine.timeLogEditor.js",
+		"Ext.org.micoli.redmine.issueEditor.js",
+		"Ext.org.micoli.redmine.issuesGrid.js",
+		"Ext.org.micoli.redmine.watchersGrid.js",
+		"Ext.org.micoli.redmine.timeTrackersGrid.js",
+		"Ext.org.micoli.redmine.main.js",
+		"testRedmine.js"
+	],
+	"css":[
+		"Ext.org.micoli.completer.css",
+		"Ext.org.micoli.redmine.css"
+	]
+}

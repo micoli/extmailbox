@@ -1,0 +1,11 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"Ext.eu.sm.toaster.js"
+	],
+	"css": [
+		"Ext.eu.sm.toaster.css"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"require": [
+		"Ext.grid.GridPanel",
+		"Ext.grid.EditorGridPanel",
+		"Ext.grid.GridView",
+		"Ext.grid.ColumnModel"
+	],
+	"js": [
+		"Ext.grid.LockingGridPanel.js"
+	],
+	"css": [
+		"Ext.grid.LockingGridPanel.css"
+	]
+}

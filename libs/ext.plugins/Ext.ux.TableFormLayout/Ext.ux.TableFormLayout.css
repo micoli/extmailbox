@@ -1,0 +1,7 @@
+.x-table-form-layout-ct .x-table-layout-cell .x-form-field { /* fix for form elements with no border clipping */
+    margin-top: 0;
+}
+
+.ext-ie .x-table-form-layout-ct .x-table-layout-cell .x-form-trigger { /* ie fix for trigger field positioning */
+    margin-top: 2px;
+}

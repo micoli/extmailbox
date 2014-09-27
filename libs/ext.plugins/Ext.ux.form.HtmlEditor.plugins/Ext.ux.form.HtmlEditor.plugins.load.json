@@ -1,0 +1,27 @@
+{
+	"require": {
+		"0": "Ext.util.Observable",
+		"4": "Ext.ux.form.HtmlEditor.MidasCommand"
+	},
+	"js": [
+		"Ext.ux.form.HtmlEditor.Plugins.js",
+		"Ext.ux.form.HtmlEditor.MidasCommand.js",
+		"Ext.ux.form.HtmlEditor.Divider.js",
+		"Ext.ux.form.HtmlEditor.FindAndReplace.js",
+		"Ext.ux.form.HtmlEditor.Font.js",
+		"Ext.ux.form.HtmlEditor.HR.js",
+		"Ext.ux.form.HtmlEditor.Heading.js",
+		"Ext.ux.form.HtmlEditor.Image.js",
+		"Ext.ux.form.HtmlEditor.IndentOutdent.js",
+		"Ext.ux.form.HtmlEditor.Link.js",
+		"Ext.ux.form.HtmlEditor.RemoveFormat.js",
+		"Ext.ux.form.HtmlEditor.SpecialCharacters.js",
+		"Ext.ux.form.HtmlEditor.SubSuperScript.js",
+		"Ext.ux.form.HtmlEditor.Table.js",
+		"Ext.ux.form.HtmlEditor.UndoRedo.js",
+		"Ext.ux.form.HtmlEditor.Word.js"
+	],
+	"css": [
+
+	]
+}

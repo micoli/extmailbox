@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.Window"
+	],
+	"js": [
+		"Ext.ModalWindow.js"
+	],
+	"css": [
+
+	]
+}

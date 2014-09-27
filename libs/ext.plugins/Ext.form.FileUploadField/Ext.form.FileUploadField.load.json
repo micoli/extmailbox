@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.TextField"
+	],
+	"js": [
+		"Ext.form.FileUploadField.js"
+	],
+	"css": [
+
+	]
+}

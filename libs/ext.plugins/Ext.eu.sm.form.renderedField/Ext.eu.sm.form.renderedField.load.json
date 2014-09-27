@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.Field"
+	],
+	"js": [
+		"Ext.eu.sm.form.renderedField.js"
+	],
+	"css": [
+
+	]
+}

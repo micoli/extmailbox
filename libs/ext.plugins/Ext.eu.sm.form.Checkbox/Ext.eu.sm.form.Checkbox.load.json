@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.Checkbox"
+	],
+	"js": [
+		"Ext.eu.sm.form.Checkbox.js"
+	],
+	"css": [
+
+	]
+}

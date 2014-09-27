@@ -1,0 +1,13 @@
+{
+	"repositories": [
+		{
+			"type": "pear",
+			"url": "http://pear.horde.org"
+		}
+	],
+	"require": {
+		"pear-pear.horde.org/Horde_Imap_Client": "*",
+		"pear-pear.horde.org/Horde_Cache": "*",
+		"pear-pear.horde.org/Horde_Nls": "*"
+	}
+}

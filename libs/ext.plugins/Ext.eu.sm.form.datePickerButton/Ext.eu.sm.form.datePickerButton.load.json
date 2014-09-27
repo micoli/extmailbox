@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.Button"
+	],
+	"js": [
+		"Ext.eu.sm.form.datePickerButton.js"
+	],
+	"css": [
+
+	]
+}

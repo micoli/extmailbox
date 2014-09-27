@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.Panel"
+	],
+	"js": [
+		"Ext.eu.sm.inlineViewer.js"
+	],
+	"css": [
+
+	]
+}

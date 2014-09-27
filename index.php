@@ -1,0 +1,1 @@
+<?php include 'index-ext-2-mailbox.php';

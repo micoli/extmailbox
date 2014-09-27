@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.eu.sm.form.renderedField"
+	],
+	"js": [
+		"Ext.eu.sm.form.starField.js"
+	],
+	"css": [
+		"Ext.eu.sm.form.starField.css"
+	]
+}

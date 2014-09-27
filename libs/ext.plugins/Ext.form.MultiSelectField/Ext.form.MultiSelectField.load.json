@@ -1,0 +1,11 @@
+{
+	"require": [
+		"Ext.form.TriggerField"
+	],
+	"js": [
+		"Ext.form.MultiSelectField.js"
+	],
+	"css": [
+
+	]
+}

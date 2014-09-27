@@ -1,0 +1,10 @@
+{
+	"require": [
+
+	],
+	"js": [
+		"marked.js"
+	],
+	"css": [
+	]
+}
