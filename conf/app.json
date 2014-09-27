@@ -27,6 +27,7 @@
 			"libs/ext.plugins/Ext.ux.layout.EasyColumnLayout/",
 			"libs/ext.plugins/Ext.ux.TableFormLayout/",
 			"libs/ext.plugins/Q/",
+			"libs/ext.plugins/lodash/",
 			"modules/redmine/"
 		]
 	}

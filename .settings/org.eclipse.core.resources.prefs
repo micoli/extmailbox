@@ -2,6 +2,7 @@ eclipse.preferences.version=1
 encoding//libs/ext.plugins/Ext.ux.grid.RowActions=UTF-8
 encoding//libs/ext.plugins/Ext.ux.grid.RowActions/Ext.ux.grid.RowActions.css=UTF-8
 encoding//libs/ext.plugins/Ext.ux.tree.ArrayTree/Ext.ux.tree.ArrayTree.js=UTF-8
+encoding//libs/ext.plugins/lodash=UTF-8
 encoding//modules/mailbox/classes/iMailSender.php=UTF-8
 encoding//modules/mailbox/classes/smMailMessage.php=UTF-8
 encoding//modules/mailbox/classes/svcMailboxImapExt.php=UTF-8

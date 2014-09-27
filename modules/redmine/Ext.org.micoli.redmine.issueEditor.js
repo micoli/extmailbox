@@ -48,23 +48,28 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 
 				that.issue = that.flattenStruct(result.issue,null,null,['journals','edits','attachments','watchers','relations','changesets','watchers','custom_fields']);
 
-				Ext.getCmp(that.mainFormId).getForm().loadRecord({
-					data	: that.issue
-				});
-
 				if (that.issue.custom_fields){
-					//that.issue.custom_fields = that.flattenStruct(that.issue.custom_fields);
+					that.issue.custom_fields = _.indexBy(that.issue.custom_fields,"name");
+					var roomIndex=1;
+					var customFieldsvalue={};
+					for (var fieldName in that.issue.custom_fields){
+						roomIndex=(roomIndex+1)%3;
+						if(that.issue.custom_fields.hasOwnProperty(fieldName)){
+							var field = that.issue.custom_fields[fieldName];
+							customFieldsvalue[fieldName]=field.value;
+							Ext.getCmp(that.fieldColumnLayoutId).items.items[roomIndex].add({
+								xtype		: 'textfield',
+								fieldLabel	: fieldName,
+								name		: fieldName,
+								dataIndex	: fieldName
+							});
+						}
+					}
+					console.log(that.issue,customFieldsvalue);
+					Ext.getCmp(that.mainFormId).getForm().setValues(customFieldsvalue);
 				}
-				Ext.getCmp(that.fieldColumnLayoutId).items.items[2].add(new Ext.form.TextField({
-					fieldLabel	: 'azerty1',
-					name		: 'toto1',
-					stateful	: false
-				}));
-				Ext.getCmp(that.fieldColumnLayoutId).items.items[0].add(new Ext.form.TextField({
-					fieldLabel	: 'azerty2',
-					name		: 'toto2',
-					stateful	: false
-				}));
+
+				Ext.getCmp(that.mainFormId).getForm().setValues(that.issue);
 
 				Ext.getCmp(that.fieldColumnLayoutId).doLayout();
 
@@ -252,6 +257,7 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 				},{
 					layout		: 'column',
 					anchor		: '98% -5',
+					autoScroll	: true,
 					defaults	: {
 						defaults	:{
 							width		: 100
