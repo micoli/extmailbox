@@ -6,8 +6,12 @@
 		"Ext.org.micoli.redmine.noteEditor.js",
 		"Ext.org.micoli.redmine.timeLogEditor.js",
 		"Ext.org.micoli.redmine.issueEditor.js",
+		"Ext.org.micoli.redmine.issueColumn.js",
+		"Ext.org.micoli.redmine.issueField.js",
 		"Ext.org.micoli.redmine.issuesGrid.js",
 		"Ext.org.micoli.redmine.watchersGrid.js",
+		"Ext.org.micoli.redmine.attachmentsUploader.js",
+		"Ext.org.micoli.redmine.attachmentsGrid.js",
 		"Ext.org.micoli.redmine.timeTrackersGrid.js",
 		"Ext.org.micoli.redmine.main.js",
 		"testRedmine.js"

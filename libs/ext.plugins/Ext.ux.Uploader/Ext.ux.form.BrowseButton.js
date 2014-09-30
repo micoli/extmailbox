@@ -43,8 +43,8 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 * In addition, clipEl is given a green background and floatEl a red background to see how well they are positioned.
 	 */
 	debug: false,
-	
-	
+
+
 	/*
 	 * Private constants:
 	 */
@@ -57,7 +57,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 * @private
 	 */
 	FLOAT_EL_WIDTH: 60,
-	
+
 	/**
 	 * @property FLOAT_EL_HEIGHT
 	 * @type Number
@@ -67,8 +67,8 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 * @private
 	 */
 	FLOAT_EL_HEIGHT: 18,
-	
-	
+
+
 	/*
 	 * Private properties:
 	 */
@@ -122,8 +122,8 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 * @private
 	 */
 	originalScope: null,
-	
-	
+
+
 	/*
 	 * Protected Ext.Button overrides
 	 */
@@ -135,13 +135,13 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		// Store references to the original handler and scope before nulling them.
 		// This is done so that this class can control when the handler is called.
 		// There are some cases where the hidden file input browse button doesn't completely cover the Ext.Button.
-		// The handler shouldn't be called in these cases.  It should only be called if a new file is selected on the file system.  
+		// The handler shouldn't be called in these cases.  It should only be called if a new file is selected on the file system.
 		this.originalHandler = this.handler;
 		this.originalScope = this.scope;
 		this.handler = null;
 		this.scope = null;
 	},
-	
+
 	/**
 	 * @see Ext.Button.onRender
 	 */
@@ -182,7 +182,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			'mouseover': this.onButtonMouseMove,
 			scope: this
 		});
-		
+
 		this.floatEl = this.clipEl.createChild({
 			tag: 'div',
 			style: {
@@ -192,8 +192,8 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 				overflow: 'hidden'
 			}
 		});
-		
-		
+
+
 		if (this.debug) {
 			this.clipEl.applyStyles({
 				'background-color': 'green'
@@ -204,21 +204,21 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		} else {
 			this.clipEl.setOpacity(0.0);
 		}
-		
+
 		// Cover cases where someone tabs to the button:
 		// Listen to focus of the button so we can translate the focus to the input file el.
 		var buttonEl = this.el.child(this.buttonSelector);
 		buttonEl.on('focus', this.onButtonFocus, this);
-		// In IE, it's possible to tab to the text portion of the input file el.  
+		// In IE, it's possible to tab to the text portion of the input file el.
 		// We want to listen to keyevents so that if a space is pressed, we "click" the input file el.
 		if (Ext.isIE) {
 			this.el.on('keydown', this.onButtonKeyDown, this);
 		}
-		
+
 		this.createInputFile();
 	},
-	
-	
+
+
 	/*
 	 * Private helper methods:
 	 */
@@ -232,9 +232,9 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			var height = this.buttonCt.getHeight();
 			// The button container can have a width and height of zero when it's rendered in a hidden panel.
 			// This is most noticable when using a card layout, as the items are all rendered but hidden,
-			// (unless deferredRender is set to true). 
+			// (unless deferredRender is set to true).
 			// In this case, the clip size can't be determined, so we attempt to set it later.
-			// This check repeats until the button container has a size. 
+			// This check repeats until the button container has a size.
 			if (width === 0 || height === 0) {
 				this.setClipSize.defer(100, this);
 			} else {
@@ -252,7 +252,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			}
 		}
 	},
-	
+
 	/**
 	 * Creates the input file element and adds it to inputFileCt.
 	 * The created input file elementis sized, positioned, and styled appropriately.
@@ -261,7 +261,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 */
 	createInputFile: function(){
 		// When an input file gets detached and set as the child of a different DOM element,
-		// straggling <em> elements get left behind.  
+		// straggling <em> elements get left behind.
 		// I don't know why this happens but we delete any <em> elements we can find under the floatEl to prevent a memory leak.
 		this.floatEl.select('em').each(function(el){
 			el.remove();
@@ -269,7 +269,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		this.inputFileEl = this.floatEl.createChild({
 			tag: 'input',
 			type: 'file',
-			size: 1, // must be > 0. It's value doesn't really matter due to our masking div (inputFileCt).  
+			size: 1, // must be > 0. It's value doesn't really matter due to our masking div (inputFileCt).
 			name: this.inputFileName || Ext.id(this.el),
 			tabindex: this.tabIndex,
 			// Use the same pointer as an Ext.Button would use.  This doesn't work in Firefox.
@@ -282,7 +282,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			}
 		});
 		this.inputFileEl = this.inputFileEl.child('input') || this.inputFileEl;
-		
+
 		// setup events
 		this.inputFileEl.on({
 			'click': this.onInputFileClick,
@@ -292,7 +292,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			'blur': this.onInputFileBlur,
 			scope: this
 		});
-		
+
 		// add a tooltip
 		if (this.tooltip) {
 			if (typeof this.tooltip == 'object') {
@@ -304,7 +304,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			}
 		}
 	},
-	
+
 	/**
 	 * Redirecting focus to the input file element so the user can press space and select files.
 	 * @param {Event} e focus event.
@@ -316,7 +316,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			e.stopEvent();
 		}
 	},
-	
+
 	/**
 	 * Handler for the IE case where once can tab to the text box of an input file el.
 	 * If the key is a space, we simply "click" the inputFileEl.
@@ -329,7 +329,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			e.stopEvent();
 		}
 	},
-	
+
 	/**
 	 * Handler when the cursor moves over the clipEl.
 	 * The floatEl gets centered to the cursor location.
@@ -342,9 +342,9 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		xy[1] -= this.FLOAT_EL_HEIGHT / 2;
 		this.floatEl.setXY(xy);
 	},
-	
+
 	/**
-	 * Add the visual enhancement to the button when the input file recieves focus. 
+	 * Add the visual enhancement to the button when the input file recieves focus.
 	 * This is the tip for the user that now he/she can press space to select the file.
 	 * @private
 	 */
@@ -353,7 +353,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			this.el.addClass("x-btn-over");
 		}
 	},
-	
+
 	/**
 	 * Removes the visual enhancement from the button.
 	 * @private
@@ -361,7 +361,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	onInputFileBlur: function(e){
 		this.el.removeClass("x-btn-over");
 	},
-	
+
 	/**
 	 * Handler when inputFileEl's "Browse..." button is clicked.
 	 * @param {Event} e click event.
@@ -370,7 +370,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	onInputFileClick: function(e){
 		e.stopPropagation();
 	},
-	
+
 	/**
 	 * Handler when inputFileEl changes value (i.e. a new file is selected).
 	 * @private
@@ -380,8 +380,8 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 			this.originalHandler.call(this.originalScope, this);
 		}
 	},
-	
-	
+
+
 	/*
 	 * Public methods:
 	 */
@@ -394,7 +394,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 	 */
 	detachInputFile: function(noCreate){
 		var result = this.inputFileEl;
-		
+
 		if (typeof this.tooltip == 'object') {
 			Ext.QuickTips.unregister(this.inputFileEl);
 		} else {
@@ -402,20 +402,20 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		}
 		this.inputFileEl.removeAllListeners();
 		this.inputFileEl = null;
-		
+
 		if (!noCreate) {
 			this.createInputFile();
 		}
 		return result;
 	},
-	
+
 	/**
 	 * @return {Ext.Element} the input file element attached to this BrowseButton.
 	 */
 	getInputFile: function(){
 		return this.inputFileEl;
 	},
-	
+
 	/**
 	 * @see Ext.Button.disable
 	 */
@@ -423,7 +423,7 @@ Ext.ux.form.BrowseButton = Ext.extend(Ext.Button, {
 		Ext.ux.form.BrowseButton.superclass.disable.call(this);
 		this.inputFileEl.dom.disabled = true;
 	},
-	
+
 	/**
 	 * @see Ext.Button.enable
 	 */

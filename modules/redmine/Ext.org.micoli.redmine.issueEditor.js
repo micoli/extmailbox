@@ -6,6 +6,7 @@
 Ext.ns('Ext.org.micoli.redmine');
 
 Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
+
 	flattenStruct	: function (o,res,prefix,exclude){
 		var that = this;
 		res		= res		|| {};
@@ -47,31 +48,50 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 				eval('var result = '+data.responseText);
 
 				that.issue = that.flattenStruct(result.issue,null,null,['journals','edits','attachments','watchers','relations','changesets','watchers','custom_fields']);
+				var customFieldsValue={};
 
 				if (that.issue.custom_fields){
-					that.issue.custom_fields = _.indexBy(that.issue.custom_fields,"name");
-					var roomIndex=1;
-					var customFieldsvalue={};
+					that.issue.custom_fields = _.indexBy(that.issue.custom_fields,'name');
 					for (var fieldName in that.issue.custom_fields){
-						roomIndex=(roomIndex+1)%3;
 						if(that.issue.custom_fields.hasOwnProperty(fieldName)){
-							var field = that.issue.custom_fields[fieldName];
-							customFieldsvalue[fieldName]=field.value;
-							Ext.getCmp(that.fieldColumnLayoutId).items.items[roomIndex].add({
-								xtype		: 'textfield',
-								fieldLabel	: fieldName,
-								name		: fieldName,
-								dataIndex	: fieldName
-							});
+							var currentField = that.issue.custom_fields[fieldName];
+							customFieldsValue[fieldName] = currentField.value;
+							var customFieldDefinition = Ext.org.micoli.redmine.service.custom_fields.issue[fieldName];
+
+							if (Ext.org.micoli.redmine.issueField.hasOwnProperty(customFieldDefinition.field_format)){
+								that.fieldsContainerCfg.items.push(Ext.apply({
+									xtype		: 'org.micoli.redmine.issueField.'+customFieldDefinition.field_format,
+									name		: fieldName,
+									cfg			: Ext.org.micoli.redmine.service.custom_fields.issue[fieldName]
+								}));
+							}else{
+								that.fieldsContainerCfg.items.push({
+									xtype		: 'org.micoli.redmine.issueField.string',
+									name		: fieldName,
+								});
+							}
+							//Ext.org.micoli.redmine.service.custom_fields.issue
 						}
 					}
-					console.log(that.issue,customFieldsvalue);
-					Ext.getCmp(that.mainFormId).getForm().setValues(customFieldsvalue);
 				}
+				Ext.getCmp(that.fieldColumnLayoutId).add(that.fieldsContainerCfg);
+				that.doLayout();
+
+				// Ext.getCmp(that.mainFormId).getForm().add(that.issue);
+				// console.log('==>',Ext.getCmp(that.fieldColumnLayoutId));
+				// console.log('---',Ext.getCmp(that.fieldColumnLayoutId).items.items[1]);
+				// console.log(that.issue,customFieldsValue);
+
+				var basicForm = Ext.getCmp(that.mainFormId).getForm();
+
+				Ext.getCmp(that.mainFormId).cascade(function(v){
+					if (v.isFormField && !basicForm.items.get(v.id)){
+						basicForm.add(v)
+					}
+				})
 
 				Ext.getCmp(that.mainFormId).getForm().setValues(that.issue);
-
-				Ext.getCmp(that.fieldColumnLayoutId).doLayout();
+				Ext.getCmp(that.mainFormId).getForm().setValues(customFieldsValue);
 
 				that.journalsStore.removeAll();
 				if(that.issue.journals){
@@ -88,20 +108,72 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 				var timeTrackersCmp = Ext.getCmp(that.timeTrackersGridId);
 				timeTrackersCmp.issue_id = that.issue.id;
 				timeTrackersCmp.timeTrackersStore.removeAll();
-				timeTrackersCmp.timeTrackersStore.proxy.conn.url=that.redmineService.requestPrm({url: 'issues/'+record.get('id')+'/time_entries.json'}).url;
+				timeTrackersCmp.timeTrackersStore.proxy.conn.url = that.redmineService.requestPrm({url: 'issues/'+record.get('id')+'/time_entries.json'}).url;
 				timeTrackersCmp.timeTrackersStore.load();
+
+				var attachmentCmp = Ext.getCmp(that.attachmentsGridId);
+				attachmentCmp.attachmentsStore.removeAll();
+				attachmentCmp.issue_id = that.issue.id;
+				if(that.issue.attachments){
+					attachmentCmp.attachmentsStore.loadData(that.issue);
+				}
 			}
 		});
 	},
 
 	initComponent	: function(){
 		var that				= this;
+		var service				= Ext.org.micoli.redmine.service;
 		that.mainFormId			= Ext.id();
 		that.journalGridId		= Ext.id();
 		that.watchersGridId		= Ext.id();
 		that.timeTrackersGridId	= Ext.id();
+		that.attachmentsGridId	= Ext.id();
 		that.detailTabpanelId	= Ext.id();
 		that.fieldColumnLayoutId= Ext.id();
+		that.fieldsContainerCfg	= {
+			layout		: 'easycolumn',
+			autoCreate	: 'div',
+			layoutConfig: {
+				columns		: 4
+			},
+			defaults	: {
+				defaults	:{
+					width		: 100
+				}
+			},
+			items		: [{
+				xtype		: 'datefield',
+				fieldLabel	: 'Start date',
+				name		: 'start_date',
+			},Ext.apply({
+				fieldLabel	: 'Status',
+				name		: 'status.id',
+			},service.enumerations.issue_statuses.comboCfg
+			),Ext.apply({
+				fieldLabel	: 'Author',
+				name		: 'author.id'
+			},service.enumerations.users.dynComboCfg),{
+				xtype		: 'datefield',
+				fieldLabel	: 'Due date',
+				name		: 'due_date',
+			},Ext.apply({
+				fieldLabel	: 'Priority',
+				name		: 'priority.id'
+			},service.enumerations.issue_priorities.comboCfg
+			),Ext.apply({
+				fieldLabel	: 'Assignee',
+				name		: 'assigned_to.id',
+			},service.enumerations.users.dynComboCfg),{
+				xtype		: 'eu.sm.form.renderedPercentageField',
+				fieldLabel	: '% done',
+				name		: 'done_ratio'
+			},{
+				fieldLabel	: 'Spent Hours',
+				xtype		: 'textfield',
+				name		: 'spent_hours'
+			}]
+		};
 
 		that.journalsStore = new Ext.data.GroupingStore({
 			autoLoad		: false,
@@ -165,7 +237,7 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 								items				: [Ext.apply({
 									fieldLabel			: 'Assignee',
 									id					: watcherComboId
-								},Ext.org.micoli.redmine.service.enumerations.users.dynComboCfg)]
+								},service.enumerations.users.dynComboCfg)]
 							}],
 							callbackOK			: function (win){
 								var cmb = Ext.getCmp(watcherComboId);
@@ -200,6 +272,15 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 						var tab = Ext.getCmp(that.watchersGridId);
 						Ext.getCmp(that.detailTabpanelId).setActiveTab(tab);
 						tab.addWatcher();
+					}
+				},{
+					xtype		: 'button',
+					text		: 'Add attachment',
+					iconCls		: 'icon-file-attach',
+					handler		: function (cmp){
+						var tab = Ext.getCmp(that.attachmentsGridId);
+						Ext.getCmp(that.detailTabpanelId).setActiveTab(tab);
+						tab.addAttachment();
 					}
 				},{
 					xtype		: 'button',
@@ -251,69 +332,15 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 				items		: [{
 					xtype		: 'textfield',
 					fieldLabel	: 'Subject',
-					dataIndex	: 'subject',
+//					dataIndex	: 'subject',
 					name		: 'subject',
 					anchor		: '98%'
 				},{
-					layout		: 'column',
-					anchor		: '98% -5',
-					autoScroll	: true,
-					defaults	: {
-						defaults	:{
-							width		: 100
-						}
-					},
+					xtype		: 'panel',
+					anchor		: '98% -25',
 					id			: that.fieldColumnLayoutId,
-					items		: [{
-						columnWidth	:.3,
-						layout		: 'form',
-						items		: [{
-							xtype		: 'datefield',
-							fieldLabel	: 'Start date',
-							dataIndex	: 'start_date',
-							name		: 'start_date',
-						},Ext.apply({
-							fieldLabel	: 'Status',
-							dataIndex	: 'status.id',
-							name		: 'status.id',
-							//store		: Ext.org.micoli.redmine.service.enumerations.issue_statuses.store
-						},Ext.org.micoli.redmine.service.enumerations.issue_statuses.comboCfg),Ext.apply({
-							fieldLabel	: 'Author',
-							dataIndex	: 'author.id',
-							name		: 'author.id'
-						},Ext.org.micoli.redmine.service.enumerations.users.dynComboCfg)]
-					},{
-						columnWidth	:.3,
-						layout		: 'form',
-						items		: [{
-							xtype		: 'datefield',
-							fieldLabel	: 'Due date',
-							dataIndex	: 'due_date',
-							name		: 'due_date',
-						},Ext.apply({
-							fieldLabel	: 'Priority',
-							dataIndex	: 'priority.id',
-							name		: 'priority.id'
-						},Ext.org.micoli.redmine.service.enumerations.issue_priorities.comboCfg),Ext.apply({
-							fieldLabel	: 'Assignee',
-							dataIndex	: 'assigned_to.id',
-							name		: 'assigned_to.id',
-						},Ext.org.micoli.redmine.service.enumerations.users.dynComboCfg)]
-					},{
-						columnWidth	:.3,
-						layout		: 'form',
-						items		: [{
-							xtype		: 'eu.sm.form.renderedPercentageField',
-							fieldLabel	: '% done',
-							dataIndex	: 'done_ratio',
-							name		: 'done_ratio'
-						},{
-							fieldLabel	: 'Spent Hours',
-							xtype		: 'textfield',
-							dataIndex	: 'spent_hours',
-							name		: 'spent_hours'
-						}]
-					}]
+					autoScroll	: true,
+					items		: []
 				}]
 			},{
 				xtype		: 'tabpanel',
@@ -323,7 +350,7 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 				items		: [{
 					xtype				: 'eu.sm.redmine.noteEditor',
 					title				: 'Description',
-					dataIndex			: 'description',
+//					dataIndex			: 'description',
 					redmineService		: that.redmineService
 				},{
 					title				: 'Journal',
@@ -415,6 +442,11 @@ Ext.org.micoli.redmine.issueEditor = Ext.extend(Ext.Panel,{
 					title				: 'Time tracker',
 					xtype				: 'org.micoli.redmine.timeTrackersGrid',
 					id					: that.timeTrackersGridId,
+					redmineService		: that.redmineService
+				},{
+					title				: 'Attachments',
+					xtype				: 'org.micoli.redmine.attachmentsGrid',
+					id					: that.attachmentsGridId,
 					redmineService		: that.redmineService
 				}]
 			}]

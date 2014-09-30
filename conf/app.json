@@ -28,6 +28,8 @@
 			"libs/ext.plugins/Ext.ux.TableFormLayout/",
 			"libs/ext.plugins/Q/",
 			"libs/ext.plugins/lodash/",
+			"libs/ext.plugins/Ext.ux.BoxSelect/",
+			"libs/ext.plugins/Ext.ux.Uploader/",
 			"modules/redmine/"
 		]
 	}

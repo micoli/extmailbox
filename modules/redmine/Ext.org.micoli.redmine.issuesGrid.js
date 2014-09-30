@@ -1,107 +1,5 @@
 Ext.ns('Ext.org.micoli.redmine');
 
-Ext.org.micoli.redmine.issuesColumn = function(){
-	var that	= this;
-	that.id		= that.dataIndex;
-	(that.init || Ext.emptyFn).call(that);
-};
-
-Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: "-",
-	width		: 50,
-	sortable	: true,
-	fixed		: false,
-});
-
-Ext.org.micoli.redmine.issuesColumn.subject = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: 'Subject',
-	dataIndex	: 'subject',
-	width		: 200,
-});
-
-Ext.org.micoli.redmine.issuesColumn.project = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: 'Project',
-	dataIndex	: 'project.name',
-	width		: 180,
-	fixed		: true
-});
-
-Ext.org.micoli.redmine.issuesColumn.tracker = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: 'Type',
-	dataIndex	: 'tracker.name',
-	width		: 60,
-	fixed		: true
-});
-
-Ext.org.micoli.redmine.issuesColumn.user = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	width		: 150,
-	fixed		: true,
-	renderer	: function (v,meta,record,rowIndex,colIndex) {
-		return (v && v.name) ? v.name : '-'
-	},
-	editorInit	: function (){
-		var that = this;
-		return new Ext.form.ComboBox(Ext.org.micoli.redmine.service.enumerations.users.dynComboCfg)
-	}
-});
-
-Ext.org.micoli.redmine.issuesColumn.author = Ext.extend(Ext.org.micoli.redmine.issuesColumn.user,{
-	header		: 'Author',
-	dataIndex	: 'author'
-});
-
-Ext.org.micoli.redmine.issuesColumn.assigned_to = Ext.extend(Ext.org.micoli.redmine.issuesColumn.user,{
-	header		: 'Assignee',
-	dataIndex	: 'assigned_to'
-});
-
-Ext.org.micoli.redmine.issuesColumn.priority = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: 'priority',
-	dataIndex	: 'priority.name',
-	width		: 50,
-	fixed		: true
-});
-
-Ext.org.micoli.redmine.issuesColumn.date = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: '-',
-	dataIndex	: 'date',
-	width		: 70,
-	fixed		: true,
-	renderer	: Ext.util.Format.dateRenderer('d/m/Y')
-});
-
-Ext.org.micoli.redmine.issuesColumn.created_on = Ext.extend(Ext.org.micoli.redmine.issuesColumn.date,{
-	header		: 'Created',
-	dataIndex	: 'created_on'
-});
-
-Ext.org.micoli.redmine.issuesColumn.created_on = Ext.extend(Ext.org.micoli.redmine.issuesColumn.date,{
-	header		: 'updated',
-	dataIndex	: 'updated_on'
-});
-
-Ext.org.micoli.redmine.issuesColumn.start_date = Ext.extend(Ext.org.micoli.redmine.issuesColumn.date,{
-	header		: 'Start',
-	dataIndex	: 'start_date'
-});
-
-Ext.org.micoli.redmine.issuesColumn.done_ratio = Ext.extend(Ext.org.micoli.redmine.issuesColumn,{
-	header		: 'Done',
-	dataIndex	: 'done_ratio',
-	width		: 80,
-	fixed		: true,
-	renderer	: function (val, meta, record, rowIndex, colIndex, store){
-		var percent = val;
-		var width = Ext.getCmp(store.extra.gridId).ownerCt.gridColumnModel[colIndex].width;
-		var bar = 4-parseInt(percent/25);
-		this.style = this.style + ";background-position: ";
-		this.style = this.style + (percent==0?-120:(width*percent/100)-120);
-		this.style = this.style +"px 50%; background-repeat:no-repeat;";
-		meta.css = meta.css+' '+'progressBar-back-'+bar
-		return val+'%';
-	}
-});
-
 Ext.org.micoli.redmine.issuesGrid = Ext.extend(Ext.Panel,{
 	initComponent		: function(){
 		var that			= this;
@@ -171,7 +69,7 @@ Ext.org.micoli.redmine.issuesGrid = Ext.extend(Ext.Panel,{
 		});
 
 		function getColumnModel(col){
-			var col =  new Ext.org.micoli.redmine.issuesColumn[col]({
+			var col =  new Ext.org.micoli.redmine.issueColumn[col]({
 				gridId:that.mainGridId
 			});
 			if(col.editorInit){

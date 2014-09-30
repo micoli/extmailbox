@@ -21,6 +21,7 @@ Ext.org.micoli.redmine.service = function(cfg){
 	Ext.org.micoli.redmine.service.trackers								= null;
 	Ext.org.micoli.redmine.service.issue_statuses						= null;
 	Ext.org.micoli.redmine.service.custom_fields						= null;
+	//Ext.org.micoli.redmine.service.versions								= null;
 	Ext.org.micoli.redmine.service.enumerations							= {};
 	Ext.org.micoli.redmine.service.enumerations.issue_priorities		= null;
 	Ext.org.micoli.redmine.service.enumerations.time_entry_activities	= null;
@@ -84,12 +85,14 @@ Ext.extend(Ext.org.micoli.redmine.service, Ext.util.Observable, {
 	init		: function (){
 		var that = this;
 		var nbDone=0;
+		console.groupCollapsed('Ext.org.micoli.redmine.service init');
 		var done = function(v){
 			nbDone++;
 			Ext.MessageBox.updateProgress(nbDone/cfgs.length, Math.round(100*nbDone/cfgs.length)+'% completed');
 			if(nbDone==cfgs.length){
 				Ext.MessageBox.hide();
 				that.isReady=true;
+				console.groupEnd('Ext.org.micoli.redmine.service init');
 				that.fireEvent('initDone', Ext.org.micoli.redmine.service);
 			}
 		}
@@ -196,12 +199,17 @@ Ext.extend(Ext.org.micoli.redmine.service, Ext.util.Observable, {
 			success	: function(data){
 				currentService.custom_fields={};
 				Ext.each(data.custom_fields,function(cf){
-					if(!currentService.custom_fields.hasOwnProperty(cf.customized_type)){
+					if (!currentService.custom_fields.hasOwnProperty(cf.customized_type)){
 						currentService.custom_fields[cf.customized_type]={};
+					}
+					if (cf.field_format == 'list' && cf.multiple == 1){
+						cf.field_format = 'listMultiple';
+					}
+					if (cf.field_format == 'user' && cf.multiple == 1){
+						cf.field_format = 'userMultiple';
 					}
 					currentService.custom_fields[cf.customized_type][cf.name] = cf;
 				});
-				console.log(currentService.custom_fields)
 			}
 		},{
 			url		: 'trackers.json',
@@ -213,7 +221,12 @@ Ext.extend(Ext.org.micoli.redmine.service, Ext.util.Observable, {
 			success	: function(data){
 				currentService.enumerations.issue_statuses = that.makeComboCfg(data,'issue_statuses');
 			}
-		},{
+		},/*{
+			url		: 'versions.json',
+			success	: function(data){
+				currentService.enumerations.versions = that.makeComboCfg(data,'versions');
+			}
+		},*/{
 			url		: 'enumerations/issue_priorities.json',
 			success	: function(data){
 				currentService.enumerations.issue_priorities = that.makeComboCfg(data,'issue_priorities');

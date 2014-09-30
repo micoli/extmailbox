@@ -35,9 +35,15 @@ Ext.app.Modules.testRedmine = Ext.extend(Ext.app.Module, {
 					}]
 				}]
 				var aContent = [{
+					xtype			: 'org.micoli.redmine.attachmentsUploader',
+					redmineService	: that.redmineService,
+					issue_id		: 1,
+					frame			: true
+				}]
+				/*var aContent = [{
 					xtype			: 'eu.sm.redmine.main',
 					redmineService	: that.redmineService
-				}];
+				}];*/
 				win = desktop.createWindow({
 					id				: 'grid-win',
 					title			: 'Test Window',
