@@ -40,11 +40,11 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.grid.CellActions/Ext.ux.grid.CellActions.js"></script>
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.grid.CellActions/Ext.ux.grid.CellActions.css" />
 
-		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/filetype.css" />
-		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/filetree.css" />
-		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/uploader/icons.css" />
-		<script type="text/javascript"			src ="libs/ext.plugins/uploader/Ext.ux.form.BrowseButton.js"></script>
-		<script type="text/javascript"			src ="libs/ext.plugins/uploader/Ext.ux.UploadPanel.js"></script>
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.Uploader/filetype.css" />
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.Uploader/filetree.css" />
+		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.Uploader/icons.css" />
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.Uploader/Ext.ux.form.BrowseButton.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.Uploader/Ext.ux.UploadPanel.js"></script>
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.form.tristate/checkbox.css" />
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.tristate/ext-base-addon.js"></script>
@@ -73,8 +73,10 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
 
+		<script type="text/javascript"			src ="modules/mailbox/Ext.grid.infiniteScroll.js"></script>
+
 		<script type="text/javascript"			src= "libs/ext.plugins/Ext.eu.sm.inlineViewer/Ext.eu.sm.inlineViewer.js"></script>
-		<script type="text/javascript"			src ="libs/ext.plugins/uploader/Ext.ux.FileUploader.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.Uploader/Ext.ux.FileUploader.js"></script>
 
 
 		<script>
