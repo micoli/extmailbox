@@ -22,6 +22,17 @@
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.Radio/Ext.eu.sm.form.Radio.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.attachedWindow/Ext.eu.attachedWindow.js"></script>
 
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.ux.util.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.form.RadioGroup.override.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/arraytree/Ext.ux.tree.ArrayTree.js"></script>
+
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.tree.utils.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.TriggerTree.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.datePickerButton.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.Checkbox.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.Radio.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.attachedWindow.js"></script>
+
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.View.js"></script>
 		<script type="text/javascript"			src="modules/calendarview/Ext.eu.sm.CalendarViewer.Weeks.js"></script>

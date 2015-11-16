@@ -1,0 +1,32 @@
+/*Ext.eu.sm.form.starField.png*/
+.Ext_eu_sm_form_starField_1_on {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+	height: 23px;
+}
+.Ext_eu_sm_form_starField_1_off {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 -31px rgba(0, 0, 0, 0);
+	height: 23px;
+	width: 122px;
+}
+
+.Ext_eu_sm_form_starField_2_on {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 -62px rgba(0, 0, 0, 0);
+	height: 16px;
+}
+.Ext_eu_sm_form_starField_2_off {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 -88px rgba(0, 0, 0, 0);
+	height: 16px;
+	margin: 0 0 5px;
+	width: 91px;
+}
+
+.Ext_eu_sm_form_starField_3_on {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 -114px rgba(0, 0, 0, 0);
+	height: 16px;
+}
+.Ext_eu_sm_form_starField_3_off {
+	background: url("Ext.eu.sm.form.starField.png") no-repeat scroll 0 -140px rgba(0, 0, 0, 0);
+	height: 16px;
+	margin: 0 0 5px;
+	width: 91px;
+}

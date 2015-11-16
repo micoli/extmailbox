@@ -1,0 +1,44 @@
+.x-checkbox, .x-radio {
+	height: 13px;
+	width: 13px;
+	margin-top: 2px;
+}
+.x-checkbox {
+	background: url('checkbox.gif') no-repeat 0 0;
+}
+.x-radio {
+	background: url('radio.gif') no-repeat 0 0;
+}
+.x-checkbox-focus, .x-checkbox-over {
+	background-position: -13px 0;
+}
+.x-checkbox-down {
+	background-position:-26px 0;
+}
+.x-checkbox-disabled {
+	background-position:-39px 0;
+}
+.x-checkbox-checked .x-checkbox, .x-checkbox-checked .x-radio {
+	background-position:0 -13px;
+}
+.x-checkbox-checked .x-checkbox-focus, .x-checkbox-checked .x-checkbox-over {
+	background-position:-13px -13px;
+}
+.x-checkbox-checked .x-checkbox-down {
+	background-position:-26px -13px;
+}
+.x-checkbox-checked .x-checkbox-disabled {
+	background-position:-39px -13px;
+}
+.x-checkbox-grayed .x-checkbox {
+	background-position:0 -26px;
+}
+.x-checkbox-grayed .x-checkbox-focus, .x-checkbox-grayed .x-checkbox-over {
+	background-position:-13px -26px;
+}
+.x-checkbox-grayed .x-checkbox-down {
+	background-position:-26px -26px;
+}
+.x-checkbox-grayed .x-checkbox-disabled {
+	background-position:-39px -26px;
+}

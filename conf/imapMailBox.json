@@ -1,79 +1,11 @@
 {
 	"tmp"		: "/tmp/mbox",
 	"accounts"	: {
-		"mail.home.micoli.org"			: {
-			"cnx"			: "{127.0.0.1:143/novalidate-cert}",
-			"email"			: "micoli@home.micoli.org",
-			"user"			: "micoli@home.micoli.org",
-			"pass"			: "micoli",
-			"host"			: "mail.home.micoli.org",
-			"port"			: 143,
-			"secure"		: false,
-			"name"			: "M. Mic Oli",
-			"sendFolder"	: "INBOX.Sent",
-			"draftFolder"	: "INBOX.Draft",
-			"smtp"			: {
-				"host"		: "mail.home.micoli.org",
-				"port"		: 25,
-				"secure"	: false,
-				"user"		: "micoli@home.micoli.org",
-				"pass"		: "micoli"
-			}
-		},
-		"micoli.loc"			: {
-			"cnx"			: "{192.168.1.220:143/novalidate-cert}",
-			"email"			: "micoli@micoli.loc",
-			"user"			: "micoli@micoli.loc",
-			"pass"			: "micoli",
-			"host"			: "192.168.1.220",
-			"port"			: 143,
-			"secure"		: false,
-			"name"			: "M. Mic Oli",
-			"sendFolder"	: "INBOX.Sent",
-			"draftFolder"	: "Draft",
-			"smtp"			: {
-				"host"		: "192.168.1.220",
-				"port"		: 25,
-				"secure"	: false,
-				"user"		: "micoli@micoli.loc",
-				"pass"		: "micoli"
-			}
-		},
-		"micoli@ms"			: {
-			"cnx"			: "{localhost:143/novalidate-cert}",
-			"email"			: "micoli@mail.local",
-			"user"			: "micoli@mail.local",
-			"pass"			: "micoli",
-			"host"			: "localhost",
-			"port"			: 143,
-			"secure"		: false,
-			"name"			: "M. Mic Oli",
-			"sendFolder"	: "Sent",
-			"draftFolder"	: "Draft",
-			"smtp"			: {
-				"host"		: "MacBookProOlivier.local",
-				"port"		: 25,
-				"secure"	: false,
-				"user"		: "micoli@mail.local",
-				"pass"		: "micoli"
-			}
-		},
-		"micoli@gmail" : {
-			"cnx"			: "{imap.gmail.com:993/imap/ssl/novalidate-cert}",
-			"email"			: "olivier@micoli.org",
-			"user"			: "olivier@micoli.org",
-			"pass"			: "micoli99",
-			"name"			: "M. Mic Oli",
-			"host"			: "imap.gmail.com",
-			"port"			: 993,
-			"secure"		: "tls",
-			"sendFolder"	: "Sent",
-			"draftFolder"	: "Draft",
-			"smtp"			: {
-				"host"	: "127.0.0.1",
-				"port"	: 25,
-				"ssl"	: false
-			}
+		"micoli@ms" : {
+			"cnx"	: "{localhost:143/novalidate-cert}",
+			"user"	: "micoli@mail.local",
+			"email"	: "micoli@mail.local",
+			"pass"	: "micoli"
 		}
 	}
 }
