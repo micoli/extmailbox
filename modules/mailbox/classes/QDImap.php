@@ -18,11 +18,22 @@ class QDImap{
 		'size'		=> SORTSIZE
 	);
 
+	static $icons = array(
+		'^inbox$'		=>'mail_inbox',
+		'^envoy'		=>'mail_open_send',
+		'^sent$'		=>'mail_open_send',
+		'^trash$'		=>'mail_trash',
+		'^corbeille$'	=>'mail_trash',
+	);
+
 	/**
 	 *
 	 * @param String $account
 	 * @param name of the subClass wrapper $subLib
-	 * @return QDImap_HORDE|QDImap_MOD_IMAP|QDImap_MOD_NET
+	 * @return QDImap_HORDE
+	 * @return QDImap_MOD_IMAP
+	 * @return QDImap_MOD_NET
+	 * @return QDImap_ZIMBRA
 	 */
 	static function getInstance($accounts,$subLib){
 		$className='QDImap_'.$subLib;
@@ -497,4 +508,46 @@ class QDImap{
 		}
 	}
 
+	/**
+	 *
+	 * @param unknown $folder
+	 * @param unknown $name
+	 */
+	public function personalizeFolderIcon(&$folder,$name){
+		foreach(self::$icons as $preg=>$icon){
+			if(preg_match('/'.$preg.'/i',$name)){
+				$folder['cls'] .=' x-tree-'.$icon;
+				$folder['rawCls'] =$icon;
+			}
+		}
+	}
+
+	public function getAttachementURLLink($o,$partno){
+		return sprintf('proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=%s&folder=%s&message_no=%s&partno=%s',
+			$o['account'],
+			$o['folder'],
+			$o['message_no'],
+			$partno
+		);
+	}
+
+	/**
+	 *
+	 */
+	public function sortNaturalMailFolders($a, $b) {
+		$aid =$a['text'];
+		$bid =$b['text'];
+		if ($aid == $bid) {
+			return 0;
+		}
+		foreach(array('INBOX','SENT','TRASH','DRAFTS','CALENDAR','TASKS') as $prio){
+			if(strtoupper($aid)==$prio){
+				return -1;
+			}
+			if(strtoupper($bid)==$prio){
+				return 1;
+			}
+		}
+		return ($aid < $bid) ? -1 : 1;
+	}
 }

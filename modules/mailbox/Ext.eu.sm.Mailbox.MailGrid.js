@@ -1,6 +1,4 @@
-
 Ext.ns('Ext.eu.sm.MailBox');
-//mailbox.mailsearchform
 Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 	account			: null,
 	folder			: null,
@@ -42,38 +40,73 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		that.searchFormId		= Ext.id();
 		that.mainGridId			= Ext.id();
 		that.menuGroupId		= Ext.id();
-		that.dateInit = Date.now();
-
-		that.mailStore = new Ext.data.GroupingStore({
-			remoteSort		: true,
-			autoLoad		: false,
-			remoteGroup		: false,
+		that.pagingToolbarId	= Ext.id();
+		that.dateInit			= Date.now();
+		that.mailStore			= new Ext.data.GroupingStore({
+			remoteSort			: true,
+			autoLoad			: false,
+			remoteGroup			: false,
 			//groupOnSort		: true,
-			groupField		: that.groupColumn,
-			reader			: new Ext.data.JsonReader({
-				root			: 'data',
-				totalProperty	: 'totalCount',
-				id				: 'message_id',
+			groupField			: that.groupColumn,
+			reader				: new Ext.data.JsonReader({
+				root				: 'data',
+				totalProperty		: 'totalCount',
+				id					: 'message_id'
 			},that.mailboxContainer.mailFields),
-			listeners	:{
-				load : function(){
-					///console.log('eee');
+			listeners			: {
+				load				: function(a){
+					//console.log('eee',a);
+				},
+				loadexception		: function(e){
+					console.log('loadException',arguments);
 				}
 			},
-			baseParams		: {
-				'exw_action'	: that.mailboxContainer.svcImapPrefixClass+'getMailListInFolders',
-				'folder'		: 'INBOX'
+			baseParams			: {
+				'exw_action'		: that.mailboxContainer.svcImapPrefixClass+'getMailListInFolders',
+				'folder'			: 'INBOX'
 			},
-			sortInfo		: {
-				field			: 'date',
-				direction		: "DESC"
+			sortInfo			: {
+				field				: 'date',
+				direction			: 'DESC'
 			},
 			proxy			: new Ext.data.HttpProxy({
 				method			: 'GET',
-				url				: 'proxy.php',
+				url				: 'proxy.php'
 				//url				: 'http://127.0.0.1:8080/mailbox/getMailListInFolders'
 			})
 		});
+
+		that.searchConfigs = {
+			zimbra			: {
+				prefix			: ':(',
+				suffix			: ')',
+				mapping			: {
+					'TEXT'			: '',
+					'BODY'			: 'content',
+					'SINCE'			: 'after',
+					'ON'			: 'date',
+					'SEEN'			: 'is:read',
+					'UNSEEN'		: 'is:unread',
+					'FLAGGED'		: 'is:flagged'
+					/*
+					'KEYWORD'		,
+					'UNKEYWORD'		,
+					'NEW'			,
+					'OLD'			,
+					'RECENT'		,
+					'ANSWERED'		,//UNANSWERED
+					'DELETED'		, //UNDELETED
+					*/
+				},
+				addQueryParamOverload	: function (mailsearchform, field, tag, value){
+					if (tag=='TEXT'){
+						mailsearchform.query = mailsearchform.query + '"'+ (''+value).replace(/\"/g,"\\\"") +'"" ';
+						return false;
+					}
+					return true;
+				}
+			}
+		};
 
 		that.tbar = [{
 			xtype			: 'label',
@@ -90,7 +123,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					searchForm.syncText(val);
 					if(e.getCharCode() == 13){
 						if((''+val)!=''){
-							searchForm.runQueryOneParam("TEXT",val);
+							searchForm.runQueryOneParam('TEXT',val);
 						}else{
 							that.resetQuerySearch();
 						}
@@ -124,7 +157,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 							if(result.ok){
 								that.mailStore.load();
 							}else{
-								alert(result.errors)
+								alert(result.errors);
 							}
 						},
 						failure	: function(data){
@@ -193,45 +226,50 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				return v.column==that.groupColumn;
 			}));
 			tbItem.setText(selectedItem.text);
-		}
+		};
 
 		that.querySearch = function(query){
 			that.mailStore.baseParams.query			= query;
 			that.mailStore.load();
-		}
+		};
 
 		that.resetQuerySearch = function(query){
 			if(that.mailStore.baseParams.query){
 				delete(that.mailStore.baseParams.query);
 			}
 			that.mailStore.load();
-		}
+		};
 
 		that.gridSelectionModel	= new Ext.grid.CheckboxSelectionModel({
 			singleSelect	: false,
 			hidden			: true
 		});
 
+		that.infiniteScrl = false;
+		that.infiniteBody = false;
+
 		that.gridColumnModel = [
 			that.gridSelectionModel,
-			{header: Ext.eu.sm.MailBox.i18n._("Subject")	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
-			{header: Ext.eu.sm.MailBox.i18n._("From")		, width: 200, sortable: true, fixed:false,dataIndex: 'from'		,renderer: function(v){
+			{header: Ext.eu.sm.MailBox.i18n._('Subject')	, width: 200, sortable: true, fixed:false,dataIndex: 'subject'	,id : 'subject'},
+			{header: Ext.eu.sm.MailBox.i18n._('From')		, width: 200, sortable: true, fixed:false,dataIndex: 'from'		,renderer: function(v){
 				return Ext.eu.sm.MailBox.utils.formatRecipient(v);
 			}},
-			{header: Ext.eu.sm.MailBox.i18n._("Flags")		, width:  40, sortable: true, fixed: true,dataIndex: 'flags'	,renderer: function(v,meta){
+			{header: Ext.eu.sm.MailBox.i18n._('Flags')		, width:  40, sortable: true, fixed: true,dataIndex: 'flags'	,renderer: function(v,meta){
 				return v?v.join(','):'';
 			}},
-			{header: Ext.eu.sm.MailBox.i18n._("Seen")		, width:  40, sortable: true, fixed: true,dataIndex: 'seen'		,renderer: function(v,meta,record){
+			{header: Ext.eu.sm.MailBox.i18n._('Seen')		, width:  40, sortable: true, fixed: true,dataIndex: 'seen'		,renderer: function(v,meta,record){
 				meta.css=(v?'mail_open':'mail_closed')+(record.get('answered')?'_replied':'');
 				return '';
-				return (v==1)?".":"<b>*</b>"
+				return (v==1)?'.':'<b>*</b>'
 			}},
-			{header: Ext.eu.sm.MailBox.i18n._("Date")		, width: 130, sortable: true, fixed: true,dataIndex: 'date'		,renderer: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))},
-			{header: Ext.eu.sm.MailBox.i18n._("Size")		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize,align:"right"},
-			{header: Ext.eu.sm.MailBox.i18n._("Priority")	, width:  80, sortable: true, fixed: true,dataIndex: 'priority'	}
+			{header: Ext.eu.sm.MailBox.i18n._('Date')		, width: 130, sortable: true, fixed: true,dataIndex: 'date'		,renderer: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))},
+			{header: Ext.eu.sm.MailBox.i18n._('Size')		, width:  80, sortable: true, fixed: true,dataIndex: 'size'		,renderer: Ext.eu.sm.MailBox.utils.humanFileSize,align:'right'},
+			{header: Ext.eu.sm.MailBox.i18n._('Priority')	, width:  80, sortable: true, fixed: true,dataIndex: 'priority'	}
 		];
 
 		that.fireEvent('postInit',that);
+
+		that.gridPlugins.push(new Ext.grid.infiniteScroll());
 
 		Ext.apply(that,{
 			layout	: 'border',
@@ -242,11 +280,12 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				region				: 'center',
 				store				: that.mailStore,
 				bbar				: new Ext.PagingToolbar({
+					id					: that.pagingToolbarId,
 					pageSize			: that.pageSize,
 					store				: that.mailStore,
 					displayInfo			: true,
 					displayMsg			: Ext.eu.sm.MailBox.i18n._('Displaying mails {0} - {1} of {2}'),
-					emptyMsg			: Ext.eu.sm.MailBox.i18n._("No mails to display")
+					emptyMsg			: Ext.eu.sm.MailBox.i18n._('No mails to display')
 				}),
 				plugins				: that.gridPlugins,
 				loadMask			: true,
@@ -319,8 +358,16 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 									disabledId	: that.folder,
 									listeners	: {
 										'selected' : function (item){
-											console.log('OK to move',item);
-										},
+											that.mailboxContainer.mailMove({
+												data		: [record],
+												mode		: 'move',
+												account		: that.account,
+												fromFolder	: that.folder,
+												folderId	: item.id,
+												folderiId	: item.iId,
+												messages_no	: record.data.id
+											});
+										}
 									}
 								})
 							},'-',{
@@ -363,7 +410,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 						}).showAt(e.getXY());
 					}
 				}
-			},{
+			},Ext.apply({
 				xtype			: 'mailbox.mailsearchform',
 				region			: 'east',
 				id				: that.searchFormId,
@@ -371,15 +418,15 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 				syncTextId		: that.txtSearchId,
 				listeners		: {
 					search			: function(query){
-						that.querySearch(query)
+						that.querySearch(query);
 					}
 				}
-			}]
+			},that.searchConfigs['zimbra'])]
 		});
 		Ext.eu.sm.MailBox.MailGrid.superclass.initComponent.call(this);
 		that.on('render',function(){
 			that.menuGroupHandleText();
-		})
+		});
 	}
 });
 

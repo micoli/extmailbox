@@ -9,7 +9,7 @@ class svcMailboxSmtp extends svcMailboxImap{
 
 		header('content-type: text/html; charset=utf-8');
 
-		$this->imapProxy = QDImap::getInstance($GLOBALS['conf']['imapMailBox']['accounts'],'HORDE');
+		$this->imapProxy = QDImap::getInstance($GLOBALS['conf']['imapMailBox']['accounts'],'ZIMBRA');
 
 		$this->imapProxy->setCache($GLOBALS['conf']['imapMailBox']['tmp']);
 		$this->imapProxy->setDBCacheObject(new MMG_MAIL_MESSAGE());
@@ -21,6 +21,25 @@ class svcMailboxSmtp extends svcMailboxImap{
 	private function init(){
 		$this->tmpAttachmentsPath = $GLOBALS['conf']['imapMailBox']['tmp'].'/attachments';
 	}
+
+	public function pub_getSignatures($o){
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return array();
+		}
+		return $this->imapProxy->getSignatures($o);
+	}
+
+	public function pub_getIdentities($o){
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return array();
+		}
+		return $this->imapProxy->getIdentities($o);
+	}
+
 	/**
 	 *
 	 * @param unknown $o

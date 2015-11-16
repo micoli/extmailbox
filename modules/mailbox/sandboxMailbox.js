@@ -13,9 +13,9 @@ Ext.onReady(function(){
 		items:[{
 			region			: 'center',
 			xtype			: 'mailbox.mailbox',
-			mailLayout		: 'threePane',
 			svcImapClass	: 'MailboxImapExt',
 			svcSmtpClass	: 'MailboxSmtpExt',
+			//mailLayout		: 'threePane',
 			mailLayout		: 'gridOnNorth',//threePane || gridOnNorth
 			gridConfig		: {
 				pageSize		: 10,

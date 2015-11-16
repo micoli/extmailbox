@@ -16,9 +16,7 @@ Ext.eu.sm.MailBox.i18n.translation.fr = {
 	'Send'								: 'Send',
 	'Save as Draft' 					: 'Save as Draft',
 	'Attach'							: 'Attach',
-	'From'								: 'From',
 	'Select an account...'				: 'Select an account...',
-	'Subject'							: 'Subject',
 	'To'								: 'To',
 	'Cc'								: 'Cc',
 	'Bcc'								: 'Bcc',
@@ -36,5 +34,5 @@ Ext.eu.sm.MailBox.i18n.translation.fr = {
 	'Still loading email body'			: 'Still loading email body',
 	'd/m/Y H:i:s'						: 'd/m/Y H:i:s',
 	'failure on retreiving mail'		: 'failure on retreiving mail',
-	'View'								: 'View',
+	'View'								: 'View'
 }

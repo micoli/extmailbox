@@ -1,0 +1,9 @@
+{
+	"require": [
+	],
+	"js": [
+		"intercom.js"
+	],
+	"css": [
+	]
+}

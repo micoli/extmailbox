@@ -1,20 +1,11 @@
-/*
- * Ext JS Library 2.2.1
- * Copyright(c) 2006-2009, Ext JS, LLC.
- * licensing@extjs.com
- *
- * http://extjs.com/license
- */
-
-
 Ext.ns('Ext.eu.sm.MailBox');
-
 Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 	lines					: false,
 	borderWidth				: Ext.isBorderBox ? 0 : 2, // the combined left/right border for each cell
 	cls						: 'x-column-tree',
 	dragDropDefaultIsMove	: true,
 	enableDrop				: true,
+	inboxNodeName			: 'INBOX',
 
 	initComponent	: function (){
 		var that = this;
@@ -28,11 +19,12 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 				var items=[];
 				Ext.each(children,function(v,k){
 					var item = {
-							longText	: parent.longText + v.text + '/',
-							shortcut	: parent.shortcut + v.text.substr(0,1).toLowerCase(),
-							subText		: v.text,
-							id			: v.id,
-						}
+						longText	: parent.longText + v.text + '/',
+						shortcut	: parent.shortcut + v.text.substr(0,1).toLowerCase(),
+						subText		: v.text,
+						id			: v.id,
+						iId			: v.iId
+					}
 					if(disabledId!=v.id){
 						store.add(new store.recordType(item));
 					}
@@ -59,6 +51,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 					var item={
 						text	: v.text,
 						id		: v.id,
+						iId		: v.iId,
 						iconCls	: v.rawCls?(v.rawCls).replace('x-tree-node-collapsed x-tree-node-icon',''):'mail_folder_open'
 					};
 					if(disabledId==v.id){
@@ -92,7 +85,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 				dataIndex	: 'nb',
 				renderer	: function(v,meta,node){
 					if(node.folderType=='folder'){
-						return ''+(node.stat.messages||0);
+						return '' + (node.stat.messages||0);
 					}
 				}
 			},{
@@ -204,15 +197,15 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 					// first try to find the drop node
 					var dropNode = data.node || (dd.getTreeNode ? dd.getTreeNode(data, targetNode, point, e) : (data.selections || null));
 					var dropEvent = {
-							tree : this.tree,
-							target: targetNode,
-							data: data,
-							point: point,
-							source: dd,
-							rawEvent: e,
-							dropNode: dropNode,
-							cancel: !dropNode,
-							dropStatus: false
+						tree : this.tree,
+						target: targetNode,
+						data: data,
+						point: point,
+						source: dd,
+						rawEvent: e,
+						dropNode: dropNode,
+						cancel: !dropNode,
+						dropStatus: false
 					};
 					if(that.dragDropDefaultIsMove){
 						if(e.browserEvent.shiftKey){
@@ -248,7 +241,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 					var ns = de.dropNode, p = de.point, t = de.target;
 					t.ui.endDrop();
 					this.tree.fireEvent("nodedrop", de);
-				},
+				}
 			},
 			ddAppendOnly	: false,
 			allowContainerDrop:true,
@@ -268,9 +261,9 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 					},
 					load			: function(loader,node,response) {
 						that.rawItems = JSON.parse(response.responseText);
-						that.fireEvent('click',that.getNodeById(Ext.util.base64.encode('INBOX')));
-					},
-				},
+						that.fireEvent('click',that.getNodeById(Ext.util.base64.encode(that.inboxNodeName)));
+					}
+				}
 			})
 		});
 
@@ -365,7 +358,7 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 										params	: {
 											exw_action	: that.mailboxContainer.svcImapPrefixClass+'deleteFolder',
 											account		: that.loader.baseParams.account,
-											folder		: node.attributes.id,
+											folder		: node.attributes.id
 										},
 										success	: function(data){
 											var result = JSON.parse(data.responseText);
@@ -429,8 +422,9 @@ Ext.eu.sm.MailBox.FolderTree = Ext.extend(Ext.tree.TreePanel, {
 		return {
 			mode		: dropEvent.dropMode,
 			data		: dropEvent.dropNode,
-			folderId	: dropEvent.target.id,
 			folderIdText: dropIdText,
+			folderiId	: dropEvent.target.attributes.iId,
+			folderId	: dropEvent.target.id,
 			text		: dropEvent.target.text,
 			account		: dropEvent.target.attributes.loader.baseParams.account,
 			tree		: this,

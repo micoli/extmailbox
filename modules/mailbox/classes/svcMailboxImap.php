@@ -11,17 +11,9 @@
  *
  */
 class svcMailboxImap{
-	/** @var QDImap_HORDE|QDImap_MOD_IMAP|QDImap_MOD_NET $imapProxy */
+	/** @var QDImap_ZIMBRA|QDImap_HORDE|QDImap_MOD_IMAP|QDImap_MOD_NET $imapProxy */
 	var $imapProxy;
-	var $proxyClass='HORDE';
-
-	var $icons = array(
-		'^inbox$'		=>'mail_inbox',
-		'^envoy'		=>'mail_open_send',
-		'^sent$'		=>'mail_open_send',
-		'^trash$'		=>'mail_trash',
-		'^corbeille$'	=>'mail_trash',
-	);
+	var $proxyClass='ZIMBRA';
 
 	public function __construct(){
 		//header('content-type: text/html; charset=utf-8');
@@ -173,9 +165,9 @@ class svcMailboxImap{
 			return array('error'=>true);
 		}
 		if($o['value']==1){
-			$this->imapProxy->setflag_full	($o['message_no'],"\\".$o['flag']);
+			return $this->imapProxy->setflag_full	($o['message_no'],"\\".$o['flag']);
 		}else{
-			$this->imapProxy->clearflag_full($o['message_no'],"\\".$o['flag']);
+			return $this->imapProxy->clearflag_full($o['message_no'],"\\".$o['flag']);
 		}
 	}
 
@@ -283,13 +275,13 @@ class svcMailboxImap{
 								'stat'			=> $this->imapProxy->status($subId),
 								'folderType'	=> 'folder'
 							);
-							$this->personalizeFolderIcon($tmp['children'][$subId],strtolower($v));
+							QDImap::personalizeFolderIcon($tmp['children'][$subId],strtolower($v));
 						}
 						$tmp=&$tmp['children'][$subId];
 					}
 				}
 			}
-			uasort($res['children'],array($this,'sortNaturalMailFolders'));
+			uasort($res['children'],array('QDImap','sortNaturalMailFolders'));
 		} else {
 			echo "imap_getmailboxes failed : " . imap_last_error() . "\n";
 		}
@@ -303,14 +295,13 @@ class svcMailboxImap{
 	 * @return array
 	 */
 	public function pub_getMailListInFolders($o){
-		$t1 = microtime(true);
-		$res = array();
-		$folder=base64_decode($o['folder']);
 		$this->imapProxy->setAccount($o['account']);
-		$this->imapProxy->open($folder);
+		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
-			return array('error'=>true);
+			return array();
 		}
+
+		$folder=base64_decode($o['folder']);
 
 		$query = array_key_exists_assign_default('query',$o,false);
 
@@ -318,6 +309,7 @@ class svcMailboxImap{
 			$aID	= $this->imapProxy->search($query);
 			$num	= count($aID);
 		}else{
+			db(1);
 			$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
 			$num	= $this->imapProxy->num_msg();
 			fb($aID);
@@ -337,6 +329,7 @@ class svcMailboxImap{
 		}
 		$a = array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
 		return $a;
+
 	}
 
 	/**
@@ -377,23 +370,25 @@ class svcMailboxImap{
 
 		$res = $this->imapProxy->getMessageContent($message_no);
 		$aAllAttachmentsPartNo = array(-1);
-		foreach($res['attachments'] as &$f){
-			$aAllAttachmentsPartNo[] = $f['partno'];
-			$f['attachUrlLink']=$this->getAttachementURLLink($o,$f['partno']);
-			if($f['filename']){
-				$f['type']=strtolower(pathinfo($f['filename'],PATHINFO_EXTENSION));
+		if(is_array($res['attachments'])){
+			foreach($res['attachments'] as &$f){
+				$aAllAttachmentsPartNo[] = $f['partno'];
+				$f['attachUrlLink']=QDImap::getAttachementURLLink($o,$f['partno']);
+				if($f['filename']){
+					$f['type']=strtolower(pathinfo($f['filename'],PATHINFO_EXTENSION));
+				}
 			}
-		}
-		if(count($res['attachments'])>=2){
-			$res['attachments'][]=array(
-				'filename'		=> 'all',
-				'hfilename'		=> 'all',
-				'type'			=> 'zip',
-				'size'			=> -1,
-				'partno'		=> implode(',',$aAllAttachmentsPartNo),
-				'attachUrlLink'	=> $this->getAttachementURLLink($o,implode(',',$aAllAttachmentsPartNo))
-			);
+			if(count($res['attachments'])>=2){
+				$res['attachments'][]=array(
+					'filename'		=> 'all',
+					'hfilename'		=> 'all',
+					'type'			=> 'zip',
+					'size'			=> -1,
+					'partno'		=> implode(',',$aAllAttachmentsPartNo),
+					'attachUrlLink'	=> QDImap::getAttachementURLLink($o,implode(',',$aAllAttachmentsPartNo))
+				);
 
+			}
 		}
 		return $res;
 	}
@@ -413,9 +408,9 @@ class svcMailboxImap{
 			return array('error'=>true);
 		}
 
-		$outStruct		= $this->imapProxy->getMimeFlatStruct($message_no);
-		$outStruct		=$outStruct['flat'];
 		if(preg_match('!^-1,!',$o['partno'])){
+			$outStruct	= $this->imapProxy->getMimeFlatStruct($message_no);
+			$outStruct	= $outStruct['flat'];
 			$tmpName	= tempnam(sys_get_temp_dir(),'zip')."_folder.zip";
 			$archive	= new PclZip($tmpName);
 			$archDatas	= array();
@@ -440,10 +435,16 @@ class svcMailboxImap{
 			unlink($tmpName);
 			die();
 		} else {
-			$part			= $outStruct[$o['partno']];
-			$filename		= $this->getPartFilename($part);
+			$part		= $outStruct[$o['partno']];
+			if(array_key_exists('filename',$o)){
+				$filename=$o['filename'];
+			}else{
+				$outStruct	= $this->imapProxy->getMimeFlatStruct($message_no);
+				$outStruct	= $outStruct['flat'];
+				$filename	= $this->getPartFilename($part);
+			}
 
-			$data = $this->imapProxy->fetchbody($message_no,$o['partno']);
+			$data		= $this->imapProxy->fetchbody($message_no,$o['partno']);
 
 			if(false){
 				header('content-type: text/html; charset=utf-8');
@@ -476,6 +477,7 @@ class svcMailboxImap{
 	function pub_mailCopyMove($o){
 		$fromFolder	= base64_decode($o['fromFolder']);
 		$toFolder	= base64_decode($o['toFolder'  ]);
+		$toFolderId	= $o['toFolderId'];
 
 		$this->imapProxy->setAccount($o['account']);
 		$this->imapProxy->open($fromFolder);
@@ -487,10 +489,10 @@ class svcMailboxImap{
 		asort($ids);
 		switch (strtolower($o['mode'])){
 			case 'copy':
-				$ok = $this->imapProxy->mail_copy(implode(',',$ids),$toFolder);
+				$ok = $this->imapProxy->mail_copy(implode(',',$ids),$toFolder,$toFolderId);
 			break;
 			case 'move':
-				$ok = $this->imapProxy->mail_move(implode(',',$ids),$toFolder);
+				$ok = $this->imapProxy->mail_move(implode(',',$ids),$toFolder,$toFolderId);
 			break;
 		}
 
@@ -500,16 +502,6 @@ class svcMailboxImap{
 			$this->imapProxy->expunge();
 			return array('ok'=>count($ids));
 		}
-	}
-
-
-	private function getAttachementURLLink($o,$partno){
-		return sprintf('proxy.php?exw_action=local.mailboxImap.getMessageAttachment&account=%s&folder=%s&message_no=%s&partno=%s',
-			$o['account'],
-			$o['folder'],
-			$o['message_no'],
-			$partno
-		);
 	}
 
 	function getPartFilename($part){
@@ -539,21 +531,6 @@ class svcMailboxImap{
 
 	/**
 	 *
-	 * @param unknown $folder
-	 * @param unknown $name
-	 */
-	private function personalizeFolderIcon(&$folder,$name){
-		foreach($this->icons as $preg=>$icon){
-			if(preg_match('/'.$preg.'/i',$name)){
-				$folder['cls'] .=' x-tree-'.$icon;
-				$folder['rawCls'] =$icon;
-			}
-		}
-	}
-
-
-	/**
-	 *
 	 * @param unknown $v
 	 */
 	private function flatAssocChildren(&$v){
@@ -566,20 +543,5 @@ class svcMailboxImap{
 		}else{
 			$v['leaf']=true;
 		}
-	}
-
-	/**
-	 *
-	 */
-	function sortNaturalMailFolders($a, $b) {
-		$aid =$a['text'];
-		$bid =$b['text'];
-		if ($aid == $bid) {
-			return 0;
-		}
-		if($bid=='INBOX'){
-			return 1;
-		}
-		return ($aid < $bid) ? -1 : 1;
 	}
 }

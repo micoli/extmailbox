@@ -12,7 +12,6 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		that.contentId					= Ext.id();
 		that.contentCardId				= Ext.id();
 		that.contentAttachmentId		= Ext.id();
-		that.formId						= Ext.id();
 		that.attachmentPanelId			= Ext.id();
 		that.headerPanelId				= Ext.id();
 		that.displayInlineComponentsId	= Ext.id();
@@ -88,8 +87,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 					disabledId	: that.record.get('folder'),
 					listeners	: {
 						'selected' : function (item){
-							console.log('OK to move',item);
-						},
+							that.mailboxContainer.mailMove({
+								data		: [that.record],
+								mode		: 'move',
+								account		: that.record.get('account'),
+								fromFolder	: that.record.get('folder'),
+								folderId	: item.id,
+								folderiId	: item.iId,
+								messages_no	: that.record.get('id')
+							});
+						}
 					}
 				}).showAt(event.getXY());
 			}
@@ -107,8 +114,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 						xtype			: 'mailbox.folderselect',
 						folderTreeId	: that.folderTreeId,
 						listeners:{
-							'selected'	: function(selected){
-								console.log('OK to move',selected);
+							'selected'	: function(item){
+								that.mailboxContainer.mailMove({
+									data		: [that.record],
+									mode		: 'move',
+									account		: that.record.get('account'),
+									fromFolder	: that.record.get('folder'),
+									folderId	: item.data.id,
+									folderiId	: item.data.iId,
+									messages_no	: that.record.get('id')
+								});
 								cmp.attachedCmp.destroy();
 							},
 							'cancel'	: function(selected){
@@ -207,7 +222,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 						exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageSource',
 						account			: that.record.get('account'),
 						folder			: that.record.get('folder'),
-						message_no		: that.record.get('uid'),
+						message_no		: that.record.get('uid')
 					},
 					success	: function(data){
 						var val = JSON.parse(data.responseText);
@@ -229,14 +244,13 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				maxHeight	: 300,
 				height		: 120,
 				labelWidth	: 70,
-				id			: that.formId,
+				id			: that.headerPanelId,
 				frame		: true,
 				bodyStyle	: 'padding:2px 2px 2px 2px;',
 				tbar		: that.viewTBar,
-				xtype			: 'panel',
-				id				: that.headerPanelId,
-				autoScroll		: true,
-				tpl				: new Ext.XTemplate(
+				xtype		: 'panel',
+				autoScroll	: true,
+				tpl			: new Ext.XTemplate(
 					'<tpl for=".">',
 						'<div class="header-wrap">',
 						'<table style="width:100%;">',
@@ -332,7 +346,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 						xtype			: 'inlineviewer',
 						selectorWidth	: 200,
 						thumbWidth		: 60,
-						thumbHeight		: 90,
+						thumbHeight		: 90
 					}]
 				}]
 			}]
@@ -384,7 +398,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			date	: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))(that.record.get('date')),
 			from	: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('from'	),'<li>','</li>','&nbsp;'),
 			to		: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('to'		),'<li>','</li>','&nbsp;'),
-			cc		: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('cc'		),'<li>','</li>','&nbsp;'),
+			cc		: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('cc'		),'<li>','</li>','&nbsp;')
 		});
 
 		Ext.getCmp(that.headerPanelId).el.select('ul.mailview-recipients>li').each(function(element){
@@ -400,7 +414,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 				exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageContent',
 				account			: that.record.get('account'),
 				folder			: that.record.get('folder'),
-				message_no		: that.record.get('uid'),
+				message_no		: that.record.get('uid')
 			},
 			success	: function(data){
 				that.loading = false;
@@ -435,7 +449,7 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 								account		: that.record.get('account'),
 								folder		: that.record.get('folder'),
 								message_no	: that.record.get('uid'),
-								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(attach.size),
+								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(attach.size)
 							})));
 							nb++;
 							if(attach.hfilename!='all'){

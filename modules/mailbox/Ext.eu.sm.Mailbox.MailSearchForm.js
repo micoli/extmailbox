@@ -1,9 +1,12 @@
+if(false){Ext=console={};}
 Ext.ns('Ext.eu.sm.MailBox');
-
 Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 	withSyncText	: true,
 	query			: '',
 	queryObj		: {},
+	mapping			: {},
+	prefix			: ' "',
+	suffix			: '"',
 	initComponent	: function(){
 		var that = this;
 		that.imapTextFieldId	= Ext.id();
@@ -23,6 +26,13 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 			'search'
 		);
 
+		that.getMappedTag = function(tag){
+			if(that.mapping.hasOwnProperty(tag)){
+				return that.mapping[tag];
+			}
+			return tag;
+		};
+
 		that.storeQuery = function(){
 			if(that.storeQueryOn){
 				that.searchStores.insert(0,[new that.searchStores.recordType({
@@ -32,7 +42,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				})]);
 				that.searchStores.commitChanges();
 			}
-		}
+		};
 
 		that.resetQuery = function(){
 			that.query = '';
@@ -42,10 +52,16 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 
 		that.addQueryParam = function(field,tag,value){
 			that.queryObj[field.imapTag]=value;
-			if ((value || value=="") && field.getXType()!='checkbox' && field.getXType()!='tri-checkbox'){
-				that.query		= that.query		+ tag +' "'+ (''+value).replace(/\"/g,"\\\"") +'" ';
-			}else{
-				that.query		= that.query		+ tag +' ';
+			var todo = true;
+			if (that.addQueryParamOverload){
+				todo = that.addQueryParamOverload(that,field,tag,value);
+			}
+			if(todo){
+				if ((value || value=="") && field.getXType()!='checkbox' && field.getXType()!='tri-checkbox'){
+					that.query		= that.query		+ that.getMappedTag(tag) +that.prefix+ (''+value).replace(/\"/g,"\\\"") +that.suffix+' ';
+				}else{
+					that.query		= that.query		+ that.getMappedTag(tag) +' ';
+				}
 			}
 		};
 
@@ -124,7 +140,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 		});
 
 		that.resetForms = function(){
-			for(var i=0;i<4;i++){
+			for(var i=0;i<that.formId.length;i++){
 				Ext.getCmp(that.formId[i]).getForm().reset();
 			}
 		}
@@ -215,7 +231,7 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 				defaultType		: 'textfield',
 				defaults		: {
 					anchor			: '-15'
-				},
+				}
 			},
 			items		: [{
 				title			: 'Subject/Body',
@@ -448,4 +464,4 @@ Ext.eu.sm.MailBox.MailSearchForm = Ext.extend(Ext.Panel, {
 	}
 });
 
-Ext.reg('mailbox.mailsearchform',Ext.eu.sm.MailBox.MailSearchForm)
+Ext.reg('mailbox.mailsearchform',Ext.eu.sm.MailBox.MailSearchForm);

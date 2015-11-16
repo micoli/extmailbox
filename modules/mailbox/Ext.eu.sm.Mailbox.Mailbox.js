@@ -62,7 +62,6 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		Ext.each(params.data,function(v,k){
 			ids.push(v.get('uid'));
 		});
-
 		Ext.Ajax.request({
 			url		: 'proxy.php',
 			params	: {
@@ -70,8 +69,9 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				mode		: params.mode,
 				account		: params.account,
 				toFolder	: params.folderId,
+				toFolderId	: params.folderiId,
 				fromFolder	: fromFolder,
-				messages_no	: ids.sort().join(','),
+				messages_no	: ids.sort().join(',')
 			},
 			success	: function(data){
 				var result = JSON.parse(data.responseText);
@@ -100,7 +100,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				folder		: record.get('folder'),
 				flag		: flag,
 				value		: newValue,
-				message_no	: record.get('uid'),
+				message_no	: record.get('uid')
 			},
 			success	: function(data){
 				record.beginEdit();
@@ -234,9 +234,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		that.accountComboId	= Ext.id();
 		that.folderTreeId	= Ext.id();
 
-
-
-		gblClient = new Ext.eu.sm.Stomp({
+		/*gblClient = new Ext.eu.sm.Stomp({
 			//WebSocketClass	: ,
 			url				: 'ws://network.home.micoli.org:61614/stomp/',
 			//WebSocketClass	: SockJS,
@@ -266,7 +264,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			//gblClient.stompClient.heartbeat.incoming=5000;
 			//gblClient.stompClient.heartbeat.outgoing=5000;
 			stomp.send('/topic/', JSON.stringify({}));
-		});
+		});*/
 
 		that.accountStore = new Ext.data.JsonStore({
 			fields			: [
@@ -307,11 +305,11 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				'exw_action'	: that.svcImapPrefixClass+'getTemplates'
 			},
 			proxy			: new Ext.data.HttpProxy({
-				url				: 'proxy.php',
-			}),
+				url				: 'proxy.php'
+			})
 		});
 
-		var configFolder = {
+		var folderConfig = {
 			xtype			: 'mailbox.foldertree',
 			id				: that.folderTreeId,
 			split			: true,
@@ -320,6 +318,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			enableDrop		: true,
 			border			: false,
 			mailboxContainer: that,
+			inboxNodeName	: 'Inbox',
 			tbar			: ['Account: ',{
 				xtype			: 'combo',
 				width			: 100,
@@ -368,7 +367,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			}
 		};
 
-		var configGrid = Ext.apply({
+		var gridConfig = Ext.apply({
 			xtype			: 'mailbox.mailgrid',
 			split			: true,
 			id				: that.mailGridId,
@@ -384,7 +383,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			},that.gridConfig.customListeners||{})
 		},that.gridConfig);
 
-		var configTabView = {
+		var tabViewConfig = {
 			xtype			: 'tabpanel',
 			id				: that.mailPreviewsId,
 			enableTabScroll	: true,
@@ -443,19 +442,19 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 
 		Ext.apply(that,{
 			layout	: 'border',
-			items	: [Ext.apply(configFolder,{
+			items	: [Ext.apply(folderConfig,{
 				width		: 190,
 				region		: 'west',
-				split		: true,
+				split		: true
 			}),{
 				layout	: 'border',
 				region	: 'center',
 				border	: false,
-				items	: [Ext.apply(configGrid,{
+				items	: [Ext.apply(gridConfig,{
 					region			: that.mailLayout=='threePane'?'west':'north',
 					height			: 200,
-					width			: 700,
-				}),Ext.apply(configTabView,{
+					width			: 700
+				}),Ext.apply(tabViewConfig,{
 					region: 'center'
 				})]
 			}]
