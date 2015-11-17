@@ -51,6 +51,7 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.tristate/Ext.ux.form.Checkbox.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.tristate/Ext.ux.form.Radio.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.tristate/Ext.ux.form.TriCheckbox.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.sm.grid.infiniteScroll.js"></script>
 
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.menu.Item.override.js"></script>
 
@@ -72,8 +73,6 @@
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
-
-		<script type="text/javascript"			src ="modules/mailbox/Ext.grid.infiniteScroll.js"></script>
 
 		<script type="text/javascript"			src= "libs/ext.plugins/Ext.eu.sm.inlineViewer/Ext.eu.sm.inlineViewer.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.Uploader/Ext.ux.FileUploader.js"></script>
