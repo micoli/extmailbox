@@ -1,10 +1,11 @@
 /**
  * @author Olivier MICHAUD
- * @class Ext.grid.infiniteScroll
+ * @class Ext.eu.sm.grid.infiniteScroll
  * @extends Ext.util.Observable
  * <p>A plugin for an infiniteScroll on ExtJS2 grid.</p>
  */
-Ext.grid.infiniteScroll = Ext.extend(Ext.util.Observable, {
+Ext.ns('Ext.eu.sm.grid');
+Ext.eu.sm.grid.infiniteScroll = Ext.extend(Ext.util.Observable, {
 	init: function(grid){
 		var that = this;
 		that.grid = grid;
