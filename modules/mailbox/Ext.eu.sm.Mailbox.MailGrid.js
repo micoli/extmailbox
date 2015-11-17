@@ -269,7 +269,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 
 		that.fireEvent('postInit',that);
 
-		that.gridPlugins.push(new Ext.grid.infiniteScroll());
+		that.gridPlugins.push(new Ext.eu.sm.grid.infiniteScroll());
 
 		Ext.apply(that,{
 			layout	: 'border',

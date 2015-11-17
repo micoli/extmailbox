@@ -5,6 +5,31 @@ class QDImap_ZIMBRA extends QDImap{
 
 	var $cacheEnabled	= false;
 	var $urlRoot		= '';
+	/**
+		imapMailBox.json => accounts
+
+		"mail.titi.com"			: {
+			"cnx"			: "{127.0.0.1:143/novalidate-cert}",
+			"email"			: "toto@titi.com",
+			"user"			: "toto@titi.com",
+			"pass"			: "pass",
+			"host"			: "mail.titi.com",
+			"token"			: "0_a56FCDb",
+			"zmurl"			: "https://mail.titi.com/service/",
+			"port"			: 143,
+			"secure"		: false,
+			"name"			: "M. Mic Oli",
+			"sendFolder"	: "INBOX.Sent",
+			"draftFolder"	: "INBOX.Draft",
+			"smtp"			: {
+				"host"		: "mail.titi.com",
+				"port"		: 25,
+				"secure"	: false,
+				"user"		: "toto@titi.com",
+				"pass"		: "pass"
+			}
+		},
+	*/
 
 	var $imap_order		= array(
 		'date'				=> 'date',
