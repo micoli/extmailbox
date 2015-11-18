@@ -176,6 +176,25 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				exw_action		: that.mailboxContainer.svcImapPrefixClass+'searchContact'
 			}
 		});
+		that.identitiesStore = new Ext.data.JsonStore({
+			fields	: [
+				'default'		,
+				'account'		,
+				'email'			,
+				'fromName'		,
+				'fromEmail'		,
+				'saveToSent'	,
+				'sentFolder'	,
+				'signature'		,
+				'replySignature',
+			],
+			proxy	: new Ext.data.MemoryProxy([])
+		});
+
+		var accountIdx = that.mailboxContainer.accountStore.find('account',that.mailboxContainer.account);
+		Ext.each(that.mailboxContainer.accountStore.getAt(accountIdx).get('identities'),function(item){
+			that.identitiesStore.add(new that.identitiesStore.recordType(item));
+		});
 
 		that.recipientTpl			= '<tpl for="."><div class="x-combo-list-item">{email}, <i>{name}</i></div></tpl>';
 		that.recipientContextMenu	= function(value){
@@ -299,17 +318,18 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						xtype			: 'combo',
 						name			: 'from',
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('From'),
-						store			: that.mailboxContainer.accountStore,
+						store			: that.identitiesStore,
 						id				: that.accountComboId,
 						anchor			: '-14',
-						displayField	: 'email',
-						valueField		: 'email',
+						displayField	: 'fromEmail',
+						valueField		: 'fromEmail',
+						tpl				: '<tpl for="."><div class="x-combo-list-item">{fromEmail} <i>"{fromName}"</i>, {account} </div></tpl>',
 						emptyText		: Ext.eu.sm.MailBox.i18n._('Select an account...'),
 						mode			: 'local',
 						triggerAction	: 'all',
+						value			: that.fromEmail,
 						typeAhead		: true,
 						forceSelection	: true,
-						value			: that.fromEmail,
 						selectOnFocus	: true,
 						listeners		:{
 							select			: function(combo,record,index){

@@ -136,11 +136,4 @@ class svcMailboxSmtp extends svcMailboxImap{
 			return array('success'	=>$success);
 		}
 	}
-
-	/**
-	 *
-	 */
-	private function init(){
-		$this->tmpAttachmentsPath = $GLOBALS['conf']['imapMailBox']['tmp'].'/attachments';
-	}
 }

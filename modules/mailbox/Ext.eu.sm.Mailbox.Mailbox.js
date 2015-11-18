@@ -269,7 +269,8 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		that.accountStore = new Ext.data.JsonStore({
 			fields			: [
 				'account',
-				'email'
+				'email',
+				'identities'
 			],
 			root			: 'data',
 			idProperty		: 'account',

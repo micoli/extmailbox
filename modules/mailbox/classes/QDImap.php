@@ -48,6 +48,23 @@ class QDImap{
 	function init(){
 	}
 
+	public function getIdentities($o){
+		$res = array();
+		foreach($this->accounts as $k=>$account){
+			$res[]=array(
+				'account'			=> $k,
+				'default'			=> $k==$this->account,
+				'email'				=> $account['email'],
+				'fromName'			=> $account['name'],
+				'fromEmail'			=> $account['email'],
+				'saveToSent'		=> true,
+				'sentFolder'		=> $account['sendFolder'],
+				'signature'			=> '',
+				'replySignature'	=> ''
+			);
+		}
+
+	}
 	function setDBCacheObject($oCacheObject){
 		$this->oDBCacheObject=$oCacheObject;
 	}

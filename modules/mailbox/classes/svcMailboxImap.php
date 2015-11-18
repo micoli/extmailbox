@@ -127,12 +127,21 @@ class svcMailboxImap{
 	 */
 	public function pub_getAccounts($o){
 		$tmp = array();
+		$o['account']=akead('account',$o,array_shift(array_keys($this->imapProxy->accounts)));
+		$this->imapProxy->setAccount($o['account']);
 		foreach($this->imapProxy->accounts as $k=>$v){
 			$tmp[]=array(
 				'account'	=> $k,
-				'email'		=> $v['email']
+				'email'		=> $v['email'],
+				'identities'=> $this->imapProxy->getIdentities($o)
 			);
 		}
+		/*usort($tmp, function($a, $b){
+			if ($a['detail']['default'] == $b['detail']['default']) {
+				return 0;
+			}
+			return ($a['detail']['default']===true)?-1:1;
+		});*/
 		return array(
 			'data'=>$tmp
 		);

@@ -7,7 +7,6 @@ class QDImap_ZIMBRA extends QDImap{
 	var $urlRoot		= '';
 	/**
 		imapMailBox.json => accounts
-
 		"mail.titi.com"			: {
 			"cnx"			: "{127.0.0.1:143/novalidate-cert}",
 			"email"			: "toto@titi.com",
@@ -171,10 +170,8 @@ class QDImap_ZIMBRA extends QDImap{
 				'priority'			=> $message[''],
 			);
 			//urgent (!), low-priority (?), priority (+)
-			if($message['id']==638468){
-				//db($aResult[count($aResult)-1]);
-				//db($message);
-			}
+			//db($aResult[count($aResult)-1]);
+			//db($message);
 		}
 		return $aResult;
 	}
@@ -399,15 +396,66 @@ class QDImap_ZIMBRA extends QDImap{
 
 	public function getSignatures($o){
 		$res = array();
-		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest', array());
-		db($rawRes);
-		return array();
+		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest');
+		return $rawRes['Body']['GetSignaturesResponse'];
 	}
 
-	public function GetIdentities($o){
-		$res = array();
-		$rawRes = $this->imapStream->call('zimbraAccount','GetIdentitiesRequest', array());
-		db($rawRes);
-		return array();
+	/**
+	 *
+	 * [{
+		"name"				: "",
+		"default"			: true,
+		"fromName"			: "",
+		"fromEmail"			: "",
+		"saveToSent"		: true,
+		"sentFolder"		: "",
+		"signature"			: "",
+		"replySignature"	:""
+	 * }]
+	 * @param unknown $o
+	 * @return multitype:multitype:NULL string
+	 */
+	public function getIdentities($o){
+		$aSignatures=array();
+		$params = array(new SoapVar('<account by="name">'.$this->accounts[$this->account]['email'].'</account>', XSD_ANYXML));
+		$rawRes = $this->imapStream->call('zimbraAccount','GetAccountInfoRequest', $params,true);
+		$aAccountInfo=$rawRes['Envelope']['Body']['GetAccountInfoResponse'];
+		$aAccountInfo['attr']=$this->imapStream->extractAttr($aAccountInfo,'attr','name');
+
+		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest');
+		foreach($rawRes['Body']['GetSignaturesResponse']['signature'] as $aSignature){
+			$aSignatures[$aSignature['id']]=$aSignature;
+		}
+
+		$rawRes = $this->imapStream->call('zimbraAccount','GetIdentitiesRequest', array(),true);
+		$aIdentities=array();
+		foreach($rawRes['Envelope']['Body']['GetIdentitiesResponse']['identity'] as $k=>$v){
+			if(is_int($k)){
+				$aIdentities[$k] = $this->imapStream->extractAttr($v,'a','name');
+			}
+		}
+
+		$aResult=array();
+		foreach($aIdentities as $k=>$v){
+			$aIdentities[$k]['isDefault'] = ($v['zimbraPrefIdentityId']==$aAccountInfo['attr']['zimbraId']);
+			if(array_key_exists('zimbraPrefDefaultSignatureId',$v) && array_key_exists($v['zimbraPrefDefaultSignatureId'],$aSignatures)){
+				$aIdentities[$k]['zimbraPrefDefaultSignature']=$aSignatures[$v['zimbraPrefDefaultSignatureId']]['content'];
+			}
+			if(array_key_exists('zimbraPrefForwardReplySignatureId',$v) && array_key_exists($v['zimbraPrefForwardReplySignatureId'],$aSignatures)){
+				$aIdentities[$k]['zimbraPrefForwardReplySignature']=$aSignatures[$v['zimbraPrefForwardReplySignatureId']]['content'];
+			}
+			$aResult[]=array(
+				'default'		=> $aIdentities[$k]['isDefault'],
+				'account'		=> htmlentities($aIdentities[$k]['zimbraPrefIdentityName']),
+				'email'			=> akead('zimbraPrefFromAddress'			,$aIdentities[$k], 'from'	),
+				'fromName'		=> akead('zimbraPrefFromDisplay'			,$aIdentities[$k], 'from'	),
+				'fromEmail'		=> akead('zimbraPrefFromAddress'			,$aIdentities[$k], 'from'	),
+				'saveToSent'	=> akead('zimbraPrefSaveToSent'				,$aIdentities[$k], true		),
+				'sentFolder'	=> akead('zimbraPrefSentMailFolder'			,$aIdentities[$k], 'sent'	),
+				'signature'		=> akead('zimbraPrefDefaultSignature'		,$aIdentities[$k], ''		),
+				'replySignature'=> akead('zimbraPrefForwardReplySignature'	,$aIdentities[$k], ''		),
+			);
+		}
+		return $aResult;
 	}
 }
