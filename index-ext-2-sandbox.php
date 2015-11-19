@@ -53,6 +53,10 @@
 
 		<!-- <script type="text/javascript"		src="http://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=Fmjtd%7Cluur216and%2C8g%3Do5-90za94"></script>-->
 		<!--  script type="text/javascript"		src="modules/mailbox/Ext.eu.MailSelect.js"></script-->
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
+		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.FindAndReplace.js"></script>
+		<script type="text/javascript"			src ="modules/mailbox/Ext.ux.form.HtmlEditor.EnsureContent.js"></script>
 
 		<script>
 			Ext.BLANK_IMAGE_URL = '/ext-2.2.1/release/resources/images/default/s.gif';

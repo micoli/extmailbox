@@ -415,6 +415,25 @@ class QDImap_ZIMBRA extends QDImap{
 	 * @param unknown $o
 	 * @return multitype:multitype:NULL string
 	 */
+	public function getFullIdentities($o){
+		$aSignatures=array();
+		$params = array();
+		$rawRes = $this->imapStream->call('zimbraAccount','GetInfoRequest', $params,true);
+		$rawRes = $rawRes['Envelope']['Body']['GetInfoResponse'];
+
+		$rawRes['prefs'] = $this->imapStream->extractAttr($rawRes['prefs'],'pref','name');
+		$rawRes['attrs'] = $this->imapStream->extractAttr($rawRes['attrs'],'attr','name');
+		$rawRes['props'] = $this->imapStream->extractAttr($rawRes['props'],'prop','name');
+
+		foreach($rawRes['identities']['identity'] as $k=>$v){
+			if(is_int($k)){
+				$rawRes['identities'][$k] = $this->imapStream->extractAttr($v,'a','name');
+			}
+		}
+		unset($rawRes['identities']['identity']);
+		return $rawRes;
+	}
+
 	public function getIdentities($o){
 		$aSignatures=array();
 		$params = array(new SoapVar('<account by="name">'.$this->accounts[$this->account]['email'].'</account>', XSD_ANYXML));

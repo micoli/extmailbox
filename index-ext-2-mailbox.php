@@ -36,6 +36,7 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.FindAndReplace.js"></script>
+		<script type="text/javascript"			src ="modules/mailbox/Ext.ux.form.HtmlEditor.EnsureContent.js"></script>
 
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.grid.CellActions/Ext.ux.grid.CellActions.js"></script>
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.ux.grid.CellActions/Ext.ux.grid.CellActions.css" />

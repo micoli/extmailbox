@@ -177,7 +177,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			}
 		});
 		that.identitiesStore = new Ext.data.JsonStore({
+			id		: 'id'		,
 			fields	: [
+				'id'			,
 				'default'		,
 				'account'		,
 				'email'			,
@@ -191,10 +193,23 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			proxy	: new Ext.data.MemoryProxy([])
 		});
 
+		that.currentIdentity=null;
+		that.fromEmailId=-1;
 		var accountIdx = that.mailboxContainer.accountStore.find('account',that.mailboxContainer.account);
-		Ext.each(that.mailboxContainer.accountStore.getAt(accountIdx).get('identities'),function(item){
-			that.identitiesStore.add(new that.identitiesStore.recordType(item));
+		Ext.each(that.mailboxContainer.accountStore.getAt(accountIdx).get('identities'),function(item,k){
+			item.id=k;
+			var rec = new that.identitiesStore.recordType(item);
+			that.identitiesStore.add(rec);
+			if(item['default']){
+				that.currentIdentity=rec;
+				that.fromEmailId=k;
+			}
+			console.log(item.signature);
 		});
+
+		that.getCurrentSignature = function (){
+			return that.currentIdentity.get('signature');
+		};
 
 		that.recipientTpl			= '<tpl for="."><div class="x-combo-list-item">{email}, <i>{name}</i></div></tpl>';
 		that.recipientContextMenu	= function(value){
@@ -207,7 +222,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					}
 				}]
 			});
-		}
+		};
+
+		that.ensureContentPlugin = new Ext.ux.form.HtmlEditor.EnsureContent();
 
 		Ext.apply(that,{
 			layout	: 'border',
@@ -263,13 +280,15 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 								listeners		: {
 									selected	: function(record,index){
 										if(record){
-											Ext.getCmp(that.contentId).setValue(record.get('body'));
+											that.ensureContentPlugin.check(true,{
+												'.editor-content' : record.get('body')
+											});
+											//Ext.getCmp(that.contentId).setValue(record.get('body'));
 											Ext.getCmp(that.contentId).syncValue();
 										}
 										cmp.attachedCmp.destroy();
 									},
 									cancel	: function(selected){
-										//console.log('cancel');
 										cmp.attachedCmp.destroy();
 									}
 								}
@@ -320,19 +339,21 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						fieldLabel		: Ext.eu.sm.MailBox.i18n._('From'),
 						store			: that.identitiesStore,
 						id				: that.accountComboId,
+						value			: that.fromEmailId,
 						anchor			: '-14',
 						displayField	: 'fromEmail',
-						valueField		: 'fromEmail',
-						tpl				: '<tpl for="."><div class="x-combo-list-item">{fromEmail} <i>"{fromName}"</i>, {account} </div></tpl>',
+						valueField		: 'id',
+						tpl				: '<tpl for="."><div class="x-combo-list-item">{fromEmail} <i>"{fromName}"</i>, {account}<hr>{signature} </div></tpl>',
 						emptyText		: Ext.eu.sm.MailBox.i18n._('Select an account...'),
 						mode			: 'local',
 						triggerAction	: 'all',
-						value			: that.fromEmail,
 						typeAhead		: true,
 						forceSelection	: true,
 						selectOnFocus	: true,
 						listeners		:{
 							select			: function(combo,record,index){
+								that.currentIdentity = record
+								that.ensureContentPlugin.check(true);
 							}
 						}
 					},{
@@ -403,7 +424,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					region				: 'center',
 					xtype				: 'htmleditor',
 					id					: that.contentId,
-					plugins				:[new Ext.ux.form.HtmlEditor.Table()],
+					plugins				:[new Ext.ux.form.HtmlEditor.Table(),that.ensureContentPlugin],
 					enableAlignments	: true,
 					enableColors		: true,
 					enableFont			: true,
@@ -412,7 +433,11 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					enableLinks			: true,
 					enableLists			: true,
 					enableSourceEdit	: false,
-					border				: false
+					border				: false,
+					value				: '<div style="border:1px solid red;" "class="editor-content"><br><br></div><div class="editor-footer"></div>',
+					ensureContentCfg	: {
+						'.editor-footer'	: that.getCurrentSignature
+					}
 				}]
 			}]
 		});
