@@ -477,4 +477,48 @@ class QDImap_ZIMBRA extends QDImap{
 		}
 		return $aResult;
 	}
+
+	public function uploadAttachment($msgId,$path,$filename){
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL			, $this->urlRoot.'upload?fmt=raw');
+		curl_setopt($ch, CURLOPT_COOKIE			, 'ZM_AUTH_TOKEN='.$this->accounts[$this->account]['token']);
+		curl_setopt($ch, CURLOPT_USERAGENT		, 'ZimbraPHPClient');
+		curl_setopt($ch, CURLOPT_HEADER			, array('Content-Type: multipart/form-data'));
+		curl_setopt($ch, CURLOPT_POST			, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER	, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER	, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST	, false);
+		curl_setopt($ch, CURLOPT_POSTFIELDS		, array (
+			'requestId'		=> $filename,
+			'file_contents'	=> '@' . $path.'/'.$filename
+		));
+		$response = curl_exec($ch);
+		if (curl_errno($ch)) {
+			$code	= curl_errno($ch);
+			$error	= curl_error($ch);
+		} else {
+			$code	= curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			if($code==200){
+				$header_size = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
+				$header	= substr($response, 0, $header_size);
+				$body	= substr($response, $header_size);
+				$aTmp=(str_getcsv ($body,',' , "'"));
+				return array(
+					'success'		=> true,
+					'code'			=> $aTmp [0],
+					'client_token'	=> $aTmp [1],
+					'server_token'	=> $aTmp [2]
+				)
+				;
+			}else{
+				$error = curl_error($ch).' code http:'.$code;
+			}
+		}
+		curl_close ($ch);
+		return array(
+			'success'		=> false,
+			'error'			=> $error,
+			'code'			=> $code
+		);
+	}
 }

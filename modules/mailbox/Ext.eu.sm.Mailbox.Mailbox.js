@@ -229,10 +229,11 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		that.svcImapPrefixClass = 'local.'+that.svcImapClass+'.';
 		that.svcImapPrefixClass = 'local.'+that.svcImapClass+'.';
 		that.svcSmtpPrefixClass = 'local.'+that.svcSmtpClass+'.';
-		that.mailGridId		= Ext.id();
-		that.mailPreviewsId	= Ext.id();
-		that.accountComboId	= Ext.id();
-		that.folderTreeId	= Ext.id();
+		that.mailGridId			= Ext.id();
+		that.mailPreviewsId		= Ext.id();
+		that.accountComboId		= Ext.id();
+		that.folderTreeId		= Ext.id();
+		that.newEmailButtonId	= Ext.id();
 
 		/*gblClient = new Ext.eu.sm.Stomp({
 			//WebSocketClass	: ,
@@ -339,12 +340,15 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 						var tree = Ext.getCmp(that.folderTreeId);
 						tree.account = that.account;
 						tree.loader.load(tree.getRootNode());
+//open new mail editor
+						Ext.getCmp(that.newEmailButtonId).handler();
 					}
 				}
 			},'->',{
 				xtype	: 'button',
 				text	: 'New',
 				iconCls	: 'mail_closed_alt_add',
+				id		: that.newEmailButtonId,
 				handler	: function(){
 					var record = new (Ext.getCmp(that.mailGridId)).mailStore.recordType({
 						subject	: ''
@@ -453,7 +457,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				border	: false,
 				items	: [Ext.apply(gridConfig,{
 					region			: that.mailLayout=='threePane'?'west':'north',
-					height			: 200,
+					height			: 100,
 					width			: 700
 				}),Ext.apply(tabViewConfig,{
 					region: 'center'

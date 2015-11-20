@@ -280,10 +280,10 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 								listeners		: {
 									selected	: function(record,index){
 										if(record){
+											console.log('body',record.get('body'))
 											that.ensureContentPlugin.check(true,{
 												'.editor-content' : record.get('body')
 											});
-											//Ext.getCmp(that.contentId).setValue(record.get('body'));
 											Ext.getCmp(that.contentId).syncValue();
 										}
 										cmp.attachedCmp.destroy();
@@ -297,31 +297,28 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						cmp.attachedCmp.show();
 					}
 				},'-',{
-					//text		: 'low',
 					xtype		: 'button',
 					toggleGroup	: 'priority',
 					iconCls		: 'mail_priority_low',
 					pressed		: false,
 					handler		: function(){
-						that.priority='low';
+						that.priority = 'low';
 					}
 				},{
-					//text		: 'medium',
 					xtype		: 'button',
 					toggleGroup	: 'priority',
 					iconCls		: 'mail_priority_medium',
 					pressed		: true,
 					handler		: function(){
-						that.priority='medium';
+						that.priority = 'medium';
 					}
 				},{
-					//text		: 'high',
 					xtype		: 'button',
 					toggleGroup	: 'priority',
 					iconCls		: 'mail_priority_high',
 					pressed		: false,
 					handler		: function(){
-						that.priority='high';
+						that.priority = 'high';
 					}
 				},'-'],
 				items		:[{
@@ -354,6 +351,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 							select			: function(combo,record,index){
 								that.currentIdentity = record
 								that.ensureContentPlugin.check(true);
+								Ext.getCmp(that.contentId).syncValue();
 							}
 						}
 					},{
@@ -408,6 +406,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					buttonsAt		: 'tbar',
 					id				: that.uppanelid,
 					url				: 'proxy.php?exw_action='+that.mailboxContainer.svcSmtpPrefixClass+'uploadAttachment',
+					baseParams		: {
+						account			: that.mailboxContainer.account
+					},
 					path			: that.record.get('message_id'),
 					maxFileSize		: 1048576,
 					enableProgress	: true,
@@ -434,7 +435,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					enableLists			: true,
 					enableSourceEdit	: false,
 					border				: false,
-					value				: '<div style="border:1px solid red;" "class="editor-content"><br><br></div><div class="editor-footer"></div>',
+					value				: '<div "class="editor-content"><br><br></div><div class="editor-footer"></div>',
 					ensureContentCfg	: {
 						'.editor-footer'	: that.getCurrentSignature
 					}

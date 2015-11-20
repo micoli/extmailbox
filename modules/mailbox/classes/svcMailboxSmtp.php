@@ -98,10 +98,11 @@ class svcMailboxSmtp extends svcMailboxImap{
 	 */
 	function pub_uploadAttachment($o){
 		$this->init();
-		header('Content-Type: text/html, charset=utf-8');
+		$this->imapProxy->setAccount($o['account']);
 		$renameDuplicates=false;
 		$success=true;
 		$arrErrors=array();
+		$arrResult=array();
 		foreach($_FILES as $k=>$file){
 			$this->tmpAttachmentsPath = $GLOBALS['conf']['imapMailBox']['tmp'].'/attachments';
 
@@ -127,13 +128,21 @@ class svcMailboxSmtp extends svcMailboxImap{
 			}
 			if (!move_uploaded_file($tmp_name, $fulldest)){
 				$arrErrors[$k] = 'can not move upload file';
+				$success = false;
+			}else{
+				$arrResult [] = array (
+					'path'		=> $this->tmpAttachmentsPath,
+					'prefix'	=> $o['path'],
+					'origin'	=> $origin,
+					'fulldest'	=> $fulldest
+				);
 			}
 		}
 
 		if(count($arrErrors)){
 			return array('success'	=>$success,'errors'	=>$arrErrors);
 		}else{
-			return array('success'	=>$success);
+			return array('success'	=>$success,'files' =>$arrResult);
 		}
 	}
 }
