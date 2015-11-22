@@ -20,6 +20,7 @@
  * @class Ext.ux.UploadPanel
  * @extends Ext.Panel
  */
+
 Ext.ux.UploadPanel = Ext.extend(Ext.Panel, {
 
 	// configuration options overridable from outside
@@ -372,6 +373,10 @@ Ext.ux.UploadPanel = Ext.extend(Ext.Panel, {
 			,url:this.url
 			,path:this.path
 		};
+		if(this.processSuccess){
+			config.processSuccess = this.processSuccess;
+		}
+
 		if(this.baseParams) {
 			config.baseParams = this.baseParams;
 		}

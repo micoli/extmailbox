@@ -15,7 +15,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		return str;
 	},
 
-	sendEmailFinal	: function(objToSend){
+	_sendEmail		: function(objToSend){
 		var that = this;
 		that.el.mask('Sending','x-mask-loading');
 		objToSend.exw_action	= that.mailboxContainer.svcSmtpPrefixClass+'sendMail';
@@ -48,10 +48,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				alert(data);
 			}
 		});
-
 	},
 
-	sendEmail		: function(){
+	sendEmail		: function(isReal){
 		var that = this;
 		//console.log('send',arguments,Ext.getCmp(that.uppanelid).store.data.items,Ext.getCmp(that.uppanelid))
 		var form		= Ext.getCmp(that.formId).getForm();
@@ -62,6 +61,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 
 		var objToSend={
 			ref			: '',
+			is_real		: isReal,
 			message_id	: that.record.get('message_id'	),
 			subject		: form.findField('subject'		).getValue(),
 			from		: form.findField('from'			).getValue(),
@@ -109,14 +109,18 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			return false;
 		}
 
+		var _send = function(result){
+			that._sendEmail(objToSend);
+		}
+
 		var sendNow = function(result){
 			if(result=='yes'){
 				if(uploadsOk){
-					that.sendEmailFinal(objToSend);
+					_send();
 				}else{
 					that.el.mask('Uploading attachments and Sending','x-mask-loading');
-					uploaderCmp.removeListener	('allfinished',function(){that.sendEmailFinal(objToSend)});
-					uploaderCmp.addListener		('allfinished',function(){that.sendEmailFinal(objToSend)});
+					uploaderCmp.removeListener	('allfinished',_send);
+					uploaderCmp.addListener		('allfinished',_send);
 					uploaderCmp.uploader.upload();
 				}
 			}
@@ -149,6 +153,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		that.headerPanelId		= Ext.id();
 		that.accountComboId		= Ext.id();
 		that.uppanelid			= Ext.id();
+		that.buttonMailSaveId	= Ext.id();
 
 		that.partStore			= new Ext.data.JsonStore({
 			fields	: [
@@ -204,7 +209,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				that.currentIdentity=rec;
 				that.fromEmailId=k;
 			}
-			console.log(item.signature);
+			//console.log(item.signature);
 		});
 
 		that.getCurrentSignature = function (){
@@ -223,6 +228,15 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				}]
 			});
 		};
+		that.mailChange = new Ext.eu.sm.countdown({
+			nbCycle		: 10,
+			listeners	: {
+				tick	: function(nb){
+					var button = Ext.getCmp(that.buttonMailSaveId);
+					button.setText(button.initialConfig.originalText+((nb>0)?('..'+that.mailChange.nb):''));
+				}
+			}
+		});
 
 		that.ensureContentPlugin = new Ext.ux.form.HtmlEditor.EnsureContent();
 
@@ -237,12 +251,15 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					iconCls		: 'mail_closed_alt',
 					scope		: that,
 					handler		: function(){
-						that.sendEmail();
+						that.sendEmail(true);
 					}
 				},{
 					text		: Ext.eu.sm.MailBox.i18n._('Save as Draft'),
+					originalText: Ext.eu.sm.MailBox.i18n._('Save as Draft'),
+					id			: that.buttonMailSaveId,
 					iconCls		: 'mail_closed_alt_add',
 					handler		: function(){
+						that.sendEmail(false)
 					}
 				},'-',{
 					xtype		: 'button',
@@ -285,6 +302,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 												'.editor-content' : record.get('body')
 											});
 											Ext.getCmp(that.contentId).syncValue();
+											that.mailChange.handler.createDelegate(cmp);
 										}
 										cmp.attachedCmp.destroy();
 									},
@@ -303,6 +321,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					pressed		: false,
 					handler		: function(){
 						that.priority = 'low';
+						that.mailChange.handler.createDelegate(this);
 					}
 				},{
 					xtype		: 'button',
@@ -311,6 +330,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					pressed		: true,
 					handler		: function(){
 						that.priority = 'medium';
+						that.mailChange.handler.createDelegate(this);
 					}
 				},{
 					xtype		: 'button',
@@ -319,6 +339,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					pressed		: false,
 					handler		: function(){
 						that.priority = 'high';
+						that.mailChange.handler.createDelegate(this);
 					}
 				},'-'],
 				items		:[{
@@ -352,6 +373,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 								that.currentIdentity = record
 								that.ensureContentPlugin.check(true);
 								Ext.getCmp(that.contentId).syncValue();
+								that.mailChange.handler.createDelegate(combo);
 							}
 						}
 					},{
@@ -365,6 +387,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 							'keyup'		: function(cmp,e) {
 								var subject = cmp.getValue();
 								that.setTitle(subject.length>30?subject.substr(0,28)+"...":subject);
+								that.mailChange.handler.createDelegate(cmp);
 							}
 						}
 					},{
@@ -376,7 +399,10 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						value			: that.record.get('to')?that.record.get('to'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
-						contextMenu		: that.recipientContextMenu
+						contextMenu		: that.recipientContextMenu,
+						listeners		: {
+							selected		: that.mailChange.handler.createDelegate
+						}
 					},{
 						xtype			: 'mailselect',
 						name			: 'cc',
@@ -386,7 +412,10 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						value			: that.record.get('cc')?that.record.get('cc'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
-						contextMenu		: that.recipientContextMenu
+						contextMenu		: that.recipientContextMenu,
+						listeners		: {
+							selected		: that.mailChange.handler.createDelegate
+						}
 					},{
 						xtype			: 'mailselect',
 						name			: 'bcc',
@@ -396,25 +425,47 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 						value			: that.record.get('bcc')?that.record.get('bcc'):undefined,
 						store			: that.recipientSearchStore,
 						tpl				: that.recipientTpl,
-						contextMenu		: that.recipientContextMenu
+						contextMenu		: that.recipientContextMenu,
+						listeners		: {
+							selected		: that.mailChange.handler.createDelegate
+						}
 					}]
 				},{
 					xtype			: 'uploadpanel',
-					region			: 'east',
-					split			: true,
-					width			: 250,
-					buttonsAt		: 'tbar',
 					id				: that.uppanelid,
+					region			: 'east',
+					buttonsAt		: 'tbar',
+					split			: true,
+					enableProgress	: false,
+					width			: 250,
+					maxFileSize		: 1048576,
 					url				: 'proxy.php?exw_action='+that.mailboxContainer.svcSmtpPrefixClass+'uploadAttachment',
+					path			: that.record.get('message_id'),
 					baseParams		: {
 						account			: that.mailboxContainer.account
 					},
-					path			: that.record.get('message_id'),
-					maxFileSize		: 1048576,
-					enableProgress	: true,
+					processSuccess	: function(options, response, o) {
+						var record = false;
+						var handler = function(record){
+							record.set('state', 'done');
+							record.set('error', '');
+							record.commit();
+						}
+
+						console.log(options,o);
+
+						if(this.singleUpload) {
+							this.store.each(handler);
+						}else {
+							handler(options.record);
+						}
+						this.deleteForm(options.form, record);
+					},
 					listeners		: {
 						fileadd			: function (uploader, store, record){
+							console.log(uploader, store, record);
 							uploader.uploader.upload();
+							that.mailChange.handler.createDelegate(uploader);
 						}
 					}
 				}]
@@ -438,6 +489,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					value				: '<div "class="editor-content"><br><br></div><div class="editor-footer"></div>',
 					ensureContentCfg	: {
 						'.editor-footer'	: that.getCurrentSignature
+					},
+					listeners		: {
+						contentChange	: that.mailChange.handler.createDelegate(that.mailChange)
 					}
 				}]
 			}]

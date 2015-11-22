@@ -4,9 +4,11 @@ class svcMailboxSmtpExt extends svcMailboxSmtp{
 		$success = true;
 		$aUpload = parent::pub_uploadAttachment($o);
 		if($aUpload['success']){
-			foreach($aUpload['files'] as $k=>$file){
-				$aUpload['files'][$k]['zimbra'] = $this->imapProxy->uploadAttachment(123, $file['path'], $file['prefix'].'-'.$file['origin']);
-				if(!$aUpload['files'][$k]['zimbra']['success']){
+			$atmp = $aUpload['files'];
+			$aUpload['files']=array();
+			foreach($atmp as $k=>$file){
+				$aUpload['files'][$file['origin']]['zimbra'] = $this->imapProxy->uploadAttachment(123, $file['path'], $file['prefix'].'-'.$file['origin']);
+				if(!$aUpload['files'][$file['origin']]['zimbra']['success']){
 					$success = false;
 				}
 			}

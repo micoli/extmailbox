@@ -10,7 +10,7 @@
  * the Open Source LGPL 3.0 license.  Commercial use is permitted to the extent
  * that the code/component(s) do NOT become part of another Open Source or Commercially
  * licensed development library or toolkit without explicit permission.
- * 
+ *
  * License details: http://www.gnu.org/licenses/lgpl.html
  */
 
@@ -35,7 +35,7 @@ Ext.ux.FileUploader = function(config) {
 		 * Fires before an upload (of all files) is started. Return false to cancel the event.
 		 * @param {Ext.ux.FileUploader} this
 		 */
-		 'beforeallstart'
+		'beforeallstart'
 		/**
 		 * @event allfinished
 		 * Fires after upload (of all files) is finished
@@ -72,13 +72,13 @@ Ext.ux.FileUploader = function(config) {
 }; // eo constructor
 
 Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
-	
+
 	// configuration options
 	// {{{
 	/**
 	 * @cfg {Object} baseParams baseParams are sent to server in each request.
 	 */
-	 baseParams:{cmd:'upload',dir:'.'}
+	baseParams:{cmd:'upload',dir:'.'}
 
 	/**
 	 * @cfg {Boolean} concurrent true to start all requests upon upload start, false to start
@@ -121,7 +121,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	 * @cfg {Object} progressMap Mapping of received progress fields to store progress fields
 	 */
 	,progressMap:{
-		 bytes_total:'bytesTotal'
+		bytes_total:'bytesTotal'
 		,bytes_uploaded:'bytesUploaded'
 		,est_sec:'estSec'
 		,files_uploaded:'filesUploaded'
@@ -134,7 +134,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	 * @cfg {Boolean} singleUpload true to upload files in one form, false to upload one by one
 	 */
 	,singleUpload:false
-	
+
 	/**
 	 * @cfg {Ext.data.Store} store Mandatory. Store that holds files to upload
 	 */
@@ -169,23 +169,23 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	,createForm:function(record) {
 		var progressId = parseInt(Math.random() * 1e10, 10);
 		var form = Ext.getBody().createChild({
-			 tag:'form'
+			tag:'form'
 			,action:this.url
 			,method:'post'
 			,cls:'x-hidden'
 			,id:Ext.id()
 			,cn:[{
-				 tag:'input'
+				tag:'input'
 				,type:'hidden'
 				,name:'APC_UPLOAD_PROGRESS'
 				,value:progressId
 			},{
-				 tag:'input'
+				tag:'input'
 				,type:'hidden'
 				,name:this.progressIdName
 				,value:progressId
 			},{
-				 tag:'input'
+				tag:'input'
 				,type:'hidden'
 				,name:'MAX_FILE_SIZE'
 				,value:this.maxFileSize
@@ -250,7 +250,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	 */
 	,getOptions:function(record, params) {
 		var o = {
-			 url:this.url
+			url:this.url
 			,method:'post'
 			,isUpload:true
 			,scope:this
@@ -364,7 +364,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	,requestProgress:function() {
 		var records, p;
 		var o = {
-			 url:this.progressUrl
+			url:this.progressUrl
 			,method:'post'
 			,params:{}
 			,scope:this
@@ -527,7 +527,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 	 * Main public interface function. Preforms the upload
 	 */
 	,upload:function() {
-		
+
 		var records = this.store.queryBy(function(r){return 'done' !== r.get('state');});
 		if(!records.getCount()) {
 			return;
@@ -543,7 +543,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 		else {
 			records.each(this.uploadFile, this);
 		}
-		
+
 		if(true === this.enableProgress) {
 			this.startProgress();
 		}
@@ -565,7 +565,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 		// process ajax success
 		if(true === success) {
 			try {
-				o = Ext.decode(response.responseText);
+				o = Ext.decode(response.responseText.replace(/^<pre>/,'').replace(/<\/pre>$/,''));
 			}
 			catch(e) {
 				this.processFailure(options, response, this.jsonErrorText);
@@ -614,7 +614,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 		var o = this.getOptions(record, params);
 		o.form = form;
 
-		// set state 
+		// set state
 		record.set('state', 'uploading');
 		record.set('pctComplete', 0);
 
@@ -662,7 +662,7 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 
 		// request upload
 		Ext.Ajax.request(o);
-	
+
 	} // eo function uploadSingle
 	// }}}
 
@@ -671,4 +671,4 @@ Ext.extend(Ext.ux.FileUploader, Ext.util.Observable, {
 // register xtype
 Ext.reg('fileuploader', Ext.ux.FileUploader);
 
- // eof
+// eof

@@ -10,7 +10,6 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.ManagedIFrame/Ext.ux.ManagedIFrame.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.grid.RowExpander/RowExpander.js"></script>
 
-<!-- 		<script type="text/javascript"			src ="libs/ext.plugins/operative.js"></script> -->
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.util/ext.util.md5.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.util/ext.util.base64.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.util/ext.data.ArrayStore.js"></script>
@@ -19,6 +18,7 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/stomp/ReconnectingWebSocket.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.stomp/Ext.eu.stomp.js"></script>
 		<!-- script type="text/javascript"			src ="libs/ext.plugins/Ext.JsonReaderOverride.js"></script -->
+		<!-- <script type="text/javascript"			src ="libs/ext.plugins/operative.js"></script> -->
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/Ext.eu.sm.toaster/Ext.eu.sm.toaster.css" />
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.sm.toaster/Ext.eu.sm.toaster.js"></script>
@@ -31,8 +31,7 @@
 
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.util/broofa-node-uuid/uuid.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/pdfobject.js"></script>
-		<!--
-		-->
+
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Plugins.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.FindAndReplace.js"></script>
@@ -73,6 +72,8 @@
 		<script type="text/javascript"			src= "modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.utils.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
+		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.countdown.js"></script>
+
 		<script type="text/javascript"			src ="modules/mailbox/sandboxMailbox.js"></script>
 
 		<script type="text/javascript"			src= "libs/ext.plugins/Ext.eu.sm.inlineViewer/Ext.eu.sm.inlineViewer.js"></script>

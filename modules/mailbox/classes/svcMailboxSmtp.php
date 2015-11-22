@@ -142,7 +142,7 @@ class svcMailboxSmtp extends svcMailboxImap{
 		if(count($arrErrors)){
 			return array('success'	=>$success,'errors'	=>$arrErrors);
 		}else{
-			return array('success'	=>$success,'files' =>$arrResult);
+			return array('success'	=>$success,'files'	=>$arrResult);
 		}
 	}
 }
