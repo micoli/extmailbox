@@ -19,7 +19,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		var that = this;
 		that.el.mask('Sending','x-mask-loading');
 		objToSend.exw_action	= that.mailboxContainer.svcSmtpPrefixClass+'sendMail';
-		objToSend.account		= Ext.getCmp(that.accountComboId).getValue();
+		//objToSend.account		= Ext.getCmp(that.accountComboId).getValue();
+		objToSend.account		= that.mailboxContainer.account;
 		objToSend.attachments	= JSON.stringify(objToSend.attachments);
 		objToSend.to			= JSON.stringify(objToSend.to);
 		objToSend.cc			= JSON.stringify(objToSend.cc);
@@ -109,18 +110,18 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			return false;
 		}
 
-		var _send = function(result){
+		var _do = function(result){
 			that._sendEmail(objToSend);
 		}
 
 		var sendNow = function(result){
 			if(result=='yes'){
 				if(uploadsOk){
-					_send();
+					_do();
 				}else{
 					that.el.mask('Uploading attachments and Sending','x-mask-loading');
-					uploaderCmp.removeListener	('allfinished',_send);
-					uploaderCmp.addListener		('allfinished',_send);
+					uploaderCmp.removeListener	('allfinished',_do);
+					uploaderCmp.addListener		('allfinished',_do);
 					uploaderCmp.uploader.upload();
 				}
 			}
@@ -209,7 +210,6 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				that.currentIdentity=rec;
 				that.fromEmailId=k;
 			}
-			//console.log(item.signature);
 		});
 
 		that.getCurrentSignature = function (){
@@ -234,6 +234,9 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 				tick	: function(nb){
 					var button = Ext.getCmp(that.buttonMailSaveId);
 					button.setText(button.initialConfig.originalText+((nb>0)?('..'+that.mailChange.nb):''));
+					if(nb==0){
+						button.handler();
+					}
 				}
 			}
 		});
@@ -259,6 +262,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 					id			: that.buttonMailSaveId,
 					iconCls		: 'mail_closed_alt_add',
 					handler		: function(){
+						that.mailChange.reset();
 						that.sendEmail(false)
 					}
 				},'-',{

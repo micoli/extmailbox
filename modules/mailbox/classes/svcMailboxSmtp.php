@@ -66,19 +66,7 @@ class svcMailboxSmtp extends svcMailboxImap{
 		ini_set('display_errors',1);
 		ini_set('html_errors',1);
 
-		$p=array();
-		$p['subject'		] = $o['subject'];
-		$p['HTMLBody'		] = $o['body'];
-		$p['from'			] = $GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email'];
-		$p['sender'			] = $GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email'];
-		$p['replyTo'		] = $GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email'];
-		$p['fromName'		] = $GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['name' ];
-		$p['to'				] = json_decode(akead('to'	,$o,array()));
-		$p['cc'				] = json_decode(akead('cc'	,$o,array()));
-		$p['bcc'			] = json_decode(akead('bcc'	,$o,array()));
-		$p['attachmentBase'	] = $this->tmpAttachmentsPath;
-		$p['attachments'	] = json_decode(stripslashes(akead('attachments',$o,array())));
-
+		$p = QDImap::makeMailEditorStruct($o);
 		$sender = new mailSenderSwiftMailer();
 		$res = $sender->sendBasic(smMailMessage::create()->set($p),array('account'=> $GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['smtp']));
 

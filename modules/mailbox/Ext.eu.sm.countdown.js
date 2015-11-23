@@ -14,6 +14,14 @@ Ext.eu.sm.countdown = Ext.extend(Ext.Component, {
 		Ext.eu.sm.countdown.superclass.initComponent.call(this);
 	},
 
+	reset : function(){
+		var that = this;
+		that.nb=0;
+		window.clearTimeout(that.timer);
+		that.timer==null;
+		that.fireEvent('tick',-1);
+	},
+
 	handler : function(cmp){
 		var that = this;
 		var _cb = function(){

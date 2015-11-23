@@ -567,4 +567,32 @@ class QDImap{
 		}
 		return ($aid < $bid) ? -1 : 1;
 	}
+
+	static public function makeMailEditorStruct($o){
+		$p=array();
+		$p['is_real'		] = ($o['is_real']!=='false');
+		$p['is_draft'		] = !$o['is_real'];
+		$p['subject'		] = $o['subject'];
+		$p['message_id'		] = $o['message_id'];
+
+		$p['ref'			] = akead('ref'			,$o,null);
+		$p['priority'		] = akead('priority'	,$o,'medium');
+
+		$p['from'			] = akead('from'		,$o,$GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email']);
+		$p['sender'			] = akead('sender'		,$o,$GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email']);
+		$p['replyTo'		] = akead('replyTo'		,$o,$GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['email']);
+		$p['fromName'		] = akead('fromName'	,$o,$GLOBALS['conf']['imapMailBox']['accounts'][$o['account']]['name' ]);
+
+		$p['HTMLBody'		] = $o['body'];
+		$p['PLAINBody'		] = strip_tags(str_replace(array('<br>','</br>'),array("\n","\n"),$o['body']));
+
+		$p['to'				] = json_decode(akead('to'	,$o,array()));
+		$p['cc'				] = json_decode(akead('cc'	,$o,array()));
+		$p['bcc'			] = json_decode(akead('bcc'	,$o,array()));
+
+		//$p['attachmentBase'	] = $this->tmpAttachmentsPath;
+		$p['attachments'	] = json_decode(stripslashes(akead('attachments',$o,array())));
+		return $p;
+	}
+
 }

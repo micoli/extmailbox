@@ -1,6 +1,6 @@
 <?php
 class svcMailboxSmtpExt extends svcMailboxSmtp{
-	function pub_uploadAttachment($o){
+	public function pub_uploadAttachment($o){
 		$success = true;
 		$aUpload = parent::pub_uploadAttachment($o);
 		if($aUpload['success']){
@@ -17,5 +17,15 @@ class svcMailboxSmtpExt extends svcMailboxSmtp{
 			'success'	=> $success,
 			'files'		=> $aUpload ['files']
 		);
+	}
+
+	public function pub_sendMail($o){
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return array();
+		}
+		//var_export($o);
+		return $this->imapProxy->saveDraft($o);
 	}
 }

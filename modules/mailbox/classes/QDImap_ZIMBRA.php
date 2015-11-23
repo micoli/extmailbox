@@ -521,4 +521,45 @@ class QDImap_ZIMBRA extends QDImap{
 			'code'			=> $code
 		);
 	}
+
+	public function saveDraft($o){
+		$mailParams = QDImap::makeMailEditorStruct($o);
+		return $mailParams;
+		$params = array();
+		$rawRes = $this->imapStream->call('zimbraMail','SaveDraftRequest', $params,true);
+		$rawRes = $rawRes['Envelope']['Body']['GetInfoResponse'];
+
+		/*
+		"Body": {
+			"SaveDraftRequest": {
+				"_jsns": "urn:zimbraMail",
+				"m": {
+					"idnt": "85ff6e13-090b-46d9-97b6-c966c63b7d26",
+					"e": [{
+						"t": "f",
+						"a": "o.michaud@tutu.com.eu",
+						"p": "Olivier M"
+					}],
+					"su": {
+						"_content": ""
+					},
+					"mp": [{
+						"ct": "multipart/alternative",
+						"mp": [{
+							"ct": "text/plain",
+							"content": {
+								"_content": "\ndsq dqsdqd \n\nO. MICHAUD 1 \n\n"
+							}
+						},{
+							"ct": "text/html",
+							"content": {
+								"_content": "<html><body><br>dsq dqsdqd<br><div id=\"fa287e97-5422-4fe4-a0c3-aa85434881fb\"><span name=\"x\"></span><font face=\"arial black,avant garde\">O.<font color=\"#f66666\"><b>MICHAUD</b></font> 1<br></font><span name=\"x\"></span><br></div></body></html>"
+							}
+						}]
+					}]
+				}
+			}
+		}
+		*/
+	}
 }
