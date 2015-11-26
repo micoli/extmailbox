@@ -571,7 +571,7 @@ class QDImap{
 	static public function makeMailEditorStruct($o){
 		$p=array();
 		$p['is_real'		] = ($o['is_real']!=='false');
-		$p['is_draft'		] = !$o['is_real'];
+		$p['is_draft'		] = !$p['is_real'];
 		$p['subject'		] = $o['subject'];
 		$p['message_id'		] = $o['message_id'];
 
@@ -586,9 +586,9 @@ class QDImap{
 		$p['HTMLBody'		] = $o['body'];
 		$p['PLAINBody'		] = strip_tags(str_replace(array('<br>','</br>'),array("\n","\n"),$o['body']));
 
-		$p['to'				] = json_decode(akead('to'	,$o,array()));
-		$p['cc'				] = json_decode(akead('cc'	,$o,array()));
-		$p['bcc'			] = json_decode(akead('bcc'	,$o,array()));
+		$p['to'				] = json_decode(akead('to'	,$o,array()),true);
+		$p['cc'				] = json_decode(akead('cc'	,$o,array()),true);
+		$p['bcc'			] = json_decode(akead('bcc'	,$o,array()),true);
 
 		//$p['attachmentBase'	] = $this->tmpAttachmentsPath;
 		$p['attachments'	] = json_decode(stripslashes(akead('attachments',$o,array())));

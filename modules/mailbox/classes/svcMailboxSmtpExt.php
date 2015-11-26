@@ -25,7 +25,6 @@ class svcMailboxSmtpExt extends svcMailboxSmtp{
 		if(!$this->imapProxy->isConnected()){
 			return array();
 		}
-		//var_export($o);
 		return $this->imapProxy->saveDraft($o);
 	}
 }

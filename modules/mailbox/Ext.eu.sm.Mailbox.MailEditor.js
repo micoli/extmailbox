@@ -27,6 +27,7 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 		objToSend.bcc			= JSON.stringify(objToSend.bcc);
 		Ext.Ajax.request({
 			url		: 'proxy.php',
+			method	: 'GET',
 			params	: objToSend,
 			success	: function(data){
 				that.el.unmask();
@@ -37,10 +38,10 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 							that.ownerCt.fireEvent('messagessent',that);
 						}
 					}else{
-						alert(result.errors)
+						alert(result.errors);
 					}
 				}catch(e){
-					alert(e.message+' '+data.responseText)
+					alert(e.message+' '+data.responseText);
 				}
 			},
 			failure	: function(data){

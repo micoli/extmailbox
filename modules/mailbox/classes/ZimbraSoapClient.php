@@ -83,10 +83,38 @@ class ZimbraSoapClient{
 			db($e->getMessage()."#".$e->getCode()."#".$e->getTraceAsString());
 		}
 	}
+	public static function SoapVarArray($a){
+		db(ArrayToXML::convert($a));die();
+		return new SoapVar(ArrayToXML::convert($a), XSD_ANYXML);
+	}
 
+	public static function array_to_objecttree($array) {
+		if (is_numeric(key($array))) { // Because Filters->Filter should be an array
+			foreach ($array as $key => $value) {
+				$array[$key] = self::array_to_objecttree($value);
+			}
+			return $array;
+		}
+		$Object = new stdClass;
+		foreach ($array as $key => $value) {
+			if (is_array($value)) {
+				$Object->$key = self::array_to_objecttree($value);
+			}  else {
+				$Object->$key = $value;
+			}
+		}
+		return $Object;
+	}
+	private function fmtXml($xmlStr){
+		$dom = new DOMDocument;
+		$dom->preserveWhiteSpace = FALSE;
+		$dom->loadXML($xmlStr);
+		$dom->formatOutput = TRUE;
+		return $dom->saveXml();
+	}
 	function debug(){
-		db($this->soap->__getLastRequest());
-		db($this->soap->__getLastResponse());
+		db($this->fmtXml($this->soap->__getLastRequest()));
+		db($this->fmtXml($this->soap->__getLastResponse()));
 	}
 
 	function xml2arrayFull($contents, $get_attributes=1, $priority = 'tag') {

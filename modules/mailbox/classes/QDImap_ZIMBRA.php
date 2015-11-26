@@ -1,10 +1,20 @@
 <?php
 class QDImap_ZIMBRA extends QDImap{
-	static $staticInit	= false;
-	static $cache		= array();
-
-	var $cacheEnabled	= false;
-	var $urlRoot		= '';
+	static $staticInit		= false;
+	static $cache			= array();
+	static $recipientType	= array(
+		'to'	=> 't',
+		'cc'	=> 'c',
+		'bcc'	=> 'b'
+	);
+	static $priorityType	= array(
+		'low'		=> '?',
+		'medium'	=> '',
+		'high'		=> '+',
+		'veryhigh'	=> '!',
+	);
+	var $cacheEnabled		= false;
+	var $urlRoot			= '';
 	/**
 		imapMailBox.json => accounts
 		"mail.titi.com"			: {
@@ -78,18 +88,20 @@ class QDImap_ZIMBRA extends QDImap{
 	}
 
 	function getmailboxes ($filter='*'){
-		$res = array();
-		$params = array(new SoapVar('<folder path="/"/>', XSD_ANYXML));
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'folder'=>array(
+				'@path'=>"/"
+			)
+		)));
 		$rawRes = $this->imapStream->call('zimbraMail','GetFolderRequest', $params);
 
+		$res = array();
 		foreach($rawRes['Body']['GetFolderResponse']['folder']['folder'] as $inFolder){
 			$folder=array();
 			$this->walkMailBoxes($inFolder,$folder,'');
 			$res[]=$folder;
 		}
 		usort($res,array('QDImap','sortNaturalMailFolders'));
-		//$res=array_values($res);
-		//db($res);
 		return $res;
 	}
 
@@ -136,7 +148,6 @@ class QDImap_ZIMBRA extends QDImap{
 			new SoapParam(1					, 'html'),
 			new SoapParam('message'			, 'types')
 		);
-
 		$res = $this->imapStream->call('zimbraMail','SearchRequest', $params);
 		//db($query);
 		//db($res);
@@ -178,13 +189,15 @@ class QDImap_ZIMBRA extends QDImap{
 
 	private function fetchMessage($msgId){
 		if(!array_key_exists($msgId,self::$cache)){
-			$params		= array(new SoapVar(array(
-				'id'		=> $msgId,
-				'max'		=> 250000,
-				'html'		=> 1,
-				'read'		=> 1,
-				'needExp'	=> 1
-			),SOAP_ENC_OBJECT,null,null,'m'));
+			$params = array(ZimbraSoapClient::SoapVarArray(array(
+				'm'=>array(
+					'@id'		=> $msgId,
+					'@max'		=> 250000,
+					'@html'		=> 1,
+					'@read'		=> 1,
+					'@needExp'	=> 1
+				)
+			)));
 
 			$res = $this->imapStream->call('zimbraMail','GetMsgRequest', $params);
 			$message = $res['Body']['GetMsgResponse']['m'];
@@ -304,24 +317,34 @@ class QDImap_ZIMBRA extends QDImap{
 	}
 
 	function setflag_full($message_no,$flag){
-		$params		= array(new SoapVar(array(
+		/*$params		= array(new SoapVar(array(
 			'id'	=> $message_no,
 			'op'	=> $this->mapImapFlag($flag)
-		),SOAP_ENC_OBJECT,null,null,'action'));
+		),SOAP_ENC_OBJECT,null,null,'action'));*/
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'action'=>array(
+				'@id'	=> $message_no,
+				'@op'	=> $this->mapImapFlag($flag)
+			)
+		)));
+
 		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
-		//db($res);
-		//$this->imapStream->debug();
 		return $res['Body']['MsgActionResponse'];
 	}
 
 	function clearflag_full($message_no,$flag){
-		$params		= array(new SoapVar(array(
+		/*$params		= array(new SoapVar(array(
 			'id'	=> $message_no,
 			'op'	=> "!".$this->mapImapFlag($flag)
-		),SOAP_ENC_OBJECT,null,null,'action'));
+		),SOAP_ENC_OBJECT,null,null,'action'));*/
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'action'=>array(
+				'@id'	=> $message_no,
+				'@op'	=> "!".$this->mapImapFlag($flag)
+			)
+		)));
+
 		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
-		//db($res);
-		//$this->imapStream->debug();
 		return $res['Body']['MsgActionResponse'];
 	}
 
@@ -330,14 +353,23 @@ class QDImap_ZIMBRA extends QDImap{
 	}
 
 	private function mail_copy_move($action,$sequence,$dest,$destId){
-		$params		= array(new SoapVar(array(
+		/*$params		= array(new SoapVar(array(
 			'id'	=> $sequence,
 			'op'	=> $action,
 			'l'		=> $destId
-		),SOAP_ENC_OBJECT,null,null,'action'));
+		),SOAP_ENC_OBJECT,null,null,'action'));*/
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'action'=>array(
+				'@id'	=> $sequence,
+				'@op'	=> $action,
+				'@l'		=> $destId
+			)
+		)));
+
 		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
 		return $res['Body']['MsgActionResponse'];
 	}
+
 	function mail_copy($sequence,$dest,$destId){
 		return $this->mail_copy_move('copy',$sequence,$dest,$destId);
 	}
@@ -395,7 +427,6 @@ class QDImap_ZIMBRA extends QDImap{
 	}
 
 	public function getSignatures($o){
-		$res = array();
 		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest');
 		return $rawRes['Body']['GetSignaturesResponse'];
 	}
@@ -416,7 +447,6 @@ class QDImap_ZIMBRA extends QDImap{
 	 * @return multitype:multitype:NULL string
 	 */
 	public function getFullIdentities($o){
-		$aSignatures=array();
 		$params = array();
 		$rawRes = $this->imapStream->call('zimbraAccount','GetInfoRequest', $params,true);
 		$rawRes = $rawRes['Envelope']['Body']['GetInfoResponse'];
@@ -436,7 +466,13 @@ class QDImap_ZIMBRA extends QDImap{
 
 	public function getIdentities($o){
 		$aSignatures=array();
-		$params = array(new SoapVar('<account by="name">'.$this->accounts[$this->account]['email'].'</account>', XSD_ANYXML));
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'account'=>array(
+				'@by'	=> 'name',
+				'%'		=> $this->accounts[$this->account]['email']
+			)
+		)));
+
 		$rawRes = $this->imapStream->call('zimbraAccount','GetAccountInfoRequest', $params,true);
 		$aAccountInfo=$rawRes['Envelope']['Body']['GetAccountInfoResponse'];
 		$aAccountInfo['attr']=$this->imapStream->extractAttr($aAccountInfo,'attr','name');
@@ -488,7 +524,7 @@ class QDImap_ZIMBRA extends QDImap{
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER	, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER	, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST	, false);
-		curl_setopt($ch, CURLOPT_POSTFIELDS		, array (
+		curl_setopt($ch, CURLOPT_POSTFIELDS		, array(
 			'requestId'		=> $filename,
 			'file_contents'	=> '@' . $path.'/'.$filename
 		));
@@ -524,42 +560,62 @@ class QDImap_ZIMBRA extends QDImap{
 
 	public function saveDraft($o){
 		$mailParams = QDImap::makeMailEditorStruct($o);
-		return $mailParams;
-		$params = array();
-		$rawRes = $this->imapStream->call('zimbraMail','SaveDraftRequest', $params,true);
-		$rawRes = $rawRes['Envelope']['Body']['GetInfoResponse'];
-
-		/*
-		"Body": {
-			"SaveDraftRequest": {
-				"_jsns": "urn:zimbraMail",
-				"m": {
-					"idnt": "85ff6e13-090b-46d9-97b6-c966c63b7d26",
-					"e": [{
-						"t": "f",
-						"a": "o.michaud@tutu.com.eu",
-						"p": "Olivier M"
-					}],
-					"su": {
-						"_content": ""
-					},
-					"mp": [{
-						"ct": "multipart/alternative",
-						"mp": [{
-							"ct": "text/plain",
-							"content": {
-								"_content": "\ndsq dqsdqd \n\nO. MICHAUD 1 \n\n"
-							}
-						},{
-							"ct": "text/html",
-							"content": {
-								"_content": "<html><body><br>dsq dqsdqd<br><div id=\"fa287e97-5422-4fe4-a0c3-aa85434881fb\"><span name=\"x\"></span><font face=\"arial black,avant garde\">O.<font color=\"#f66666\"><b>MICHAUD</b></font> 1<br></font><span name=\"x\"></span><br></div></body></html>"
-							}
-						}]
-					}]
+		$params = array(
+			'm'=>array(
+				'su'	=> $mailParams['subject'],
+				"mp"	=> array(
+					"@ct"	=> "multipart/alternative",
+					"mp"	=> array(
+						array (
+							"@ct"		=> "text/html",
+							"content"	=> $mailParams['PLAINBody']
+						),
+						array (
+							"@ct"		=> "text/plain",
+							"content"	=> $mailParams['HTMLBody']
+						)
+					)
+				)
+			)
+		);
+		if(akead('message_id',$mailParams,false)){
+			$params['m']['id'] = $mailParams['message_id'];
+		}
+		if(akead('priority',$mailParams,false)){
+			$params['m']['@f'] = self::$priorityType[$mailParams['priority']];
+		}
+		$params['m']['e'] = array(
+			array (
+				't'	=> 's',
+				'a'	=> $mailParams['sender'],
+				'p'	=> $mailParams['fromName']
+			)
+		);
+		foreach(self::$recipientType as $type=>$prefix){
+			if(array_key_exists($type,$mailParams)){
+				foreach($mailParams[$type] as $email){
+					$r=array(
+						't' => $prefix,
+						'a' => $email['email']
+					);
+					if(akead('name',$email,false)){
+						$r['p'] = $email['name'];
+					}
 				}
+				$params['m']['e'][]=$r;
 			}
 		}
-		*/
+		//$params = array(ZimbraSoapClient::SoapVarArray(array(
+		//"id"	=> "702289",
+		//"did"	=> "702289",
+		//"irt" => array(
+		//	"#%" => "<751030587.19148443.1448403687309.JavaMail.root@toto.eu>"
+		//),
+		//"idnt"	=> "85ff6e13-090b-46d9-97b6-c966c63b7d26",
+		//)));
+		$rawRes = $this->imapStream->call('zimbraMail','SaveDraftRequest', array(ZimbraSoapClient::SoapVarArray(array($params))),true);
+		db($rawRes);
+		$rawRes = $rawRes['Envelope']['Body']['SaveDraftResponse'];
+		return $mailParams;
 	}
 }
