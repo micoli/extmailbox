@@ -30,4 +30,13 @@ class svcMailboxImapExt extends svcMailboxImap{
 		}
 		return array('data'=>$res,'totalCount'=>count($res)*200,'s'=>0,'m'=>count($res)*200);
 	}
+	public function pub_searchContact($o){
+		$this->imapProxy->setAccount($o['account']);
+		$this->imapProxy->open();
+		if(!$this->imapProxy->isConnected()){
+			return array();
+		}
+		return $this->imapProxy->searchContact($o);
+	}
+
 }

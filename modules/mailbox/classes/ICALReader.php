@@ -28,7 +28,7 @@
  * @param {string} filename The name of the file which should be parsed
  * @constructor
 */
-class ICalReader
+class ICALReader
 {
 	/* How many ToDos are in this ical? */
 	public  /** @type {int} */ $todo_count = 0;

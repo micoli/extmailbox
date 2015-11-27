@@ -1,21 +1,21 @@
 <?php
-// https://raw.githubusercontent.com/jmarceli/array2xml/master/ArrayToXML.php
+// https://raw.githubusercontent.com/jmarceli/array2xml/master/Array2XML.php
 // Based on: http://stackoverflow.com/questions/99350/passing-php-associative-arrays-to-and-from-xml
-class ArrayToXML {
+class Array2XML {
 	private $version;
 	private $encoding;
 
 	public static function build($data,$startElement='data'){
-		$inst = new ArrayToXML();
+		$inst = new Array2XML();
 		return $inst->buildXML($data,$startElement);
 	}
 
 	public static function convert($data){
-		$inst = new ArrayToXML('','');
+		$inst = new Array2XML('','');
 		return trim(preg_replace('#\n*<data>\n*(.*)\n*</data>\n*#s','$1',$inst->buildXML($data,'data')));
 	}
 	/*
-	 * Construct ArrayToXML object with selected version and encoding for available values check XmlWriter docs http://www.php.net/manual/en/function.xmlwriter-start-document.php @param string $xml_version XML Version, default 1.0 @param string $xml_encoding XML Encoding, default UTF-8
+	 * Construct Array2XML object with selected version and encoding for available values check XmlWriter docs http://www.php.net/manual/en/function.xmlwriter-start-document.php @param string $xml_version XML Version, default 1.0 @param string $xml_encoding XML Encoding, default UTF-8
 	 */
 	public function __construct($xmlVersion = '1.0', $xmlEncoding = 'UTF-8') {
 		$this->version = $xmlVersion;

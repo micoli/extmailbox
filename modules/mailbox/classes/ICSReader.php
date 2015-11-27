@@ -1,6 +1,6 @@
 <?php
 
-class icsReader{
+class ICSReader{
 
 	function read($type,$str) {
 		db($str);

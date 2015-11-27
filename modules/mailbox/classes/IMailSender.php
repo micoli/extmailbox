@@ -1,5 +1,5 @@
 <?php
-class iMailSender {
+class IMailSender {
 	//public  $arrExt = array('png','jpg','pdf','gif','css');
 	var $smMailMessage; //smMailMessage
 	public  $from			= '';

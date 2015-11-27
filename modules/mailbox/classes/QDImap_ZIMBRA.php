@@ -49,10 +49,13 @@ class QDImap_ZIMBRA extends QDImap{
 	);
 
 	function setAccount ($account){
-		$this->account = $account;
-		$this->urlRoot = $this->accounts[$this->account]['zmurl'];
-		$this->imapStream = new ZimbraSoapClient($this->urlRoot.'soap');
-		$this->imapStream->auth($this->accounts[$this->account]['token']);
+		$this->account		= $account;
+		$this->urlRoot		= $this->accounts[$this->account]['zmurl'];
+		$this->imapStream	= new ZimbraSoapClient($this->urlRoot.'soap');
+
+		if(!session_id()) session_start();
+		//$_SESSION['ztoken'] = $this->imapStream->auth(akead('ztoken',$_SESSION,null),$this->accounts[$this->account]['user'],$this->accounts[$this->account]['pass']);
+		$this->imapStream->setAuthToken(akead('ztoken',$_SESSION,null));
 	}
 
 	private function walkMailBoxes($a,&$res,$parent){
@@ -148,9 +151,18 @@ class QDImap_ZIMBRA extends QDImap{
 			new SoapParam(1					, 'html'),
 			new SoapParam('message'			, 'types')
 		);
+		/*$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'offset'	=> akead('start',$query,0),
+			'limit'		=> akead('limit',$query,25),
+			'query'		=> $query['query'],
+			'sortBy'	=> $sort,
+			'fetch'		=> 0,
+			'html'		=> 1,
+			'html'		=> 1,
+			'types'		=> 'message'
+		)));*/
+
 		$res = $this->imapStream->call('zimbraMail','SearchRequest', $params);
-		//db($query);
-		//db($res);
 		$aResult=array();
 		foreach($res['Body']['SearchResponse']['m'] as $message){
 			$em = $this->extractRecipients($message);
@@ -617,5 +629,27 @@ class QDImap_ZIMBRA extends QDImap{
 		db($rawRes);
 		$rawRes = $rawRes['Envelope']['Body']['SaveDraftResponse'];
 		return $mailParams;
+	}
+
+	public function searchContact($o){
+		//limit,start,query
+		$sort=akead('sort',$query,'date').ucfirst(strtolower(akead('dir',$query,'desc')));
+		$o['query']=str_replace('TEXT "','"',$o['query']);
+		$params = array(ZimbraSoapClient::SoapVarArray(array(
+			'offset'	=> akead('start',$o,0),
+			'limit'		=> akead('limit',$o,25),
+			'sortBy'	=> $sort,
+			'fetch'		=> 0,
+			'types'		=> 'contact',
+			'query'		=> $o['query'],
+		)));
+		$res = $this->imapStream->call('zimbraMail','SearchRequest', $params,true);
+		db($res['Envelope']['Body']['SearchResponse']);
+		$arr=array();
+		return array(
+			'data'			=> $arr,
+			'totalCount'	=> count($arr)
+		);
+
 	}
 }

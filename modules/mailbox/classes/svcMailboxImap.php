@@ -200,8 +200,8 @@ class svcMailboxImap{
 			$arr = $QDDb->query2Array($sql);
 		}
 		return array(
-				'data'			=> $arr,
-				'totalCount'	=> count($arr)
+			'data'			=> $arr,
+			'totalCount'	=> count($arr)
 		);
 	}
 

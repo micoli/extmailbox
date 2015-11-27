@@ -1,4 +1,6 @@
 <?php
+include_once dirname(__FILE__)."/xmlUtils/XML2Array.php";
+include_once dirname(__FILE__)."/xmlUtils/Array2XML.php";
 
 class ZimbraSoapClient{
 	var $soap=null;
@@ -17,14 +19,41 @@ class ZimbraSoapClient{
 		));
 	}
 
+	function setAuthToken($authToken){
+		$this->authToken = $authToken;
+	}
+
 	function auth($authToken,$login=null,$password=null){
 		if(is_null($authToken)){
 			$soapHeader = new SoapHeader('urn:zimbra','context');
-			$params = array(new SoapParam($login,"account"), new SoapParam($password,"password") );
+			$params = array(ZimbraSoapClient::SoapVarArray(array(
+				'account'	=> $login,
+				'password'	=> $password,
+			)));
 			$result = $this->soap->__soapCall("AuthRequest", $params, null,$soapHeader);
-			$this->authToken = $result['authToken'];
+			if(array_key_exists('authToken',$result)){
+				$this->authToken = $result['authToken'];
+				return $this->authToken;
+			}else{
+				return false;
+			}
 		}else{
-			$this->authToken = $authToken;
+			$params = array(ZimbraSoapClient::SoapVarArray(array(
+				'authToken'=>array(
+					'@verifyAccount'	=> 1,
+					'%'					=> $authToken
+				)
+			)));
+			try{
+				$result = $this->soap->__soapCall("AuthRequest", $params, null,$soapHeader);
+				$this->authToken = $result['authToken'];
+				return $this->authToken;
+			}catch(SoapFault $e){
+				if($e->getMessage()=='no valid authtoken present'){
+					return $this->auth(null,$login,$password);
+				}
+				throwException($e);
+			}
 		}
 	}
 
@@ -71,7 +100,7 @@ class ZimbraSoapClient{
 		return $result;
 	}
 
-	function call($urn,$func,$params=array(),$returnXmlWithAttr=false){
+	function call($urn,$func,$params=array(),$returnXmlWithAttr=false,$withException=false){
 		$soapHeader = new SoapHeader('urn:zimbra','context',new SoapVar("<ns2:context><authToken>".$this->authToken."</authToken></ns2:context>", XSD_ANYXML));
 		//db($params);
 		try{
@@ -79,13 +108,17 @@ class ZimbraSoapClient{
 			$tmp = str_replace('<soap:','<',str_replace('</soap:','</',$this->soap->__getLastResponse()));
 			return ($returnXmlWithAttr)?$this->xml2arrayFull($tmp):$this->xml2array($tmp);
 		}catch(SoapFault $e){
-			$this->debug();
-			db($e->getMessage()."#".$e->getCode()."#".$e->getTraceAsString());
+			if($withException){
+				throwException($e);
+			}else{
+				$this->debug();
+				db($e->getMessage()."#".$e->getCode()."#".$e->getTraceAsString());
+			}
 		}
 	}
 	public static function SoapVarArray($a){
-		db(ArrayToXML::convert($a));die();
-		return new SoapVar(ArrayToXML::convert($a), XSD_ANYXML);
+		//db(Array2XML::convert($a));die();
+		return new SoapVar(Array2XML::convert($a), XSD_ANYXML);
 	}
 
 	public static function array_to_objecttree($array) {
@@ -105,6 +138,7 @@ class ZimbraSoapClient{
 		}
 		return $Object;
 	}
+
 	private function fmtXml($xmlStr){
 		$dom = new DOMDocument;
 		$dom->preserveWhiteSpace = FALSE;
@@ -112,6 +146,7 @@ class ZimbraSoapClient{
 		$dom->formatOutput = TRUE;
 		return $dom->saveXml();
 	}
+
 	function debug(){
 		db($this->fmtXml($this->soap->__getLastRequest()));
 		db($this->fmtXml($this->soap->__getLastResponse()));
