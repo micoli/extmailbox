@@ -4,7 +4,10 @@
 		"name": "o.michaud",
 		"email": "olivier@micoli.org"
 	}],
-	"require": {},
+	"require": {
+		"swiftmailer/swiftmailer" : "5.1.0",
+		"phpmailer/phpmailer" : "5.2.14"
+	},
 	"autoload" : {
 		"psr-4" : {
 			"qd\\": "package"
