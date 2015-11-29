@@ -1,8 +1,8 @@
 <?php
 namespace qd\tools\xml;
-
 // https://raw.githubusercontent.com/jmarceli/array2xml/master/Array2XML.php
 // Based on: http://stackoverflow.com/questions/99350/passing-php-associative-arrays-to-and-from-xml
+
 class Array2XML {
 	private $version;
 	private $encoding;

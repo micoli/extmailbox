@@ -1,5 +1,5 @@
 <?php
-namespace qd\mail\mua\orm;
+namespace qd\mail\orm;
 
 class baseMMG_MAIL_MESSAGE extends \QDOrm{
 	public $table	= 'MMG_MAIL_MESSAGE';

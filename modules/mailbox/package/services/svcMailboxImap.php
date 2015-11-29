@@ -1,11 +1,9 @@
 <?php
 namespace qd\services;
 use qd\mail\mua\QDImap;
-use qd\mail\mua\orm\MMG_MAIL_MESSAGE;
+use qd\mail\orm\MMG_MAIL_MESSAGE;
 
 /*
- *imap_reopen  !!
- *msgno ft_uid
  *
  * http://localhost/extmailbox_local/proxy.php?account=micoli%40ms&exw_action=local.MailboxImapExt.getMessageContent&folder=SU5CT1g%3D&message_no=9
  * http://localhost/extmailbox_local/proxy.php?account=micoli%40ms&exw_action=local.MailboxImapExt.getMessageContent&folder=SU5CT1g%3D&message_no=4
@@ -42,7 +40,7 @@ class svcMailboxImap{
 		}
 
 		//db(imap_thread($this->imapProxy->imapStream));
-		//$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
+		//$aID	= $this->imapProxy->sort(akead('sort', $o, 'date'),akead('dir', $o, 'DESC'));
 		//$num	= $this->imapProxy->num_msg();
 
 		$threads = $rootValues = array();
@@ -283,28 +281,27 @@ class svcMailboxImap{
 
 		$folder=base64_decode($o['folder']);
 
-		$query = array_key_exists_assign_default('query',$o,false);
+		$query = akead('query',$o,false);
 
 		if($query){
 			$aID	= $this->imapProxy->search($query);
 			$num	= count($aID);
 		}else{
-			db(1);
-			$aID	= $this->imapProxy->sort(array_key_exists_assign_default('sort', $o, 'date'),array_key_exists_assign_default('dir', $o, 'DESC'));
+			$aID	= $this->imapProxy->sort(akead('sort', $o, 'date'),akead('dir', $o, 'DESC'));
 			$num	= $this->imapProxy->num_msg();
 			fb($aID);
 		}
 		if($num==0 || !$aID){
 			return array('data'=>array(),'totalCount'=>0);
 		}
-		$nStart	= array_key_exists_assign_default('start'	,$o, 0);
-		$nCnt	= array_key_exists_assign_default('limit'	,$o,25);
+		$nStart	= akead('start'	,$o, 0);
+		$nCnt	= akead('limit'	,$o,25);
 		if (($nStart+$nCnt) > $num) {
 			$nCnt = $num-$nStart;
 		}
 		$aID	= array_slice($aID,$nStart,$nCnt);
 		$aRet	= $this->imapProxy->fetch_overviewWithCache($aID,$o);
-		if(array_key_exists_assign_default('dir', $o, 'DESC')=='DESC'){
+		if(akead('dir', $o, 'DESC')=='DESC'){
 			$aRet = array_reverse($aRet);
 		}
 		$a = array('data'=>array_values($aRet),'totalCount'=>$num,'s'=>$nStart,'m'=>($nStart+$nCnt-1));
@@ -417,10 +414,11 @@ class svcMailboxImap{
 				db($data);
 				die();
 			}
-			if(array_key_exists_assign_default('onlyView',$o,false)){
-				$this->headerForView($filename,mb_strlen($data));
+			$o['onlyView']=1;
+			if(akead('onlyView',$o,false)){
+				//$this->headerForView($filename,mb_strlen($data));
 			}else{
-				$this->headerForDownload($filename,mb_strlen($data));
+				//$this->headerForDownload($filename,mb_strlen($data));
 			}
 			print $data;
 			die();
@@ -486,8 +484,8 @@ class svcMailboxImap{
 
 	private function headerForView($filename,$size){
 		////header("Content-Disposition: attachment; filename=" . urlencode($this->imapProxy->decodeMimeStr($filename)));
-		header("Content-Type: ".QDImap::getMimeContentType($filename));
-		header("Content-Length: " . $size);
+		header("Content-Type: "		.QDImap::getMimeContentType($filename));
+		header("Content-Length: " 	. $size);
 	}
 
 	private function flatAssocChildren(&$v){

@@ -46,7 +46,7 @@ class XML2Array {
 	public static function &createArray($input_xml) {
 		$xml = self::getXMLRoot();
 		if(is_string($input_xml)) {
-			$parsed = $xml->loadXML($input_xml);
+			$parsed = $xml->loadXML(trim($input_xml));
 			if(!$parsed) {
 				throw new \Exception('[XML2Array] Error parsing the XML string.');
 			}

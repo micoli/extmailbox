@@ -67,27 +67,26 @@ class QDImap_ZIMBRA extends QDImap{
 	}
 
 	private function walkMailBoxes($a,&$res,$parent){
-		//$aCopy=$a;
-		//if(array_key_exists('folder',$a)){
-		//	unset($aCopy['folder']);
-		//}
+		if(!is_array($a)){
+			return;
+		}
 		$res=array(
-			'text'			=> $a['name'],
-			'id'			=> base64_encode(($parent==''?'':$parent.'/').$a['name']),
-			'fid'			=> ($parent==''?'':$parent.'/').$a['name'],//$a['id'],
-			'iId'			=> $a['id'],
+			'text'			=> $a['@name'],
+			'id'			=> base64_encode(($parent==''?'':$parent.'/').$a['@name']),
+			'fid'			=> ($parent==''?'':$parent.'/').$a['@name'],//$a['@id'],
+			'iId'			=> $a['@id'],
 			'uiProvider'	=> 'col',
 			'cls'			=> ' x-tree-node-collapsed x-tree-node-icon ',
 			'nb'			=> 0,//imap_num_msg ($currMbox)
 			'allowDrop'		=> true,
 			'stat'			=> array(
-				'messages'		=>	$a['n'],
-				'unseen'		=>	$a['u']
+				'messages'		=>	$a['@n'],
+				'unseen'		=>	$a['@u']
 			),
 			'folderType'	=> 'folder',
 			'leaf'			=> !array_key_exists('folder',$a)
 		);
-		self::personalizeFolderIcon($res,strtolower($a['name']));
+		self::personalizeFolderIcon($res,strtolower($a['@name']));
 		if(array_key_exists('folder',$a)){
 			$res['children']=array();
 			foreach($a['folder'] as $v){
@@ -104,10 +103,10 @@ class QDImap_ZIMBRA extends QDImap{
 				'@path'=>"/"
 			)
 		)));
-		$rawRes = $this->imapStream->call('zimbraMail','GetFolderRequest', $params);
+		$rawRes = $this->imapStream->call('zimbraMail','GetFolderRequest', $params,true);
 
 		$res = array();
-		foreach($rawRes['Body']['GetFolderResponse']['folder']['folder'] as $inFolder){
+		foreach($rawRes['Envelope']['Body']['GetFolderResponse']['folder']['folder'] as $inFolder){
 			$folder=array();
 			$this->walkMailBoxes($inFolder,$folder,'');
 			$res[]=$folder;
@@ -137,11 +136,11 @@ class QDImap_ZIMBRA extends QDImap{
 
 	private function extractRecipients($message){
 		$em=array();
-		if(array_key_exists('t',$message['e'])){
-			$em[$message['e']['t']]=array('name'=>$message['e']['p'],'email'=>$message['e']['a']);
+		if(array_key_exists('@t',$message['e'])){
+			$em[$message['e']['@t']]=array('name'=>$message['e']['@p'],'email'=>$message['e']['@a']);
 		}else{
 			foreach($message['e'] as $m){
-				$em[$m['t']]=array('name'=>$m['p'],'email'=>$m['a']);
+				$em[$m['@t']]=array('name'=>$m['@p'],'email'=>$m['@a']);
 			}
 		}
 		return $em;
@@ -169,13 +168,13 @@ class QDImap_ZIMBRA extends QDImap{
 			'types'		=> 'message'
 		)));
 
-		$res = $this->imapStream->call('zimbraMail','SearchRequest', $params);
+		$res = $this->imapStream->call('zimbraMail','SearchRequest', $params,true);
 		$aResult=array();
-		foreach($res['Body']['SearchResponse']['m'] as $message){
+		foreach($res['Envelope']['Body']['SearchResponse']['m'] as $message){
 			$em = $this->extractRecipients($message);
 			$aResult[]=array(
 				//'message_id'		=> $message['mid']?$message['mid']:$message['id'],
-				'message_id'		=> $message['id'],
+				'message_id'		=> $message['@id'],
 				'account'			=> $this->account,
 				'folder'			=> $o['folder'],
 				'subject'			=> $message['su'],
@@ -185,18 +184,18 @@ class QDImap_ZIMBRA extends QDImap{
 				'bcc'				=> akead('b',$em,array()),
 				'date'				=> date('Y-m-d H:i:s',$message['d']/1000),
 				'references'		=> $message[''],
-				'in_reply_to'		=> $message['irt'],
-				'size'				=> $message['s'],
-				'uid'				=> $message['id'],
+				'in_reply_to'		=> $message['@irt'],
+				'size'				=> $message['@s'],
+				'uid'				=> $message['@id'],
 				'msgno'				=> $message[''],
 				'recent'			=> $message[''],
-				'flagged'			=> $message['f']!='',
-				'flags'				=> array($message['f']),
+				'flagged'			=> $message['@f']!='',
+				'flags'				=> array($message['@f']),
 				'answered'			=> $message[''],
 				'deleted'			=> $message[''],
-				'seen'				=> strpos('u',$message['f'])===false,
+				'seen'				=> strpos('u',$message['@f'])===false,
 				'draft'				=> $message[''],
-				'udate'				=> date('Y-m-d H:i:s',$message['d']/1000),
+				'udate'				=> date('Y-m-d H:i:s',$message['@d']/1000),
 				'priority'			=> $message[''],
 			);
 			//urgent (!), low-priority (?), priority (+)
@@ -218,8 +217,8 @@ class QDImap_ZIMBRA extends QDImap{
 				)
 			)));
 
-			$res = $this->imapStream->call('zimbraMail','GetMsgRequest', $params);
-			$message = $res['Body']['GetMsgResponse']['m'];
+			$res = $this->imapStream->call('zimbraMail','GetMsgRequest', $params,true);
+			$message = $res['Envelope']['Body']['GetMsgResponse']['m'];
 			self::$cache[$msgId]['type_'	] = 'unknown';
 			self::$cache[$msgId]['charset'	] = 'UTF-8';
 
@@ -257,38 +256,37 @@ class QDImap_ZIMBRA extends QDImap{
 		self::$cache[$msgId]['attachments'	] = array();
 		$iterator	= new \RecursiveIteratorIterator(new \RecursiveArrayIterator(array($mp)), \RecursiveIteratorIterator::SELF_FIRST);
 		foreach ($iterator as $k => $part) {
-			if(is_array($part) && array_key_exists('part',$part)){
-				$partno = $part['part'];
+			if(is_array($part) && array_key_exists('@part',$part)){
+				$partno = $part['@part'];
 				//$p = $part;unset($p['mp']);db($p);
 				self::$cache[$msgId]['flat'][$partno] = array();
-				self::$cache[$msgId]['flat'][$partno]['type'		]=$part['ct'];
-				self::$cache[$msgId]['flat'][$partno]['subtype'		]=array_pop(split('/',$part['ct']));
+				self::$cache[$msgId]['flat'][$partno]['type'		]=$part['@ct'];
+				self::$cache[$msgId]['flat'][$partno]['subtype'		]=array_pop(split('/',$part['@ct']));
 				if($v=akead('content',$part,false)){
 					self::$cache[$msgId]['flat'][$partno]['content'	]=$v;
 				}
-				if($v=akead('s',$part,false)){
+				if($v=akead('@s',$part,false)){
 					self::$cache[$msgId]['flat'][$partno]['bytes'	]=$v;
 				}
-				if($v=akead('filename',$part,false)){
+				if($v=akead('@filename',$part,false)){
 					self::$cache[$msgId]['flat'][$partno]['name'	]=$v;
 				}
 
-				if(array_key_exists('filename',$part) || array_key_exists('ci',$part)){
+				if(array_key_exists('@filename',$part) || array_key_exists('@ci',$part)){
 					$id			= $partno;
-					$filename	= akead('hfilename',$part,$part['filename']);
-					$hfilename	= $this->decodeMimeStr($part['filename']);
-					if(array_key_exists('ci',$part) && preg_match('!^<(.*)>$!',$part['ci'],$m)){
+					$filename	= akead('@hfilename',$part,$part['@filename']);
+					$hfilename	= $this->decodeMimeStr($part['@filename']);
+					if(array_key_exists('@ci',$part) && preg_match('!^<(.*)>$!',$part['@ci'],$m)){
 						$id			= $m[1];
 						$filename	= $m[1];
 						$hfilename	= $m[1];
 					}
 					self::$cache[$msgId]['attachments'][] = array(
-						//'type'		=> $part['ct'	],
 						'type'			=> strtolower(pathinfo($filename,PATHINFO_EXTENSION)),
 						'filename'		=> $filename,
 						'hfilename'		=> $hfilename,
-						'size'			=> $part['s'	],
-						'partno'		=> $part['part'	],
+						'size'			=> $part['@s'	],
+						'partno'		=> $part['@part'],
 						'id'			=> $id,
 						'attachUrlLink'	=> self::getAttachementURLLink(array(
 							'account'		=> $this->account,
@@ -297,9 +295,9 @@ class QDImap_ZIMBRA extends QDImap{
 						),$partno)
 					);
 				}else{
-					if(array_key_exists('body',$part)){
+					if(array_key_exists('@body',$part)){
 						self::$cache[$msgId]['body']=$part['content'];
-						self::$cache[$msgId]['type']=array_pop(split('/',$part['ct']));
+						self::$cache[$msgId]['type']=array_pop(split('/',$part['@ct']));
 					}
 				}
 			}
@@ -325,6 +323,7 @@ class QDImap_ZIMBRA extends QDImap{
 			$msgId,
 			$partno
 		);
+		//db($url);die();
 		return $this->directUrl($url);
 	}
 
@@ -343,8 +342,8 @@ class QDImap_ZIMBRA extends QDImap{
 			)
 		)));
 
-		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
-		return $res['Body']['MsgActionResponse'];
+		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params,true);
+		return $res['Envelope']['Body']['MsgActionResponse'];
 	}
 
 	function clearflag_full($message_no,$flag){
@@ -359,8 +358,8 @@ class QDImap_ZIMBRA extends QDImap{
 			)
 		)));
 
-		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
-		return $res['Body']['MsgActionResponse'];
+		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params,true);
+		return $res['Envelope']['Body']['MsgActionResponse'];
 	}
 
 	function expunge(){
@@ -381,8 +380,8 @@ class QDImap_ZIMBRA extends QDImap{
 			)
 		)));
 
-		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params);
-		return $res['Body']['MsgActionResponse'];
+		$res = $this->imapStream->call('zimbraMail','MsgActionRequest', $params,true);
+		return $res['Envelope']['Body']['MsgActionResponse'];
 	}
 
 	function mail_copy($sequence,$dest,$destId){
@@ -414,7 +413,6 @@ class QDImap_ZIMBRA extends QDImap{
 
 	private function directUrl($url){
 		return file_get_contents($url);
-		/*
 		$arrContextOptions=array(
 			"http" => array(
 				"method"		=> "GET",
@@ -438,7 +436,6 @@ class QDImap_ZIMBRA extends QDImap{
 		db(array($url,curl_error($ch)));
 		curl_close($ch);
 		return $contents;
-		*/
 	}
 
 	/**
@@ -491,8 +488,8 @@ class QDImap_ZIMBRA extends QDImap{
 		$aAccountInfo=$rawRes['Envelope']['Body']['GetAccountInfoResponse'];
 		ZimbraSoapClient::_mapAttr($aAccountInfo['attr'],'@name','%');
 
-		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest');
-		foreach($rawRes['Body']['GetSignaturesResponse']['signature'] as $aSignature){
+		$rawRes = $this->imapStream->call('zimbraAccount','GetSignaturesRequest',array(),true);
+		foreach($rawRes['Envelope']['Body']['GetSignaturesResponse']['signature'] as $aSignature){
 			$aSignatures[$aSignature['id']]=$aSignature;
 		}
 
