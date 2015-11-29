@@ -180,7 +180,8 @@ Ext.eu.sm.MailBox.MailEditor= Ext.extend(Ext.Panel, {
 			],
 			url			:'proxy.php',
 			baseParams	: {
-				exw_action		: that.mailboxContainer.svcImapPrefixClass+'searchContact'
+				exw_action	: that.mailboxContainer.svcImapPrefixClass+'searchContact',
+				account		: that.mailboxContainer.account
 			}
 		});
 		that.identitiesStore = new Ext.data.JsonStore({

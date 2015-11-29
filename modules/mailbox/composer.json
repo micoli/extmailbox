@@ -1,0 +1,14 @@
+{
+	"name": "micoli/mailbox",
+	"authors": [{
+		"name": "o.michaud",
+		"email": "olivier@micoli.org"
+	}],
+	"require": {},
+	"autoload" : {
+		"psr-4" : {
+			"qd\\": "package"
+		},
+		"classmap": ["package/misc"]
+	}
+}
