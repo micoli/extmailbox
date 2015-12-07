@@ -13,7 +13,7 @@ Ext.onReady(function(){
 		items:[{
 			region			: 'center',
 			xtype			: 'mailbox.mailbox',
-			svcImapClass	: 'MailboxImapExt',
+			svcImapClass	: 'MailboxImapZimbra',
 			svcSmtpClass	: 'MailboxSmtpExt',
 			//mailLayout		: 'threePane',
 			mailLayout		: 'gridOnNorth',//threePane || gridOnNorth

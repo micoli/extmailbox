@@ -1,7 +1,8 @@
 <?php
 namespace qd\services;
 
-class svcMailboxImapExt extends svcMailboxImap{
+class svcMailboxImapZimbra extends svcMailboxImap{
+
 	public function pub_getAccountFolders($o){
 		$this->imapProxy->setAccount($o['account']);
 		$this->imapProxy->open();
@@ -28,7 +29,12 @@ class svcMailboxImapExt extends svcMailboxImap{
 			$o['query']='in:"'.$o['folder'].'"';
 			$res = $this->imapProxy->search($o);
 		}
-		return array('data'=>$res,'totalCount'=>count($res)*200,'s'=>0,'m'=>count($res)*200);
+		return array (
+			'data'		=> $res,
+			'totalCount'=> count ( $res ) * 200,
+			'm'			=> count ( $res ) * 200,
+			's'			=> 0
+		);
 	}
 
 	public function pub_searchContact($o){
