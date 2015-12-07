@@ -14,6 +14,7 @@
 		<!-- script type="text/javascript"		src="libs/ext.plugins/Ext.eu.sm.ajaxOverride.js"></script -->
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.ux.boxSelect/Ext.ux.BoxSelect.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.form.RadioGroup.override/Ext.form.RadioGroup.override.js"></script>
+		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.tools.js"></script>
 
 		<link rel="stylesheet" type="text/css"	href="libs/ext.plugins/columnLock.css" />
 		<script type="text/javascript"			src="libs/ext.plugins/columnLock.js"></script>

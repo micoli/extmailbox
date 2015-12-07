@@ -1,85 +1,9 @@
+if(false) Ext={};
 Ext.ns('Ext.eu.sm.rest');
-
 Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
-
-	getValues : function(obj){
-		var that = this;
-		var record={};
-		that.fullCascade(obj,function(name,item){
-			var val=item[item.xtype=="radiogroup"?"rgGetValue":"getValue"]();
-			if(item.xtype=='datefield'){
-				val=val.format('Y-m-d');
-			}
-			that.setObjPath(record,name,val);
-		},'get');
-		return record;
-	},
-
-	setValues : function(obj,record){
-		var that = this;
-		that.fullCascade(obj,function(name,item){
-			item[item.xtype=="radiogroup"?"rgSetValue":"setValue"](that.getObjPath(record,name));
-		},'set');
-	},
-
-	// http://likerrr.ru/on-air/adding-string-with-dot-notation-as-a-key-to-javascript-objects
-	getObjPath: function(obj, path, notation) {
-		notation = notation || '.';
-		return path.split(notation).reduce(function(prev, cur) {
-			return (prev !== undefined) ? prev[cur] : undefined;
-		}, obj);
-	},
-
-	// http://likerrr.ru/on-air/adding-string-with-dot-notation-as-a-key-to-javascript-objects
-	setObjPath : function(obj, path, value, notation) {
-		var isObject = function (obj) { return (Object.prototype.toString.call(obj) === '[object Object]' && !!obj);}
-		notation = notation || '.';
-		path.split(notation).reduce(function (prev, cur, idx, arr) {
-			var isLast = (idx === arr.length - 1);
-			// if <cur> is last part of path
-			if (isLast) return (prev[cur] = value);
-			// if <cur> is not last part of path, then returns object if existing value is object or empty object
-			return (isObject(prev[cur])) ? prev[cur] : (prev[cur] = {});
-		}, obj);
-
-		return obj;
-	},
-
-	fullCascade : function(obj,cb,getOrSet){
-		obj.cascade(function(item){
-			if(item.ownerCt && item.ownerCt.initialConfig && item.ownerCt.initialConfig.layout=='card'){
-				if(item.ownerCt.getLayout().activeItem!=item){
-					return false;
-				}
-			}
-			var subFn=function(item){
-				if (
-					(typeof item=='object') &&
-					(item.isFormField || item.xisFormField) &&
-					(item.name || item.xname) &&
-					(
-						(getOrSet=='get'&&(item.rgGetValue || item.getValue))
-						||
-						(getOrSet=='set'&&(item.rgSetValue || item.setValue))
-					)
-				){
-					cb((item.name||item.xname),item)
-				}
-			};
-			subFn(item);
-			Ext.each(['top','bottom'],function(side){
-				if(item[side+'Toolbar'] && item[side+'Toolbar'].items){
-					item[side+'Toolbar'].items.each(function(toolbarItem){
-						subFn(toolbarItem);
-					});
-				}
-			});
-		});
-	},
 
 	initComponent		: function(){
 		var that = this;
-		console.log('id',that.id);
 		that.restPanelId			= Ext.id();
 		that.historyGridId			= Ext.id();
 		that.bodyTypeId				= Ext.id();
@@ -98,9 +22,9 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 			var result=[];
 			that.historyStore.each(function(record){
 				result.push(record.data);
-			})
+			});
 			localStorage.setItem('history',JSON.stringify(result));
-		}
+		};
 
 		that.addHistory = function (prm){
 			var id	= Ext.util.MD5(JSON.stringify(prm));
@@ -114,10 +38,10 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 					'prm'	: prm
 				}));
 			}else{
-				that.historyStore.getAt(rId).set('date',(new Date()).format('Y-m-d H:i:s'))
+				that.historyStore.getAt(rId).set('date',(new Date()).format('Y-m-d H:i:s'));
 				that.historyStore.sort('date','DESC');
 			}
-		}
+		};
 
 		that.historyStore = new Ext.data.JsonStore({
 			fields			: [
@@ -143,7 +67,7 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 		});
 
 		that.historyActions = new Ext.ux.grid.RowActions({
-			header			: 'Actions',
+			header			: '&nbsp;',
 			keepSelection	: true,
 			actions			: [{
 				iconCls : 'icon-del',tooltip : 'Delete'
@@ -175,16 +99,15 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 				'<b>prm:</b> {[this.json(values.prm)]}</p>',
 				'<br>'].join(''),{
 				json:function(a){
-					return JSON.stringify(a)
+					return JSON.stringify(a);
 				}
 			})
 		});
 
 		that.query = function(){
-			var prm = that.getValues(Ext.getCmp(that.restPanelId));
+			var prm = Ext.eu.sm.form.tools.getValues(Ext.getCmp(that.restPanelId));
+			console.log(prm);
 			that.addHistory(prm);
-			//console.log(that.generate());return;
-
 			var mask = new Ext.LoadMask(Ext.getCmp(that.restPanelId).getEl(), {
 				msg:"Please wait..."
 			});
@@ -194,7 +117,6 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 				jsonData: prm,
 				success	: function(data){
 					mask.hide();
-					console.log(that);
 					Ext.getCmp(that.rawResultId).setValue(data.responseText);
 					var result = JSON.parse(data.responseText);
 					result.body=Ext.util.base64.decode(result.body);
@@ -221,18 +143,17 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 							contentResultPanel.doLayout();
 							contentResultPanel.layout.setActiveItem(panel);
 							var contentPanel=panel.items.items[0];
-							contentPanel.setValue.call(contentPanel,panel.contentTypes.join('/')+result.body)
-							//console.log(panel,contentType,contentPanel,contentPanel.el,contentPanel.getEl())
+							console.log(contentType,contentPanel);
+							contentPanel.setValue.call(contentPanel,result.body);
 							return false;
 						}
 					});
 				},
 				failure	: function(data){
 					mask.hide();
-					console.log(data);
 				}
 			});
-		}
+		};
 
 		Ext.apply(that,{
 			layout	: 'border',
@@ -254,7 +175,7 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 					rowdblclick	: function(grid,rowIndex,columnIndex,event){
 						var record = grid.getStore().getAt(rowIndex);
 						console.log(record);
-						that.setValues(Ext.getCmp(that.restPanelId),record.data.prm);
+						Ext.eu.sm.form.tools.setValues(Ext.getCmp(that.restPanelId),record.data.prm);
 					}
 				}
 			},{
@@ -270,59 +191,76 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 					frame	: true,
 					layout	: 'form',
 					items	: [{
-						xtype		: 'textfield',
-						fieldLabel	: 'URL',
-						isFormField	: true,
-						name		: 'url',
-						value		: 'https://',
-						anchor		: '95%',
-						enableKeyEvents	: true,
-						listeners		: {
-							'keyup'		: function(cmp,e) {
-								if(e.getCharCode() == 13){
-									that.query();
+						layout		: 'column',
+						items		:[{
+							columnWidth	: .20,
+							labelWidth	: 60,
+							layout		: 'form',
+							items		: [{
+								xtype		: 'combo',
+								anchor		: '99%',
+								name		: 'method',
+								fieldLabel	: 'Method',
+								value		: 'GET',
+								isFormField	: true,
+								store		: new Ext.data.JsonStore({
+									fields		: ['method'],
+									proxy		: new Ext.data.MemoryProxy([]),
+									data		: [{
+										method	: 'GET'
+									},{
+										method	: 'POST'
+									},{
+										method	: 'PUT'
+									},{
+										method	: 'DELETE'
+									}]
+								}),
+								displayField	: 'method',
+								valueField		: 'method',
+								emptyText		: 'Select a method...',
+								mode			: 'local',
+								triggerAction	: 'all',
+								typeAhead		: true,
+								forceSelection	: true,
+								selectOnFocus	: true,
+								listeners		: {
+									select			: function(combo,record,index){
+										that.currentMethod = record;
+									}
 								}
-							}
-						}
-					},{
-						xtype		: 'combo',
-						name		: 'method',
-						fieldLabel	: 'Method',
-						isFormField	: true,
-						value		: 'GET',
-						store		: new Ext.data.JsonStore({
-							fields		: ['method'],
-							proxy		: new Ext.data.MemoryProxy([]),
-							data		: [{
-								method	: 'GET'
-							},{
-								method	: 'POST'
-							},{
-								method	: 'PUT'
-							},{
-								method	: 'DELETE'
 							}]
-						}),
-						displayField	: 'method',
-						valueField		: 'method',
-						emptyText		: 'Select a method...',
-						mode			: 'local',
-						triggerAction	: 'all',
-						typeAhead		: true,
-						forceSelection	: true,
-						selectOnFocus	: true,
-						listeners		: {
-							select			: function(combo,record,index){
-								that.currentMethod = record
-							}
-						}
-					},{
-						xtype		: 'button',
-						text		: 'generate',
-						handler		: that.query
+						},{
+							columnWidth	: .70,
+							labelWidth	: 40,
+							layout		: 'form',
+							items		: [{
+								xtype			: 'textfield',
+								anchor			: '99%',
+								name			: 'url',
+								fieldLabel		: 'URL',
+								isFormField		: true,
+								value			: 'https://',
+								enableKeyEvents	: true,
+								listeners		: {
+									'keyup'			: function(cmp,e) {
+										if(e.getCharCode() == 13){
+											that.query();
+										}
+									}
+								}
+							}]
+						},{
+							columnWidth	: .10,
+							items		:[{
+								xtype		: 'button',
+								text		: 'generate',
+								handler		: that.query
+							}]
+						}]
 					},{
 						xtype		: 'tabpanel',
-						height		: 200,
+						anchor		: '100% 100%',
 						border		: false,
 						activeTab	: 0,
 						items		: [{
@@ -337,7 +275,7 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 							hideMode	: 'offsets',
 							activeItem	: 0,
 							id			: that.bodyTypeId,
-							tbar		: [{
+							tbar		: ['Body: ',{
 								xtype		: 'combo',
 								value		: 'None',
 								store		: new Ext.data.JsonStore({
@@ -362,10 +300,10 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 												cmp		: subPanel
 											}));
 										});
-										combo.setValue(store.getAt(0).get('type'))
+										combo.setValue(store.getAt(0).get('type'));
 									},
 									select		: function(combo,record,index){
-										Ext.getCmp(that.bodyTypeId).layout.setActiveItem(record.data.cmp)
+										Ext.getCmp(that.bodyTypeId).layout.setActiveItem(record.data.cmp);
 									}
 								}
 							}],
@@ -415,15 +353,14 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 							}]
 						},{
 							title		: 'Authorization',
-							frame		: true,
 							layout		: 'card',
 							height		: 'auto',
 							id			: that.authorizationPanelId,
-							activeItem	: 1,
+							activeItem	: 0,
 							layoutConfig: {
 								deferredRender	: true
 							},
-							tbar	: [{
+							tbar	: ['Type :',{
 								xtype		: 'combo',
 								xisFormField: true,
 								xname		: 'authentificationType',
@@ -450,10 +387,10 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 												cmp		: subPanel
 											}));
 										});
-										combo.setValue(store.getAt(0).get('type'))
+										combo.setValue(store.getAt(0).get('type'));
 									},
 									select		: function(combo,record,index){
-										Ext.getCmp(that.authorizationPanelId).layout.setActiveItem(record.data.cmp)
+										Ext.getCmp(that.authorizationPanelId).layout.setActiveItem(record.data.cmp);
 									}
 								}
 							}],
@@ -461,22 +398,22 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 								_title			: 'None',
 								frame			: true,
 								height			: 'auto',
-								html			: '-'
+								html			: '&nbsp;'
 							},{
 								_title			: 'Basic',
 								height			: 'auto',
 								layout			: 'form',
-								checkboxToggle	: true,
+								frame			: true,
 								items			: [{
-									xtype		: 'textfield',
-									fieldLabel	: 'Login',
-									name		: 'authentificationBasic.login',
-									isFormField	: true
+									xtype			: 'textfield',
+									fieldLabel		: 'Login',
+									name			: 'authentificationBasic.login',
+									isFormField		: true
 								},{
-									xtype		: 'textfield',
-									fieldLabel	: 'Password',
-									name		: 'authentificationBasic.password',
-									isFormField	: true
+									xtype			: 'textfield',
+									fieldLabel		: 'Password',
+									name			: 'authentificationBasic.password',
+									isFormField		: true
 								}]
 							}]
 						}]
@@ -517,10 +454,11 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 							deferredRender	: true
 						},
 						items				: [{
+							layout				: 'fit',
 							contentTypes		: ['none/none']
 						},{
-							contentTypes		: ['application/xml','text/xml'],
 							layout				: 'fit',
+							contentTypes		: ['application/xml','text/xml'],
 							items				: [{
 								xtype				: 'ux-codemirror',
 								hideMode			: 'offsets',
@@ -530,8 +468,8 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 								}
 							}]
 						},{
-							contentTypes		: ['application/js','application/json','application/javascript'],
 							layout				: 'fit',
+							contentTypes		: ['application/js','application/json','application/javascript'],
 							items				: [{
 								xtype				: 'ux-codemirror',
 								hideMode			: 'offsets',
@@ -541,23 +479,23 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 								}
 							}]
 						},{
-							contentTypes		: ['text/html','application/html'],
 							layout				: 'fit',
+							contentTypes		: ['text/html','application/html'],
 							items				: [{
 								xtype				: "iframepanel",
 								autoScroll			: true,
 								setValue			: function(v){
-									this.getFrameBody().innerHTML=v
+									this.getFrameBody().innerHTML = v;
 								}
 							}]
 						},{
-							contentTypes		: ['raw','text/plain'],
 							layout				: 'fit',
+							contentTypes		: ['raw','text/plain'],
 							items				: [{
 								xtype				: "iframepanel",
 								autoScroll			: true,
 								setValue			: function(v){
-									this.getFrameBody().innerHTML= '<pre>'+v+'</pre>';
+									this.getFrameBody().innerHTML = '<pre>'+v+'</pre>';
 								}
 							}]
 						}]

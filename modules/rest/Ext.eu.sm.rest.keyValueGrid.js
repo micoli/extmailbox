@@ -33,7 +33,7 @@ Ext.eu.sm.rest.keyValueGrid = Ext.extend(Ext.grid.EditorGridPanel,{
 
 
 		this.rowActions = new Ext.ux.grid.RowActions({
-			header			: 'Actions',
+			header			: '&nbsp;',
 			keepSelection	: true,
 			actions			: [{
 				iconCls : 'icon-del',tooltip : 'Delete'
@@ -59,6 +59,7 @@ Ext.eu.sm.rest.keyValueGrid = Ext.extend(Ext.grid.EditorGridPanel,{
 			plugins			: [this.rowActions],
 			tbar			: [{
 				xtype			: 'button',
+				iconCls			: 'icon-add',
 				text			: 'Add',
 				handler			: function(){
 					that.store.add(new that.store.recordType({
