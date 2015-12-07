@@ -1,0 +1,9 @@
+{
+	"require": [
+	],
+	"js": [
+	],
+	"css": [
+		"cssrest.css"
+	]
+}

@@ -1,0 +1,15 @@
+.icon-add {
+	background-image:url('./add.gif') !important;
+	height: 16px;
+	width: 16px;
+}
+.icon-del {
+	background-image:url('./delete.gif') !important;
+	height: 16px;
+	width: 16px;
+}
+.icon-save {
+	background-image:url('./save.gif') !important;
+	height: 16px;
+	width: 16px;
+}
