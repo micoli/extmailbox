@@ -232,7 +232,9 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 										method	: 'PUT'
 									},{
 										method	: 'DELETE'
-									}]
+									}/*,{
+										method	: 'SOAP'
+									}*/]
 								}),
 								displayField	: 'method',
 								valueField		: 'method',
@@ -358,7 +360,20 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 										lineNumbers		: true
 									}
 								}]
-							}]
+							}/*,{
+								_title			: 'soap',
+								bodyType		: 'soapData',
+								layout			: 'fit',
+								items			: [{
+									xtype			: 'ux-codemirror',
+									isFormField		: true,
+									name			: 'soapData',
+									codeMirrorConfig: {
+										language		: 'xml',
+										lineNumbers		: true
+									}
+								}]
+							}*/]
 						},{
 							title		: 'Headers',
 							xtype		: 'rest.keyValueGrid',
