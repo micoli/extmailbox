@@ -67,28 +67,24 @@ class svcRest{
 				);
 				return $aResult;
 			}catch(GuzzleHttp\Exception\ServerException $e){
-				print '<b>'.$e->getCode().'</b>';
-				print $e->getMessage();
-				print "<pre>";
-				print_r($response);
-				print_r($prm);
-				print_r($query);
-				print_r($request);
-				print "<pre>";
+				return array (
+					'success'	=> false,
+					'errorCode'	=> $e->getCode(),
+					'error'		=> base64_encode($e->getMessage()),
+					'request'	=> $e->getRequest(),
+					'response'	=> $e->getResponse(),
+				);
 			}catch(Exception $e){
-				print '<b>'.$e->getCode().'</b>';
-				print $e->getMessage();
-				print "<pre>";
-				print_r($response);
-				print_r($prm);
-				print_r($query);
-				print_r($request);
-				print "<pre>";
+				return array (
+					'success'	=> false,
+					'errorCode'	=> $e->getCode(),
+					'error'		=> base64_encode($e->getMessage()),
+				);
 			}
 		}catch(\InvalidArgumentException $e){
 			return array (
-				'success' => false,
-				'error' => $e->getMessage ()
+				'success'	=> false,
+				'error'		=> base64_encode($e->getMessage()),
 			);
 		}
 	}

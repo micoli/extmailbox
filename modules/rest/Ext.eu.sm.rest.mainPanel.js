@@ -10,6 +10,8 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 		that.rawResultId			= Ext.id();
 		that.headersResultId		= Ext.id();
 		that.contentResultId		= Ext.id();
+		that.resultTabpanelId		= Ext.id();
+		that.rawContentResultId		= Ext.id();
 		that.authorizationPanelId	= Ext.id();
 		that.basicAuthentificationFieldId= Ext.id();
 
@@ -117,34 +119,50 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 				jsonData: prm,
 				success	: function(data){
 					mask.hide();
-					Ext.getCmp(that.rawResultId).setValue(data.responseText);
+					var rawResultPanel = Ext.getCmp(that.rawResultId);
+					var rawContentResultPanel = Ext.getCmp(that.rawContentResultId);
+					rawResultPanel.ownerCt.setActiveTab(rawResultPanel);
+					rawResultPanel.setValue(data.responseText);
+
 					var result = JSON.parse(data.responseText);
-					result.body=Ext.util.base64.decode(result.body);
-					Ext.getCmp(that.rawResultId).setValue(JSON.stringify(result,true,"  "));
+					if(result.body){
+						result.body=Ext.util.base64.decode(result.body);
+						rawContentResultPanel.setValue(result.body);
+					}
+					if(result.error){
+						result.body=Ext.util.base64.decode(result.error);
+						rawContentResultPanel.setValue(result.body);
+					}
+
+					try{
+						rawResultPanel.setValue(JSON.stringify(result,true,"  "));// same but formatted
+					}catch(e){
+						console.log('result json exception',e);
+					}
+
 					that.reponseHeadersStore.removeAll();
 					var contentType='raw';
-					for(var k in result.response_headers){
-						if(result.response_headers.hasOwnProperty(k)){
-							if(k.toLowerCase()=='content-type'){
-								contentType=(''+result.response_headers[k][0]).toLowerCase().split(';')[0];
+					if(result.response_headers){
+						for(var k in result.response_headers){
+							if(result.response_headers.hasOwnProperty(k)){
+								if(k.toLowerCase()=='content-type'){
+									contentType=(''+result.response_headers[k][0]).toLowerCase().split(';')[0];
+								}
+								that.reponseHeadersStore.add(new that.reponseHeadersStore.recordType({
+									'key'	: k,
+									'value'	: result.response_headers[k].join("\n")
+								}));
 							}
-							that.reponseHeadersStore.add(new that.reponseHeadersStore.recordType({
-								'key'	: k,
-								'value'	: result.response_headers[k].join("\n")
-							}));
-						}
-					};
+						};
+					}
 					var contentResultPanel=Ext.getCmp(that.contentResultId);
-					var parent = Ext.getCmp(that.contentResultId);
-					parent.doLayout();
+					contentResultPanel.ownerCt.setActiveTab(contentResultPanel);
+					contentResultPanel.doLayout();
 					contentResultPanel.items.each(function(panel,k){
-						if(panel.contentTypes.indexOf(contentType)!=-1 || k==contentResultPanel.items.length-1){
-							parent.ownerCt.setActiveTab(parent);
-							contentResultPanel.doLayout();
+						if ((panel.contentTypes && panel.contentTypes.indexOf(contentType)!=-1) || k==contentResultPanel.items.length-1){
 							contentResultPanel.layout.setActiveItem(panel);
-							var contentPanel=panel.items.items[0];
-							console.log(contentType,contentPanel);
-							contentPanel.setValue.call(contentPanel,result.body);
+							console.log(contentType,panel,result.body);
+							panel.setValue.call(panel,result.body);
 							return false;
 						}
 					});
@@ -421,14 +439,20 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 				},{
 					region		: 'center',
 					xtype		: 'tabpanel',
-					frame		: true,
 					border		: false,
-					activeTab	: 1,
+					id			: that.resultTabpanelId,
+					layoutConfig: {
+						//deferredRender	: true
+					},
+					activeTab	: 0,
+					defaults	: [{
+						hideMode	: 'offsets'
+					}],
 					items		: [{
 						title				: 'Raw',
+						layout				: 'fit',
 						forceLayout			: true,
 						id					: that.rawResultId,
-						hideMode			: 'offsets',
 						xtype				: 'ux-codemirror',
 						codeMirrorConfig	: {
 							language			: 'javascript',
@@ -438,7 +462,6 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 						title				: 'Headers',
 						id					: that.headersResultId,
 						xtype				: 'grid',
-						hideMode			: 'offsets',
 						store				: that.reponseHeadersStore,
 						autoExpandColumn	: 'autoexpand',
 						columns				: [{
@@ -447,11 +470,18 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 							header	: 'value'	, dataIndex	:'value', id	:'autoexpand'
 						}]
 					},{
+						title				: 'Raw Content',
+						layout				: 'fit',
+						items				: [{
+							id					: that.rawContentResultId,
+							xtype				: 'textarea'
+						}]
+					},{
 						title				: 'Content',
 						id					: that.contentResultId,
 						layout				: 'card',
 						layoutConfig		: {
-							deferredRender	: true
+							deferredRender		: true
 						},
 						items				: [{
 							layout				: 'fit',
@@ -459,51 +489,60 @@ Ext.eu.sm.rest.mainPanel = Ext.extend(Ext.Panel, {
 						},{
 							layout				: 'fit',
 							contentTypes		: ['application/xml','text/xml'],
-							items				: [{
-								xtype				: 'ux-codemirror',
-								hideMode			: 'offsets',
-								codeMirrorConfig	: {
-									language			: 'xml',
-									lineNumbers			: true
-								}
-							}]
+							xtype				: 'ux-codemirror',
+							codeMirrorConfig	: {
+								language			: 'xml',
+								lineNumbers			: true
+							}
 						},{
 							layout				: 'fit',
 							contentTypes		: ['application/js','application/json','application/javascript'],
-							items				: [{
-								xtype				: 'ux-codemirror',
-								hideMode			: 'offsets',
-								codeMirrorConfig	: {
-									language			: 'javascript',
-									lineNumbers			: true
-								}
-							}]
+							xtype				: 'ux-codemirror',
+							codeMirrorConfig	: {
+								language			: 'javascript',
+								lineNumbers			: true
+							}
 						},{
 							layout				: 'fit',
 							contentTypes		: ['text/html','application/html'],
-							items				: [{
-								xtype				: "iframepanel",
-								autoScroll			: true,
-								setValue			: function(v){
-									this.getFrameBody().innerHTML = v;
-								}
-							}]
+							xtype				: "iframepanel",
+							autoScroll			: true,
+							setValue			: function(v){
+								this.getFrameBody().innerHTML = v;
+							}
 						},{
 							layout				: 'fit',
+							forceLayout			: true,
 							contentTypes		: ['raw','text/plain'],
-							items				: [{
-								xtype				: "iframepanel",
-								autoScroll			: true,
-								setValue			: function(v){
-									this.getFrameBody().innerHTML = '<pre>'+v+'</pre>';
-								}
-							}]
+							xtype				: "iframepanel",
+							autoScroll			: true,
+							setValue			: function(v){
+								this.getFrameBody().innerHTML = '<pre>'+v+'</pre>';
+							}
 						}]
 					}]
 				}]
 			} ]
 		});
 		Ext.eu.sm.rest.mainPanel.superclass.initComponent.call(this);
+		that.firstLayoutDone=false;
+		that.on({
+			afterlayout : function(cmp){
+				if(!that.firstLayoutDone){
+					that.firstLayoutDone=true;
+					var contentResultPanel = Ext.getCmp(that.contentResultId);
+					contentResultPanel.ownerCt.setActiveTab(contentResultPanel);
+					contentResultPanel.doLayout();
+					contentResultPanel.items.each(function(panel,k){
+						contentResultPanel.layout.setActiveItem(panel);
+						if(panel.setValue){
+							//panel.setValue('');
+						}
+					});
+					console.log(Ext.getCmp(that.contentResultId));
+				}
+			}
+		});
 	}
 });
 Ext.reg('rest.mainPanel',Ext.eu.sm.rest.mainPanel);
