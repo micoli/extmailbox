@@ -43,10 +43,10 @@
 		<script type="text/javascript"			src="libs/ext.plugins/codemirror-5.9/mode/xml/xml.js"></script>
 
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.ux.form.CodeMirror.js"></script>
-		<script type="text/javascript"			src="modules/rest/Ext.eu.sm.rest.keyValueGrid.js"></script>
-		<script type="text/javascript"			src="modules/rest/Ext.eu.sm.rest.mainPanel.js"></script>
-		<script type="text/javascript"			src="modules/rest/rest.js"></script>
-		<link rel="stylesheet" type="text/css"	href="modules/rest/css/cssrest.css" />
+		<script type="text/javascript"			src="modules/devHelper/Ext.eu.sm.rest.keyValueGrid.js"></script>
+		<script type="text/javascript"			src="modules/devHelper/Ext.eu.sm.rest.mainPanel.js"></script>
+		<script type="text/javascript"			src="modules/devHelper/devHelper.js"></script>
+		<link rel="stylesheet" type="text/css"	href="modules/devHelper/css/cssrest.css" />
 
 		<script>
 			Ext.BLANK_IMAGE_URL = '/ext-2.2.1/release/resources/images/default/s.gif';

@@ -33,9 +33,9 @@
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.starField/Ext.eu.sm.form.starField.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.PivotEditorGridPanel/Ext.eu.sm.PivotEditorGridPanel.js"></script>
 
-		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.swfObject.js"></script>
+<!-- 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.swfObject.js"></script> -->
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.youtube/Ext.eu.sm.youtube.js"></script>
-		<script type="text/javascript"			src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject_src.js"></script>
+<!-- 		<script type="text/javascript"			src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject_src.js"></script> -->
 		<!-- <script type="text/javascript"		src="libs/ext.plugins/swfobject.js"></script>-->
 		<!-- <script type="text/javascript"		src="libs/ext.plugins/Ext.eu.sm.cors.js"></script> -->
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.pdf/Ext.eu.sm.pdf.js"></script>
@@ -45,11 +45,11 @@
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.i18n.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.ContactWindow.js"></script>
-		<script type="text/javascript"			src="modules/test/Ext.eu.sm.repartitionExportLM.js"></script>
-		<script type="text/javascript"			src="modules/test/Ext.eu.sm.tagManagerConfig.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.form.MultiSelectField/Ext.form.MultiSelectField.js"></script>
 		<script type="text/javascript"			src="libs/ext.plugins/Ext.eu.sm.form.dynamicForm/Ext.eu.sm.form.dynamicForm.js"></script>
-		<script type="text/javascript"			src="modules/sandbox/sandbox.js"></script>
+<!-- 		<script type="text/javascript"			src="modules/sandbox/sandbox.js"></script> -->
+		<script type="text/javascript"			src="modules/rest/Ext.eu.sm.rest.mainPanel.js"></script>
+		<script type="text/javascript"			src="modules/rest/rest.js"></script>
 
 		<!-- <script type="text/javascript"		src="http://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=Fmjtd%7Cluur216and%2C8g%3Do5-90za94"></script>-->
 		<!--  script type="text/javascript"		src="modules/mailbox/Ext.eu.MailSelect.js"></script-->
@@ -57,6 +57,8 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.Table.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.form.HtmlEditor.Plugins/Ext.ux.form.HtmlEditor.FindAndReplace.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.ux.form.HtmlEditor.EnsureContent.js"></script>
+
+		<link rel="stylesheet" type="text/css"	href="modules/rest/css/cssrest.css" />
 
 		<script>
 			Ext.BLANK_IMAGE_URL = '/ext-2.2.1/release/resources/images/default/s.gif';
