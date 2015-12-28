@@ -54,16 +54,37 @@ class QDImap_ZIMBRA extends QDImap{
 		'size'				=> 'size'
 	);
 
-	function setAccount ($account){
+	function setAccount ($account,$withCheck=false){
 		$this->account		= $account;
 		$this->urlRoot		= $this->accounts[$this->account]['zmurl'];
 		$this->imapStream	= new ZimbraSoapClient($this->urlRoot.'soap');
 
 		if(!session_id()) session_start();
+
 		//$_SESSION['ztoken'] = $this->imapStream->auth(akead('ztoken',$_SESSION,null),$this->accounts[$this->account]['user'],$this->accounts[$this->account]['pass']);
 		//$_SESSION['ztoken'] = '0_8878b4cd5c137b3490000f4033e70bd1c26f783b_69643d33363a38356666366531332d303930622d343664392d393762362d6339363663363362376432363b6578703d31333a313434383932313939353938343b747970653d363a7a696d6272613b';
+
 		$this->imapStream->setAuthToken(akead('ztoken',$_SESSION,null));
 		$this->accounts[$this->account]['token']=$this->imapStream->authToken;
+		if($withCheck){
+			try{
+				$rawRes = $this->imapStream->call('zimbraAccount','GetAccountInfoRequest', array(ZimbraSoapClient::SoapVarArray(array(
+					'account'=>array(
+						'@by'	=> 'name',
+						'%'		=> $this->accounts[$this->account]['email']
+					)
+				))),true,true);
+			}catch(\Exception $e){
+				switch($e->detail->Error->Code){
+					case 'service.AUTH_EXPIRED':
+						$_SESSION['ztoken'] = $this->imapStream->auth(null,$this->accounts[$this->account]['user'],$this->accounts[$this->account]['pass']);
+					break;
+					default:
+						db($e);
+					break;
+				}
+			}
+		}
 	}
 
 	private function walkMailBoxes($a,&$res,$parent){

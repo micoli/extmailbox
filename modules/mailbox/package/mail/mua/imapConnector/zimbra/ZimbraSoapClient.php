@@ -104,11 +104,13 @@ class ZimbraSoapClient extends \SoapClient{
 			return ($returnXmlWithAttr)?xmlConvert::xml2array($tmp):$this->xml2array($tmp);
 		}catch(SoapFault $e){
 			if($withException){
-				throwException($e);
+				throw $e;
 			}else{
 				$this->debug();
 				db($e->getMessage()."#".$e->getCode()."#".$e->getTraceAsString());
 			}
+		}catch(Exception $e){
+			db("##".$e->getMessage()."#".$e->getCode()."#".$e->getTraceAsString());
 		}
 	}
 

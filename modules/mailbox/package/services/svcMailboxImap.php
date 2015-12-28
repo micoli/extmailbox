@@ -2,6 +2,7 @@
 namespace qd\services;
 use qd\mail\mua\QDImap;
 use qd\mail\orm\MMG_MAIL_MESSAGE;
+use \Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /*
  *
@@ -14,7 +15,23 @@ use qd\mail\orm\MMG_MAIL_MESSAGE;
  */
 class svcMailboxImap{
 	var $imapProxy;
-	var $proxyClass='ZIMBRA';
+	var $proxyClass		= 'ZIMBRA';
+	var $dispatchKey	= 'qd.services.mua.mailbox_imap';
+
+	/**
+	 * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+	 **/
+	protected $dispatcher;
+
+	public function attachDispatcher(EventDispatcherInterface $dispatcher){
+		$this->dispatcher = $dispatcher;
+	}
+
+	protected function setAccount($account,$withCheck=false){
+		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.pre',new \QDEvent($account));
+		$this->imapProxy->setAccount($account,$withCheck);
+		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.post',new \QDEvent($account));
+	}
 
 	public function __construct(){
 		//header('content-type: text/html; charset=utf-8');
@@ -28,12 +45,13 @@ class svcMailboxImap{
 
 		$this->imapProxy->setCache($GLOBALS['conf']['imapMailBox']['tmp']);
 		$this->imapProxy->setDBCacheObject(new MMG_MAIL_MESSAGE());
+
 	}
 
 	public function pub_todo_getMailThreadsInFolders($o){
 		$res = array();
 		$folder=base64_decode($o['folder']);
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($folder);
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -118,13 +136,17 @@ class svcMailboxImap{
 	public function pub_getAccounts($o){
 		$tmp = array();
 		$o['account']=akead('account',$o,array_shift(array_keys($this->imapProxy->accounts)));
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account'],true);
+
+		//$this->dispatcher->dispatch('qd.mailbox_imap.getAccounts.pre', new muaEvent());
+
+		$aIdentities=$this->imapProxy->getIdentities($o);
 
 		foreach($this->imapProxy->accounts as $k=>$v){
 			$tmp[]=array(
 				'account'	=> $k,
 				'email'		=> $v['email'],
-				'identities'=> $this->imapProxy->getIdentities($o)
+				'identities'=> $aIdentities
 			);
 		}
 		/*usort($tmp, function($a, $b){
@@ -133,9 +155,11 @@ class svcMailboxImap{
 			}
 			return ($a['detail']['default']===true)?-1:1;
 		});*/
-		return array(
+
+		$result = array(
 			'data'=>$tmp
 		);
+		return $result;
 	}
 
 	function pub_getTemplates($o){
@@ -151,7 +175,7 @@ class svcMailboxImap{
 
 	function pub_setMessageFlag($o){
 		$o['folder'] = base64_decode($o['folder']);
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($o['folder']);
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -184,7 +208,7 @@ class svcMailboxImap{
 	}
 
 	public function pub_folderRename($o){
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -197,7 +221,7 @@ class svcMailboxImap{
 	}
 
 	public function pub_createSubFolder($o){
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -207,7 +231,7 @@ class svcMailboxImap{
 	}
 
 	public function pub_deleteFolder($o){
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -226,7 +250,7 @@ class svcMailboxImap{
 			'allowChildren'	=> true,
 			'folderType'	=> 'account'
 		);
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
 			return $res;
@@ -273,7 +297,7 @@ class svcMailboxImap{
 	}
 
 	public function pub_getMailListInFolders($o){
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open();
 		if(!$this->imapProxy->isConnected()){
 			return array();
@@ -313,7 +337,7 @@ class svcMailboxImap{
 		$folder		= base64_decode($o['folder']);;
 		$message_no	= $o['message_no'];
 
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($folder);
 
 		if(!$this->imapProxy->isConnected()){
@@ -327,7 +351,7 @@ class svcMailboxImap{
 		$folder		= base64_decode($o['folder']);;
 		$message_no	= $o['message_no'];
 
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($folder);
 
 		if(!$this->imapProxy->isConnected()){
@@ -363,7 +387,7 @@ class svcMailboxImap{
 		$folder		= base64_decode($o['folder']);;
 		$message_no	= $o['message_no'];
 
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($folder);
 		if(!$this->imapProxy->isConnected()){
 			return array('error'=>true);
@@ -428,7 +452,7 @@ class svcMailboxImap{
 	function pub_expunge($o){
 		$folder	= base64_decode($o['folder']);
 
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($fromFolder);
 		$this->imapProxy->expunge();
 		return array('ok'=> true);
@@ -439,7 +463,7 @@ class svcMailboxImap{
 		$toFolder	= base64_decode($o['toFolder'  ]);
 		$toFolderId	= $o['toFolderId'];
 
-		$this->imapProxy->setAccount($o['account']);
+		$this->setAccount($o['account']);
 		$this->imapProxy->open($fromFolder);
 
 		if(!$this->imapProxy->isConnected()){
