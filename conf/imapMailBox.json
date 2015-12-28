@@ -6,6 +6,21 @@
 			"user"	: "micoli@mail.local",
 			"email"	: "micoli@mail.local",
 			"pass"	: "micoli"
+			"host"			: "zimbra.domain.tld",
+			"token"			: "0_2xxxxxxxxxxxxxxxxxxx",
+			"zmurl"			: "https://zimbra.domain.tld/service/",
+			"port"			: 143,
+			"secure"		: false,
+			"name"			: "M. Mic Oli",
+			"sendFolder"	: "INBOX.Sent",
+			"draftFolder"	: "INBOX.Draft",
+			"smtp"			: {
+				"host"		: "mail.home.micoli.org",
+				"port"		: 25,
+				"secure"	: false,
+				"user"		: "micoli@home.micoli.org",
+				"pass"		: "micoli"
+			}
 		}
 	}
 }
