@@ -3,6 +3,7 @@
 	"title"			: "RedmineDesktop",
 	"loaderImg"		: "skins/4/resources/125.png",
 	"liburl"		: "/qdlib",
+	"plugins"		: ["qd\\listeners\\mailboxImap_listeners"],
 	"settingPanels"	: [{
 		"path"			: "{{QD_PATH_MODULES}}modules/qd/"	,
 		"search"		: "desk.modules.qd"					,

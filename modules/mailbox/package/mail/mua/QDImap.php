@@ -41,8 +41,12 @@ class QDImap{
 	 * @return QDImap_ZIMBRA
 	 */
 	static function getInstance($accounts,$subLib){
-		$className='qd\mail\mua\imapConnector\QDImap_'.$subLib;
+		$className=self::getInstanceClass($subLib);
 		return new $className($accounts);
+	}
+
+	static function getInstanceClass($subLib){
+		return 'qd\mail\mua\imapConnector\QDImap_'.$subLib;
 	}
 
 	function __construct ($accounts){//NET_IMAP

@@ -28,9 +28,9 @@ class svcMailboxImap{
 	}
 
 	protected function setAccount($account,$withCheck=false){
-		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.pre',new \QDEvent($account));
+		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.pre',new \CEP_Event($account));
 		$this->imapProxy->setAccount($account,$withCheck);
-		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.post',new \QDEvent($account));
+		$this->dispatcher->dispatch($this->dispatchKey.'.setAccount.post',new \CEP_Event($account));
 	}
 
 	public function __construct(){
@@ -41,7 +41,7 @@ class svcMailboxImap{
 
 		\QDOrm::addConnection('extmailbox', new \QDPDO($GLOBALS['conf']['qddb']['connection'], $GLOBALS['conf']['qddb']['username'], $GLOBALS['conf']['qddb']['password']));
 
-		$this->imapProxy = QDImap::getInstance($GLOBALS['conf']['imapMailBox']['accounts'],$this->proxyClass);
+		$this->imapProxy = new \CEP_Interceptor(QDImap::getInstance($GLOBALS['conf']['imapMailBox']['accounts'],$this->proxyClass),isset($GLOBALS['conf']['app']['plugins'])?$GLOBALS['conf']['app']['plugins']:null);
 
 		$this->imapProxy->setCache($GLOBALS['conf']['imapMailBox']['tmp']);
 		$this->imapProxy->setDBCacheObject(new MMG_MAIL_MESSAGE());
