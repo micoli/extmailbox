@@ -114,5 +114,151 @@
             }
         ],
         "description": "PHPMailer is a full-featured email creation and transfer class for PHP"
+    },
+    {
+        "name": "pclzip/pclzip",
+        "version": "2.8.2",
+        "version_normalized": "2.8.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ivanlanin/pclzip.git",
+            "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ivanlanin/pclzip/zipball/19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+            "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+            "shasum": ""
+        },
+        "time": "2014-06-05 11:42:24",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "pclzip.lib.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "Vincent Blavet"
+            }
+        ],
+        "description": "A PHP library that offers compression and extraction functions for Zip formatted archives",
+        "homepage": "http://www.phpconcept.net/pclzip",
+        "keywords": [
+            "php",
+            "zip"
+        ]
+    },
+    {
+        "name": "qd/utils",
+        "version": "0.8.0",
+        "version_normalized": "0.8.0.0",
+        "dist": {
+            "type": "path",
+            "url": "../../../qd_utils/",
+            "reference": "5ef2a607a9586a1803c12923b43486619c1da112",
+            "shasum": null
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.3|~5.0"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "qd\\": "src"
+            }
+        },
+        "autoload-dev": {
+            "psr-4": {
+                "qd\\": "tests"
+            }
+        },
+        "scripts": {
+            "test": [
+                "phpunit"
+            ]
+        },
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "micoli",
+                "email": "olivier@micoli.org",
+                "role": "Lead Developer"
+            }
+        ],
+        "description": "miscellaneous extensions for qd library",
+        "homepage": "https://github.com/micoli",
+        "keywords": [
+            "arrays",
+            "tools",
+            "xml"
+        ]
+    },
+    {
+        "name": "qd/mail",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "dist": {
+            "type": "path",
+            "url": "../../../qd_mail/",
+            "reference": "1d80784ce7395c23be8c2df0dc2a13a30feb9811",
+            "shasum": null
+        },
+        "require": {
+            "pclzip/pclzip": "2.8.2",
+            "php": ">=5.3",
+            "qd/utils": "0.8"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.3|~5.0"
+        },
+        "type": "package",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "qd\\": "src"
+            }
+        },
+        "autoload-dev": {
+            "psr-4": {
+                "qd\\": "tests"
+            }
+        },
+        "scripts": {
+            "test": [
+                "phpunit"
+            ]
+        },
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "micoli",
+                "email": "olivier@micoli.org",
+                "role": "Lead Developer"
+            }
+        ],
+        "description": "mail services to acces imap and zimbra server",
+        "homepage": "https://github.com/micoli",
+        "keywords": [
+            "imap",
+            "mail",
+            "mua",
+            "smtp",
+            "soap",
+            "zimbra"
+        ]
     }
 ]

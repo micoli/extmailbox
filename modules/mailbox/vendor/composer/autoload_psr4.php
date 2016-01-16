@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'qd\\' => array($baseDir . '/package'),
+    'qd\\' => array($baseDir . '/package', $vendorDir . '/qd/utils/src', $vendorDir . '/qd/mail/src'),
 );

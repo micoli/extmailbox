@@ -4,14 +4,27 @@
 		"name": "o.michaud",
 		"email": "olivier@micoli.org"
 	}],
+	"repositories": [{
+		"_type": "vcs",
+		"_url":  "https://github.com/micoli/qd_utils.git",
+		"type": "path",
+		"url":  "../../../qd_utils/"
+	},{
+		"_type": "vcs",
+		"_url":  "https://github.com/micoli/qd_mail.git",
+		"type": "path",
+		"url":  "../../../qd_mail/"
+	}],
 	"require": {
+		"qd/utils":"0.8.0",
+		"qd/mail":"1.0.0",
 		"swiftmailer/swiftmailer" : "5.1.0",
 		"phpmailer/phpmailer" : "5.2.14"
 	},
+	"minimum-stability": "dev",
 	"autoload" : {
 		"psr-4" : {
 			"qd\\": "package"
-		},
-		"classmap": ["package/misc"]
+		}
 	}
 }
