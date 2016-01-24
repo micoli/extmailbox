@@ -188,6 +188,17 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		that.addMailEditor(record);
 	},
 
+	openDraft			: function(mailRecord){
+		var that = this;
+		var record = new (Ext.getCmp(that.mailGridId)).mailStore.recordType({
+			subject		: mailRecord.get('subject'),
+			to			: mailRecord.get('from'),
+			cc			: mailRecord.get('cc'),
+			bcc			: mailRecord.get('bcc')
+		});
+		that.addMailEditor(record);
+	},
+
 	mailForward				: function(mailRecord){
 		var that = this;
 		var record = new (Ext.getCmp(that.mailGridId)).mailStore.recordType({
@@ -207,7 +218,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 		var currentAccount		= Ext.getCmp(that.accountComboId).getValue();
 		var currentAccountIdx	= that.accountStore.find('account',currentAccount);
 
-		mailRecord.set('message_id',uuid.v4());
+		mailRecord.set('message_id',"TMP-"+uuid.v4());
 
 		panel = new Ext.eu.sm.MailBox.MailEditor({
 			id					: that.id+'-new-'+mailRecord.get('message_id'),
@@ -311,6 +322,15 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			})
 		});
 
+		that.isInSpecialFolder = function(type,record){
+			switch (type.toLowerCase()){
+				case 'draft' :
+					return ((""+record.get('folder')).toLowerCase()=="drafts");
+				break;
+			}
+			return false;
+		};
+
 		var folderConfig = {
 			xtype			: 'mailbox.foldertree',
 			id				: that.folderTreeId,
@@ -340,8 +360,14 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 						var tree = Ext.getCmp(that.folderTreeId);
 						tree.account = that.account;
 						tree.loader.load(tree.getRootNode());
-//open new mail editor
+
+						//open new mail editor
+						//open new mail editor
+						//open new mail editor
 						Ext.getCmp(that.newEmailButtonId).handler();
+						//open new mail editor
+						//open new mail editor
+						//open new mail editor
 					}
 				}
 			},'->',{
@@ -379,8 +405,15 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			mailboxContainer: that,
 			searchOpened	: false,
 			listeners		: Ext.apply({
+				recorddblclick	: function(record){
+					if(that.isInSpecialFolder('draft',record)){
+						that.openDraft(record);
+					}
+				},
 				recordclick	: function(record){
-					that.viewMail(record);
+					if(!that.isInSpecialFolder('draft',record)){
+						that.viewMail(record);
+					}
 				},
 				seenclick	: function(record){
 					that.mailChangeFlag(record,'seen');
@@ -399,7 +432,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 			},
 			items			: [{
 				staticTab		: true,
-				title			: 'Home',
+				title			: '[*]',
 				border			: false,
 				frame			: true,
 				html			: '<H1></H1>'
@@ -457,7 +490,7 @@ Ext.eu.sm.MailBox.Mailbox = Ext.extend(Ext.Panel, {
 				border	: false,
 				items	: [Ext.apply(gridConfig,{
 					region			: that.mailLayout=='threePane'?'west':'north',
-					height			: 100,
+					height			: 300,
 					width			: 700
 				}),Ext.apply(tabViewConfig,{
 					region: 'center'

@@ -15,7 +15,7 @@ Ext.ux.form.HtmlEditor.EnsureContent = Ext.extend(Ext.util.Observable, {
 	},
 	onInit: function(){
 		var that = this;
-		Ext.EventManager.on(that.cmp.getDoc(), {
+		Ext.EventManager.on(that.cmp.getEditorBody(), {
 			'keyup': function(){
 				that.check(false);
 			},
@@ -32,8 +32,8 @@ Ext.ux.form.HtmlEditor.EnsureContent = Ext.extend(Ext.util.Observable, {
 		that.cmp.fireEvent.call(that.cmp,'contentChange', that.cmp);
 		for(var selector in config){
 			if(config.hasOwnProperty(selector)){
-				var alls=Ext.query(selector,that.cmp.getDoc());
-				//console.log(alls[0],selector,that.cmp.getDoc());
+				var alls=Ext.query(selector,that.cmp.getEditorBody());
+				//console.log(that.cmp,alls[0],selector,that.cmp.getEditorBody());
 				if(alls.length>0 && (!alls[0].hasChildNodes() || force)){
 					alls[0].innerHTML = ((typeof config[selector])=='function')?config[selector]():config[selector];
 					//console.log(alls[0].innerHTML);

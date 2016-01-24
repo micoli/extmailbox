@@ -1,12 +1,133 @@
 Ext.ns('Ext.eu.sm.MailBox');
 
-Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
-	mailboxContainer		: null,
+Ext.eu.sm.MailBox.MailView = Ext.extend(Ext.eu.sm.MailBox.MailPanel, {
 	record					: null,
-	fullRecord				: null,
-	loading					: true,
 	folderTreeId			: null,
 	displayInlineComponents	: true,
+
+	updateRecord	: function (record){
+		var that = this;
+		that.record = record;
+		Ext.getCmp(that.flagButtonId['seen']).toggle((that.record.get('seen')==1));
+	},
+
+	displayHeader		: function (datas){
+		var that = this;
+		var headerPanel		= Ext.getCmp(that.headerPanelId);
+
+		headerPanel.tpl.overwrite(headerPanel.body, {
+			subject	: datas.subject,
+			date	: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))(datas.date),
+			from	: Ext.eu.sm.MailBox.utils.formatRecipient(datas.from,'<li>','</li>','&nbsp;'),
+			to		: Ext.eu.sm.MailBox.utils.formatRecipient(datas.to	,'<li>','</li>','&nbsp;'),
+			cc		: Ext.eu.sm.MailBox.utils.formatRecipient(datas.cc	,'<li>','</li>','&nbsp;')
+		});
+
+		Ext.getCmp(that.headerPanelId).el.select('ul.mailview-recipients>li').each(function(element){
+			element.addListener("contextmenu",function(e){
+				that.mailboxContainer.recipientContextMenu(e.target.textContent).show(e.target);
+				e.stopEvent();
+			});
+		});
+	},
+
+	loadMail				: function (){
+		var that = this;
+		var contentPanel	= Ext.getCmp(that.contentId);
+
+		contentPanel.body.mask();
+		that.displayHeader({
+			subject	: that.record.get('subject'	),
+			date	: that.record.get('date'	),
+			from	: that.record.get('from'	),
+			to		: that.record.get('to'		),
+			cc		: that.record.get('cc'		)
+		});
+
+		Ext.Ajax.request({
+			url		: 'proxy.php',
+			params	: {
+				exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageContent',
+				account			: that.record.get('account'),
+				folder			: that.record.get('folder'),
+				message_no		: that.record.get('uid')
+			},
+			success	: function(data){
+				that.loading = false;
+				that.fullRecord	= JSON.parse(data.responseText);
+				that.displayHeader({
+					subject	: that.fullRecord.header.subject,
+					date	: that.fullRecord.header.date	,
+					from	: that.fullRecord.header.from	,
+					to		: that.fullRecord.header.to		,
+					cc		: that.fullRecord.header.cc
+				});
+
+				var bodyHtml = that.fullRecord.body;
+				contentPanel.getFrameBody().innerHTML=bodyHtml;
+				if(that.fullRecord.hasInlineComponents){
+					var but = Ext.getCmp(that.displayInlineComponentsId);
+					if(but.pressed){
+						that.displayInlineComponentsFunc();
+					}else{
+						but.show();
+					}
+				}
+				if(that.fullRecord.type=='calendar'){
+					//var sourceResult = ICAL.parse(that.fullRecord.body);
+					//console.log(sourceResult);
+					//sourceResult.toSource()
+					Ext.getCmp(that.contentId).getFrameBody().innerHTML=that.JSONsyntaxHighlight(that.fullRecord.body);
+				}
+
+				that.partStore.removeAll();
+				var attachmentPanel = Ext.getCmp(that.attachmentPanelId);
+				var nb = 0;
+				var contentAttachment = Ext.getCmp(that.contentAttachmentId);
+				contentAttachment.inlineStore.removeAll();
+				if(that.fullRecord.attachments && that.fullRecord.attachments.length>0){
+					for(k in that.fullRecord.attachments){
+						if(parseInt(k)==k){
+							var attach = that.fullRecord.attachments[k]
+							that.partStore.addSorted(new that.partStore.recordType(Ext.apply(attach,{
+								account		: that.record.get('account'),
+								folder		: that.record.get('folder'),
+								message_no	: that.record.get('uid'),
+								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(attach.size)
+							})));
+							nb++;
+							if(attach.hfilename!='all'){
+								contentAttachment.addRecord({
+									'idx'	: nb,
+									'url'	: attach.attachUrlLink,
+									'suburl': undefined,
+									'name'	: attach.hfilename
+								});
+							}
+						}
+					}
+					attachmentPanel.setHeight(attachmentPanel.minHeight);
+					attachmentPanel.show();
+				}else{
+					Ext.getCmp(that.attachmentViewerButtonId).setDisabled(true);
+					attachmentPanel.hide();
+				}
+
+				that.fireEvent('postLoadMessageContent',that);
+
+				new Ext.util.DelayedTask(function(){
+					that.doLayout();
+					if(contentPanel && contentPanel.body){
+						contentPanel.body.unmask();
+					}
+				}, this).delay(100);
+			},
+			failure	: function(){
+				alert(Ext.eu.sm.MailBox.i18n._('failure on retreiving mail'));
+			}
+		});
+	},
+
 	initComponent			: function(){
 		var that = this;
 		that.contentId					= Ext.id();
@@ -165,13 +286,16 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 			pressed		: false,
 			hidden		: false,
 			handler		: function (cmp){
-				Ext.getCmp(that.contentCardId).getLayout().setActiveItem(cmp.pressed?that.contentAttachmentId:that.contentId)
+				Ext.getCmp(that.contentCardId).getLayout().setActiveItem(cmp.pressed?1:0);//that.contentAttachmentId:that.contentId)
+				//Ext.getCmp(that.contentCardId).doLayout();
+				//that.doLayout();
 			}
 		},{
 			text		: Ext.eu.sm.MailBox.i18n._('Header'),
 			iconCls		: 'mail_open_alt',
 			handler		: function(){
 				if(!that.loading){
+					var panelId=Ext.id();
 					new Ext.Window({
 						title		: Ext.eu.sm.MailBox.i18n._('Raw headers'),
 						height		: 350,
@@ -184,11 +308,32 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 						plain		: true,
 						closable	: true,
 						layout		: 'fit',
-						items		:{
-							xtype		: 'textarea',
-							value		: that.fullRecord.rawheader
+						items		: {
+							xtype		: 'panel',
+							autoScroll	: true,
+							id			: panelId,
+							html		: ''
 						}
-					}).show();
+					}).show(null,function(){
+						var xtpl = new Ext.XTemplate(
+							'<ul>',
+								'<tpl for="rawheader">',
+									'<li>',
+									'<b>[{k}]</b>',
+										'<ul>',
+											'<tpl for="v">',
+												'<li>**<code>{[this.htmlEscape(values)]}</code></li>',
+											'</tpl>',
+										'</ul>',
+									'</li>',
+								'</tpl>',
+							'</ul>',{
+							htmlEscape : function(str){
+								return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g,"<br>");
+							}
+						});
+						xtpl.overwrite(Ext.getCmp(panelId).body, that.fullRecord);
+					});
 				}else{
 					alert(Ext.eu.sm.MailBox.i18n._('Still loading email body'));
 				}
@@ -354,135 +499,10 @@ Ext.eu.sm.MailBox.MailView= Ext.extend(Ext.Panel, {
 		Ext.eu.sm.MailBox.MailView.superclass.initComponent.call(this);
 	},
 
-	updateRecord	: function (record){
-		var that = this;
-		that.record = record;
-		Ext.getCmp(that.flagButtonId['seen']).toggle((that.record.get('seen')==1));
-	},
-
-	JSONsyntaxHighlight	: function (json) {
-		if (typeof json != 'string') {
-			json = JSON.stringify(json, undefined, 2);
-		}
-		json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-		return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-			var cls = 'number';
-			if (/^"/.test(match)) {
-				if (/:$/.test(match)) {
-					cls = 'key';
-				} else {
-					cls = 'string';
-				}
-			} else if (/true|false/.test(match)) {
-				cls = 'boolean';
-			} else if (/null/.test(match)) {
-				cls = 'null';
-			}
-			return '<pre><span class="' + cls + '">' + match + '</span></pre>';
-		});
-	},
 	displayInlineComponentsFunc : function(){
 		var that = this;
 		var contentPanel = Ext.getCmp(that.contentId);
 		contentPanel.getFrameBody().innerHTML=contentPanel.getFrameBody().innerHTML.replace(/src\=\"\" data\-imgsafesrc\=/g,' src=');
-	},
-	loadMail		: function (){
-		var that = this;
-		var headerPanel		= Ext.getCmp(that.headerPanelId);
-		var contentPanel	= Ext.getCmp(that.contentId);
-
-		contentPanel.body.mask();
-
-		headerPanel.tpl.overwrite(headerPanel.body, {
-			subject	: that.record.get('subject'),
-			date	: Ext.util.Format.dateRenderer(Ext.eu.sm.MailBox.i18n._('d/m/Y H:i:s'))(that.record.get('date')),
-			from	: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('from'	),'<li>','</li>','&nbsp;'),
-			to		: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('to'		),'<li>','</li>','&nbsp;'),
-			cc		: Ext.eu.sm.MailBox.utils.formatRecipient(that.record.get('cc'		),'<li>','</li>','&nbsp;')
-		});
-
-		Ext.getCmp(that.headerPanelId).el.select('ul.mailview-recipients>li').each(function(element){
-			element.addListener("contextmenu",function(e){
-				that.mailboxContainer.recipientContextMenu(e.target.textContent).show(e.target);
-				e.stopEvent();
-			});
-		});
-
-		Ext.Ajax.request({
-			url		: 'proxy.php',
-			params	: {
-				exw_action		: that.mailboxContainer.svcImapPrefixClass+'getMessageContent',
-				account			: that.record.get('account'),
-				folder			: that.record.get('folder'),
-				message_no		: that.record.get('uid')
-			},
-			success	: function(data){
-				that.loading = false;
-				that.fullRecord	= JSON.parse(data.responseText);
-				var bodyHtml = that.fullRecord.body;
-				contentPanel.getFrameBody().innerHTML=bodyHtml;
-				if(that.fullRecord.hasInlineComponents){
-					var but = Ext.getCmp(that.displayInlineComponentsId);
-					if(but.pressed){
-						that.displayInlineComponentsFunc();
-					}else{
-						but.show();
-					}
-				}
-				if(that.fullRecord.type=='calendar'){
-					//var sourceResult = ICAL.parse(that.fullRecord.body);
-					//console.log(sourceResult);
-					//sourceResult.toSource()
-					Ext.getCmp(that.contentId).getFrameBody().innerHTML=that.JSONsyntaxHighlight(that.fullRecord.body);
-				}
-
-				that.partStore.removeAll();
-				var attachmentPanel = Ext.getCmp(that.attachmentPanelId);
-				var nb = 0;
-				var contentAttachment = Ext.getCmp(that.contentAttachmentId);
-				contentAttachment.inlineStore.removeAll();
-				if(that.fullRecord.attachments && that.fullRecord.attachments.length>0){
-					for(k in that.fullRecord.attachments){
-						if(parseInt(k)==k){
-							var attach = that.fullRecord.attachments[k]
-							that.partStore.addSorted(new that.partStore.recordType(Ext.apply(attach,{
-								account		: that.record.get('account'),
-								folder		: that.record.get('folder'),
-								message_no	: that.record.get('uid'),
-								hsize		: Ext.eu.sm.MailBox.utils.humanFileSize(attach.size)
-							})));
-							nb++;
-							if(attach.hfilename!='all'){
-								contentAttachment.addRecord({
-									'idx'	: nb,
-									'url'	: attach.attachUrlLink,
-									'suburl': undefined,
-									'name'	: attach.hfilename
-								});
-							}
-						}
-					}
-					attachmentPanel.setHeight(attachmentPanel.minHeight);
-					attachmentPanel.show();
-				}else{
-					Ext.getCmp(that.attachmentViewerButtonId).setDisabled(true);
-					attachmentPanel.hide();
-				}
-
-				that.fireEvent('postLoadMessageContent',that);
-
-				new Ext.util.DelayedTask(function(){
-					that.doLayout();
-					if(contentPanel && contentPanel.body){
-						contentPanel.body.unmask();
-					}
-				}, this).delay(100);
-				//}
-			},
-			failure	: function(){
-				alert(Ext.eu.sm.MailBox.i18n._('failure on retreiving mail'));
-			}
-		});
 	}
 });
 Ext.reg('mailbox.mailview',Ext.eu.sm.MailBox.MailView);

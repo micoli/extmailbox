@@ -14,7 +14,7 @@ Ext.onReady(function(){
 			region			: 'center',
 			xtype			: 'mailbox.mailbox',
 			svcImapClass	: 'MailboxImapZimbra',
-			svcSmtpClass	: 'MailboxSmtpExt',
+			svcSmtpClass	: 'MailboxSmtpZimbra',
 			//mailLayout		: 'threePane',
 			mailLayout		: 'gridOnNorth',//threePane || gridOnNorth
 			gridConfig		: {
@@ -41,7 +41,7 @@ Ext.onReady(function(){
 			},
 			viewMailConfig	: {
 				displayInlineComponents	: false,
-				customListeners		:{
+				customListeners		: {
 					postLoadMessageContent	: function(container){
 						Ext.getCmp(container.customToolbarClientButtonId).setText('client '+container.record.get('user_data_01'));
 					},

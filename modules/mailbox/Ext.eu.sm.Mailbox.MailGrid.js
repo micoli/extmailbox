@@ -41,6 +41,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 		that.mainGridId			= Ext.id();
 		that.menuGroupId		= Ext.id();
 		that.pagingToolbarId	= Ext.id();
+		that.txtGridFilterId	= Ext.id();
 		that.dateInit			= Date.now();
 		that.mailStore			= new Ext.data.GroupingStore({
 			remoteSort			: true,
@@ -132,7 +133,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 			}
 		},'-',{
 			xtype			: 'label',
-			text			: ' multiple '
+			text			: ' Multiple : '
 		},{
 			xtype			: 'checkbox',
 			handler			: function(){
@@ -207,7 +208,42 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					checked	: that.groupColumn=='seen'
 				}]
 			}
-		},'->',{
+		},'-','->','-',{
+			xtype			: 'label',
+			text			: 'Filter : '
+		},{
+			xtype			: 'textfield',
+			id				: that.txtGridFilterId,
+			enableKeyEvents	: true,
+			listeners		: {
+				'keyup'		: function(cmp,e) {
+					var val = cmp.getValue();
+					if(e.getCharCode() == 13){
+						that.mailStore.clearFilter();
+
+						if((''+val)!=''){
+							var aVals=val.toLowerCase().replace(/\s\s+/g,' ').split(' ');
+							that.mailStore.filterBy(function(record,id){
+								var result = true;
+								var longs  = JSON
+									.stringify(record.data,true				,' ')
+									.replace(/ \"(.+?)\"\:/g				,' ')
+									.replace(/(\n|null|\{|\}|\[|\]|\"|\,)/g	,' ')
+									.replace(/\s\s+/g						,' ')
+									.toLowerCase();
+								console.log(longs);
+								Ext.each(aVals,function(t){
+									if(longs.indexOf(t) == -1){
+										result=false;
+									}
+								});
+								return result;
+							});
+						}
+					}
+				}
+			}
+		},'-',{
 			xtype			: 'button',
 			text			: Ext.eu.sm.MailBox.i18n._('Criterias'),
 			enableToggle	: true,
@@ -336,6 +372,18 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 					}
 				}),
 				listeners			: {
+					celldblclick	: function(grid,rowIndex,columnIndex,event){
+						var record = grid.getStore().getAt(rowIndex);
+						switch (grid.getColumnModel().getDataIndex(columnIndex)){
+							case 'seen':
+								that.fireEvent('seenclick',record);
+							break;
+							default:
+								that.fireEvent('recorddblclick',record);
+							break;
+						}
+					},
+
 					cellclick	: function(grid,rowIndex,columnIndex,event){
 						var record = grid.getStore().getAt(rowIndex);
 						switch (grid.getColumnModel().getDataIndex(columnIndex)){
@@ -354,6 +402,7 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 						new Ext.menu.Menu({
 							items			: [{
 								text			: 'move',
+								disabled		: that.mailboxContainer.isInSpecialFolder('draft',record),
 								menu			: Ext.getCmp(that.mailboxContainer.folderTreeId).createFolderMenu({
 									disabledId	: that.folder,
 									listeners	: {
@@ -372,18 +421,21 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 								})
 							},'-',{
 								text			: Ext.eu.sm.MailBox.i18n._('Reply'),
+								disabled		: that.mailboxContainer.isInSpecialFolder('draft',record),
 								iconCls			: 'mail_closed_alt',
 								handler			: function(){
 									that.mailboxContainer.mailReply(record);
 								}
 							},{
 								text			: Ext.eu.sm.MailBox.i18n._('Reply to All'),
+								disabled		: that.mailboxContainer.isInSpecialFolder('draft',record),
 								iconCls			: 'mail_closed_alt_add',
 								handler			: function(){
 									that.mailboxContainer.mailReplyToAll(record);
 								}
 							},{
 								text			: Ext.eu.sm.MailBox.i18n._('Forward'),
+								disabled		: that.mailboxContainer.isInSpecialFolder('draft',record),
 								iconCls			: 'mail_closed_send',
 								handler			: function(){
 									that.mailboxContainer.mailForward(record);
@@ -396,13 +448,13 @@ Ext.eu.sm.MailBox.MailGrid = Ext.extend(Ext.Panel, {
 								}
 							},'-',{
 								text			: Ext.eu.sm.MailBox.i18n._('Set Seen'),
-								disabled		: record.get('seen'),
+								disabled		: record.get('seen') || that.mailboxContainer.isInSpecialFolder('draft',record),
 								handler			: function(){
 									that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,record,'seen');
 								}
 							},{
 								text			: Ext.eu.sm.MailBox.i18n._('set Unseen'),
-								disabled		: !record.get('seen'),
+								disabled		: !record.get('seen') || that.mailboxContainer.isInSpecialFolder('draft',record),
 								handler			: function(){
 									that.mailboxContainer.mailChangeFlag.call(that.mailboxContainer,record,'seen');
 								}
