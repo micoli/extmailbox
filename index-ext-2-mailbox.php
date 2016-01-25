@@ -3,10 +3,15 @@
 <html>
 	<head>
 		<title>Ext 2 sandbox mailbox</title>
+
+		<link rel="shortcut icon"	href="/favicon.ico" type="image/x-icon">
+		<link rel="icon"			href="/favicon.ico" type="image/x-icon">
+
 		<link rel="stylesheet" type="text/css"	href="<?php print EXT_ROOT?>/ext-2.2.1/release/resources/css/ext-all.css" />
 		<script type="text/javascript"			src ="<?php print EXT_ROOT?>/ext-2.2.1/release/adapter/ext/ext-base.js"></script>
 		<script type="text/javascript"			src ="<?php print EXT_ROOT?>/ext-2.2.1/release/ext-all-debug.js"></script>
 
+		<script type="text/javascript"			src ="libs/ext.plugins/lodash/lodash.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.ux.ManagedIFrame/Ext.ux.ManagedIFrame.js"></script>
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.grid.RowExpander/RowExpander.js"></script>
 
@@ -62,6 +67,7 @@
 		<script type="text/javascript"			src ="libs/ext.plugins/Ext.eu.attachedWindow/Ext.eu.attachedWindow.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailSelect.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.Mailbox.js"></script>
+		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailPanel.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailView.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.MailEditor.js"></script>
 		<script type="text/javascript"			src ="modules/mailbox/Ext.eu.sm.Mailbox.FolderTree.js"></script>

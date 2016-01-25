@@ -1,3 +1,5 @@
 /.externalToolBuilders
 /.settings
+/.project
+/.buildpath
 /modules/devHelper/vendor
